@@ -357,6 +357,7 @@ export default {
       })
 
       // 按钮事件绑定
+      // eslint-disable-next-line no-unused-vars
       _this.svg.selectAll(".action_edit").on("click", function (d) {
         _this.nodebuttonAction = 'EDIT';
       });
@@ -465,11 +466,6 @@ export default {
               .attr('font-size', 10)
         }
       })
-    },
-    // 按钮组事件绑定
-    bindEventButtonGroup() {
-      let _this = this
-
     },
     // 绘制节点
     drawNode(nodes) {
