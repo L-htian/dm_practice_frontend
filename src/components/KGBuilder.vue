@@ -6,7 +6,7 @@
   </div>
   <div class="svg-set-box clearfix">
     <div class="ctwh-dibmr">
-      <span>ÏÔÊ¾·¶Î§:</span>
+      <span>æ˜¾ç¤ºèŒƒå›´:</span>
       <a
           :key="index"
           v-for="(m, index) in pagesizelist"
@@ -19,17 +19,17 @@
       <ul class="toolbar">
         <li>
           <a href="javascript:;" @click="zoomIn">
-            <span><i class="el-icon-zoom-in"></i>·Å´ó</span>
+            <span><i class="el-icon-zoom-in"></i>æ”¾å¤§</span>
           </a>
         </li>
         <li>
           <a href="javascript:;" @click="zoomOut">
-            <span><i class="el-icon-zoom-out"></i>ËõĞ¡</span>
+            <span><i class="el-icon-zoom-out"></i>ç¼©å°</span>
           </a>
         </li>
         <li>
           <a href="javascript:;" @click="refresh">
-            <span><i class="el-icon-refresh-right"></i>»¹Ô­</span>
+            <span><i class="el-icon-refresh-right"></i>è¿˜åŸ</span>
           </a>
         </li>
         <li>
@@ -39,7 +39,7 @@
               href="javascript:;"
               @click="showFull"
           >
-            <span><i class="el-icon-full-screen"></i>È«ÆÁ</span>
+            <span><i class="el-icon-full-screen"></i>å…¨å±</span>
           </a>
           <a
               v-else
@@ -47,7 +47,7 @@
               href="javascript:;"
               @click="exitFullScreen"
           >
-            <span><i class="el-icon-full-screen"></i>ÍË³öÈ«ÆÁ</span>
+            <span><i class="el-icon-full-screen"></i>é€€å‡ºå…¨å±</span>
           </a>
         </li>
       </ul>
@@ -57,8 +57,8 @@
 
 <script>
 import axios from 'axios'
-import * as d3 from '../static/js/d3.v4.min'
-import $ from '../static/js/jquery.min'
+import * as d3 from 'd3'
+import $ from 'jquery'
 import '../static/js/index'
 
 export default {
@@ -67,30 +67,30 @@ export default {
   data() {
     return {
       theme: 0,
-      // ÊÇ·ñÕıÔÚ¼ÓÔØ
+      // æ˜¯å¦æ­£åœ¨åŠ è½½
       loading: false,
-      // ×é¼şµÄ¿í
+      // ç»„ä»¶çš„å®½
       width: 1000,
-      // ×é¼şµÄ³¤
+      // ç»„ä»¶çš„é•¿
       height: 800,
-      // Í¼ÈİÆ÷
+      // å›¾å®¹å™¨
       graphContainer: {},
-      // Ê¸Á¿Í¼
+      // çŸ¢é‡å›¾
       svg: {},
-      // Ëõ·ÅÉèÖÃ
+      // ç¼©æ”¾è®¾ç½®
       zoom: null,
       //
       arrowMarker: {},
-      // d3Á¦µ¼²¼¾ÖÉèÖÃ
+      // d3åŠ›å¯¼å¸ƒå±€è®¾ç½®
       simulation: {},
-      // ÊÇ·ñÈ«ÆÁ
+      // æ˜¯å¦å…¨å±
       isFullscreen: false,
       qaGraphNode: {},
       qaButtonGroup: {},
       qaGraphNodeText: {},
       qaGraphLink: {},
       qaGraphLinkText: {},
-      // ½ÚµãºÍÁ¬½Ó
+      // èŠ‚ç‚¹å’Œè¿æ¥
       graph: {
         nodes: [],
         links: [],
@@ -110,15 +110,15 @@ export default {
         {size: 500, isActive: true},
         {size: 1000, isActive: false},
       ],
-      // ½Úµã¹¤¾ßÀ¸µÄÄÚÈİ
+      // èŠ‚ç‚¹å·¥å…·æ çš„å†…å®¹
       toolbarData: [
-        {name: '±à¼­', value: 1, code: 'edit'},
-        {name: 'Õ¹¿ª', value: 1, code: 'more'},
-        {name: '×·¼Ó', value: 1, code: 'append'},
-        {name: 'Á¬Ïß', value: 1, code: 'link'},
-        {name: 'É¾³ı', value: 1, code: 'delete'},
+        {name: 'ç¼–è¾‘', value: 1, code: 'edit'},
+        {name: 'å±•å¼€', value: 1, code: 'more'},
+        {name: 'è¿½åŠ ', value: 1, code: 'append'},
+        {name: 'è¿çº¿', value: 1, code: 'link'},
+        {name: 'åˆ é™¤', value: 1, code: 'delete'},
       ],
-      // ÕıÔÚÑ¡ÖĞµÄ½ÚµãµÄid
+      // æ­£åœ¨é€‰ä¸­çš„èŠ‚ç‚¹çš„id
       selectId: 0,
       nodeRecordList: [],
       nodebuttonAction: '',
@@ -134,7 +134,7 @@ export default {
   },
   watch: {},
   methods: {
-    // ½ÚµãÊ¾Àı
+    // èŠ‚ç‚¹ç¤ºä¾‹
     openNode() {
       let _this = this
       let newNodes = [
@@ -143,7 +143,7 @@ export default {
           code: '27301111',
           parentCode: '273',
           grade: '2',
-          name: 'Èå¼Ò',
+          name: 'å„’å®¶',
           id: '4617858011',
         },
         {
@@ -151,7 +151,7 @@ export default {
           flag: '1',
           parentCode: '273',
           grade: '3',
-          name: '¹ÊÊÂéóÎÅ',
+          name: 'æ•…äº‹è½¶é—»',
           id: '2636501111',
         }
       ]
@@ -173,7 +173,7 @@ export default {
       _this.graph.links = _this.graph.links.concat(newShips)
       _this.updateGraph()
     },
-    // ³õÊ¼»¯Í¼ÈİÆ÷
+    // åˆå§‹åŒ–å›¾å®¹å™¨
     initGraphContainer() {
       this.graphContainer = d3.select('#grid')
       if (this.isFullscreen) {
@@ -190,18 +190,18 @@ export default {
       this.svg.attr('height', svgHeight)
       this.svg.attr('id', 'svg_index')
       this.svg.attr('preserveAspectRatio', 'xMidYMidmeet')
-      // d3Á¦µ¼²¼¾ÖÄ£ÄâÉèÖÃ³õÊ¼»¯
+      // d3åŠ›å¯¼å¸ƒå±€æ¨¡æ‹Ÿè®¾ç½®åˆå§‹åŒ–
       this.simulation = d3
           .forceSimulation()
-          .force('charge', d3.forceManyBody().strength(-1500)) // ½ÚµãÖ®¼äµÄÒıÁ¦
+          .force('charge', d3.forceManyBody().strength(-1500)) // èŠ‚ç‚¹ä¹‹é—´çš„å¼•åŠ›
           .force('link', d3.forceLink().distance(60).id(function (d) {
             return d.id
-          })) // ½ÚµãÖ®¼äµÄµ¯Á¦
-          .force('collide', d3.forceCollide().strength(-30)) // ½ÚµãÅö×²Á¦£¬·ÀÖ¹½ÚµãÖØµş
-          .force('center', d3.forceCenter(this.width / 2, this.height / 2)) // ÏòĞÄÁ¦£¬½ÚµãÎ§ÈÆÔÚÄ³Ò»µãÅÔ
-      // ÔªËØgÊÇÓÃÀ´×éºÏ¶ÔÏóµÄÈİÆ÷¡£Ìí¼Óµ½gÔªËØÉÏµÄ±ä»»»áÓ¦ÓÃµ½ÆäËùÓĞµÄ×ÓÔªËØÉÏ¡£
-      // Ìí¼Óµ½gÔªËØµÄÊôĞÔ»á±»ÆäËùÓĞµÄ×ÓÔªËØ¼Ì³Ğ¡£
-      // ´ËÍâ£¬gÔªËØÒ²¿ÉÒÔÓÃÀ´¶¨Òå¸´ÔÓµÄ¶ÔÏó£¬Ö®ºó¿ÉÒÔÍ¨¹ı<use>ÔªËØÀ´ÒıÓÃËüÃÇ¡£
+          })) // èŠ‚ç‚¹ä¹‹é—´çš„å¼¹åŠ›
+          .force('collide', d3.forceCollide().strength(-30)) // èŠ‚ç‚¹ç¢°æ’åŠ›ï¼Œé˜²æ­¢èŠ‚ç‚¹é‡å 
+          .force('center', d3.forceCenter(this.width / 2, this.height / 2)) // å‘å¿ƒåŠ›ï¼ŒèŠ‚ç‚¹å›´ç»•åœ¨æŸä¸€ç‚¹æ—
+      // å…ƒç´ gæ˜¯ç”¨æ¥ç»„åˆå¯¹è±¡çš„å®¹å™¨ã€‚æ·»åŠ åˆ°gå…ƒç´ ä¸Šçš„å˜æ¢ä¼šåº”ç”¨åˆ°å…¶æ‰€æœ‰çš„å­å…ƒç´ ä¸Šã€‚
+      // æ·»åŠ åˆ°gå…ƒç´ çš„å±æ€§ä¼šè¢«å…¶æ‰€æœ‰çš„å­å…ƒç´ ç»§æ‰¿ã€‚
+      // æ­¤å¤–ï¼Œgå…ƒç´ ä¹Ÿå¯ä»¥ç”¨æ¥å®šä¹‰å¤æ‚çš„å¯¹è±¡ï¼Œä¹‹åå¯ä»¥é€šè¿‡<use>å…ƒç´ æ¥å¼•ç”¨å®ƒä»¬ã€‚
       this.qaGraphLink = this.svg.append('g').attr('class', 'line')
       this.qaGraphLinkText = this.svg.append('g').attr('class', 'linetext')
       this.qaGraphNode = this.svg.append('g').attr('class', 'node')
@@ -211,8 +211,8 @@ export default {
         d3.selectAll('.buttongroup').classed('notshow', true)
       }, false)
     },
-    // ³õÊ¼»¯ÖªÊ¶Í¼Æ×
-    // todo ´«Èë²»Í¬µÄÍ¼ÎÄ¼ş£¬Âß¼­·ÅÈëapi
+    // åˆå§‹åŒ–çŸ¥è¯†å›¾è°±
+    // todo ä¼ å…¥ä¸åŒçš„å›¾æ–‡ä»¶ï¼Œé€»è¾‘æ”¾å…¥api
     initGraph() {
       let _this = this
       axios.get('/static/data.json', {}).then(function (response) {
@@ -222,7 +222,7 @@ export default {
         _this.updateGraph()
       })
     },
-    // ÖÆ×÷¼ıÍ·
+    // åˆ¶ä½œç®­å¤´
     addArrowMaker() {
       let arrowMarker = this.svg
           .append('marker')
@@ -234,33 +234,33 @@ export default {
           .attr('refX', '38')
           .attr('refY', '6')
           .attr('orient', 'auto')
-      let arrowPath = 'M2,2 L10,6 L2,10 L6,6 L2,2' // ¶¨Òå¼ıÍ·ĞÎ×´
+      let arrowPath = 'M2,2 L10,6 L2,10 L6,6 L2,2' // å®šä¹‰ç®­å¤´å½¢çŠ¶
       arrowMarker.append('path').attr('d', arrowPath).attr('fill', '#ccc')
     },
-    // ¸üĞÂÖªÊ¶Í¼Æ×
+    // æ›´æ–°çŸ¥è¯†å›¾è°±
     updateGraph() {
       let _this = this
       let data = _this.formatData()
       let nodes = data.nodes
       let links = data.links
-      // ¶¨Òå°´Å¥×éÒıÓÃµÄuseÔªËØ
+      // å®šä¹‰æŒ‰é’®ç»„å¼•ç”¨çš„useå…ƒç´ 
       _this.drawToolButton()
-      // ¸üĞÂ½Úµã
+      // æ›´æ–°èŠ‚ç‚¹
       let graphNode = _this.drawNode(nodes)
-      // ¸üĞÂ½ÚµãÎÄ×Ö
+      // æ›´æ–°èŠ‚ç‚¹æ–‡å­—
       let graphNodeText = _this.drawNodeText(nodes)
-      // ¸üĞÂ°´Å¥×é
+      // æ›´æ–°æŒ‰é’®ç»„
       let graphNodeButtonGroup = _this.drawButtonGroup(nodes)
-      // ¸üĞÂÁ¬Ïß
+      // æ›´æ–°è¿çº¿
       let graphLink = _this.drawLink(links)
-      // ¸üĞÂÁ¬ÏßÎÄ×Ö
+      // æ›´æ–°è¿çº¿æ–‡å­—
       let graphLinkText = _this.drawLinkText(links)
 
-      // tick Ã¿µ½Ò»¸öÊ±¿Ì¶¼ĞèÒªµ÷ÓÃ·½·¨À´¸üĞÂ½ÚµãµÄ×ø±ê
+      // tick æ¯åˆ°ä¸€ä¸ªæ—¶åˆ»éƒ½éœ€è¦è°ƒç”¨æ–¹æ³•æ¥æ›´æ–°èŠ‚ç‚¹çš„åæ ‡
       _this.simulation.nodes(nodes).alphaTarget(0).alphaDecay(0.05).on('tick', ticked)
 
       function ticked() {
-        // ¸üĞÂÁ¬Ïß×ø±ê
+        // æ›´æ–°è¿çº¿åæ ‡
         graphLink
             .attr('x1', function (d) {
               return d.source.x
@@ -274,7 +274,7 @@ export default {
             .attr('y2', function (d) {
               return d.target.y
             })
-        // Ë¢ĞÂÁ¬½ÓÏßÉÏµÄÎÄ×ÖÎ»ÖÃ
+        // åˆ·æ–°è¿æ¥çº¿ä¸Šçš„æ–‡å­—ä½ç½®
         graphLinkText
             .attr('x', function (d) {
               if (!d.source.x || !d.target.x) return 0
@@ -286,7 +286,7 @@ export default {
               let y = (parseFloat(d.source.y) + parseFloat(d.target.y)) / 2
               return y
             })
-        // ¸üĞÂ½Úµã×ø±ê
+        // æ›´æ–°èŠ‚ç‚¹åæ ‡
         graphNode
             .attr('cx', function (d) {
               return d.x
@@ -294,7 +294,7 @@ export default {
             .attr('cy', function (d) {
               return d.y
             })
-        // ¸üĞÂ½Úµã²Ù×÷°´Å¥×é×ø±ê
+        // æ›´æ–°èŠ‚ç‚¹æ“ä½œæŒ‰é’®ç»„åæ ‡
         graphNodeButtonGroup
             .attr('cx', function (d) {
               return d.x
@@ -305,7 +305,7 @@ export default {
             .attr('transform', function (d) {
               return 'translate(' + d.x + ',' + d.y + ') scale(1)'
             })
-        // ¸üĞÂÎÄ×Ö×ø±ê
+        // æ›´æ–°æ–‡å­—åæ ‡
         graphNodeText
             .attr('x', function (d) {
               return d.x
@@ -318,14 +318,14 @@ export default {
       _this.simulation.force('link').links(links)
       _this.simulation.force('center', d3.forceCenter(_this.width / 2, _this.height / 2))
       _this.simulation.alpha(1).restart()
-      // Êó±ê¹öÂÖËõ·Å
-      // ×îĞ¡Ëõ·Åµ½0.1£¬×î´óÀ©´óµ½4±¶
+      // é¼ æ ‡æ»šè½®ç¼©æ”¾
+      // æœ€å°ç¼©æ”¾åˆ°0.1ï¼Œæœ€å¤§æ‰©å¤§åˆ°4å€
       _this.zoom = d3.zoom().scaleExtent([0.1, 4]).on('zoom', _this.zoomed)
       _this.svg.call(_this.zoom)
-      // todo ¾²Ö¹Ë«»÷Ëõ·Å
+      // todo é™æ­¢åŒå‡»ç¼©æ”¾
       _this.svg.on('dblclick.zoom', null)
 
-      // Îª°´Å¥×é°ó¶¨ÊÂ¼ş
+      // ä¸ºæŒ‰é’®ç»„ç»‘å®šäº‹ä»¶
       _this.svg.selectAll(".buttongroup").on('click', function (d, i) {
         if (_this.nodebuttonAction) {
           switch (_this.nodebuttonAction) {
@@ -356,7 +356,7 @@ export default {
         }
       })
 
-      // °´Å¥ÊÂ¼ş°ó¶¨
+      // æŒ‰é’®äº‹ä»¶ç»‘å®š
       _this.svg.selectAll(".action_edit").on("click", function (d) {
         _this.nodebuttonAction = 'EDIT';
       });
@@ -373,14 +373,14 @@ export default {
         _this.nodebuttonAction = 'DELETE';
       });
     },
-    // ½¨Á¢ÊµÌå£¬ÊµÌå£¬¹ØÏµÈıÔª×é
-    // ·µ»ØËùÓĞ½ÚµãĞÅÏ¢ºÍËùÓĞÈıÔª×é
+    // å»ºç«‹å®ä½“ï¼Œå®ä½“ï¼Œå…³ç³»ä¸‰å…ƒç»„
+    // è¿”å›æ‰€æœ‰èŠ‚ç‚¹ä¿¡æ¯å’Œæ‰€æœ‰ä¸‰å…ƒç»„
     formatData() {
       let _this = this
       let links = _this.graph.links
       let nodes = _this.graph.nodes
       nodes.forEach(function (node) {
-        // ÈôÕâ¸öµãÊÇÖĞĞÄ½Úµã
+        // è‹¥è¿™ä¸ªç‚¹æ˜¯ä¸­å¿ƒèŠ‚ç‚¹
         if (node.center === 1 || node.center === '1') {
           node.fx = _this.width / 2
           node.fy = _this.height / 2
@@ -405,54 +405,54 @@ export default {
       data.links = resLinks
       return data
     },
-    // ÖÆ×÷½Úµã¹¤¾ßÀ¸
+    // åˆ¶ä½œèŠ‚ç‚¹å·¥å…·æ 
     drawToolButton() {
       let _this = this
-      // É¾³ıËùÓĞÎª½Úµã×Ô¶¨ÒåµÄ°´Å¥×é
+      // åˆ é™¤æ‰€æœ‰ä¸ºèŠ‚ç‚¹è‡ªå®šä¹‰çš„æŒ‰é’®ç»„
       d3.selectAll('svg >defs').remove()
       let nodes = _this.graph.nodes
-      // ÖÆ×÷±ıĞÍ¹¤¾ßÀ¸£¬ÕâÀïµÄpieÊÇÒ»¸öº¯Êı
+      // åˆ¶ä½œé¥¼å‹å·¥å…·æ ï¼Œè¿™é‡Œçš„pieæ˜¯ä¸€ä¸ªå‡½æ•°
       let pie = d3.pie().value(function (d) {
         return d.value
       })
       let piedata = pie(_this.toolbarData)
       let nodeButtonGroup = _this.svg.append('defs')
-      // ½Úµã°ë¾¶Êı×é
+      // èŠ‚ç‚¹åŠå¾„æ•°ç»„
       let nodeRArray = []
       nodes.forEach(function (node) {
         if (!node.r) {
           node.r = _this.defaultR
         }
-        // °´°ë¾¶·Ö±ğ¶¨ÒåÃ¿ÖÖ°´Å¥×éµÄÍ¼±ê
+        // æŒ‰åŠå¾„åˆ†åˆ«å®šä¹‰æ¯ç§æŒ‰é’®ç»„çš„å›¾æ ‡
         if (nodeRArray.indexOf(node.r) == -1) {
           nodeRArray.push(node.r)
-          // ÎªÃ¿ÖÖ°ë¾¶¶¨ÖÆÒ»ÖÖ°´Å¥×éºÍÒ»¸öÌØÓĞµÄid
+          // ä¸ºæ¯ç§åŠå¾„å®šåˆ¶ä¸€ç§æŒ‰é’®ç»„å’Œä¸€ä¸ªç‰¹æœ‰çš„id
           let nodebtg = nodeButtonGroup.append('g').attr('id', 'out_circle_' + node.r)
           let buttonGroupEnter = nodebtg
               .selectAll('.buttongroup')
               .data(piedata)
               .enter()
-              // ÕâÀï´«ÈëµÄ²ÎÊıÊµ¼ÊÉÏÊÇËü±¾Éí£¬ÏÂÍ¬
+              // è¿™é‡Œä¼ å…¥çš„å‚æ•°å®é™…ä¸Šæ˜¯å®ƒæœ¬èº«ï¼Œä¸‹åŒ
               .append('g').attr('class', function (d) {
                 return 'action_' + d.data.code
               })
-          // »æÖÆÍ¬ĞÄÔ²
+          // ç»˜åˆ¶åŒå¿ƒåœ†
           let arc = d3.arc().innerRadius(node.r).outerRadius(node.r + 30)
-          // ÉèÖÃ¹¤¾ßÀ¸ĞÎ×´
+          // è®¾ç½®å·¥å…·æ å½¢çŠ¶
           buttonGroupEnter
               .append('path')
-              // dÊôĞÔ´ú±íÂ·¾¶£¬Í¨¹ıÃèÊöÂ·¾¶»æÖÆ³ösvgÍ¼Ïñ
+              // då±æ€§ä»£è¡¨è·¯å¾„ï¼Œé€šè¿‡æè¿°è·¯å¾„ç»˜åˆ¶å‡ºsvgå›¾åƒ
               .attr('d', function (d) {
                 return arc(d)
               })
-              .attr('fill', '#E6A23C') // Ìî³ä
+              .attr('fill', '#E6A23C') // å¡«å……
               .style('opacity', 0.6)
-              .attr('stroke', '#6CB7ED') // ÂÖÀª
+              .attr('stroke', '#6CB7ED') // è½®å»“
               .attr('stroke-width', 1)
-          // ÉèÖÃ¹¤¾ßÀ¸ÎÄ×Ö
+          // è®¾ç½®å·¥å…·æ æ–‡å­—
           buttonGroupEnter
               .append('text')
-              // transform ´ú±í±ä»»
+              // transform ä»£è¡¨å˜æ¢
               .attr('transform', function (d) {
                 return 'translate(' + arc.centroid(d) + ')'
               })
@@ -466,64 +466,64 @@ export default {
         }
       })
     },
-    // °´Å¥×éÊÂ¼ş°ó¶¨
+    // æŒ‰é’®ç»„äº‹ä»¶ç»‘å®š
     bindEventButtonGroup() {
       let _this = this
 
     },
-    // »æÖÆ½Úµã
+    // ç»˜åˆ¶èŠ‚ç‚¹
     drawNode(nodes) {
       let _this = this
       let node = _this.qaGraphNode.selectAll('circle').data(nodes, function (d) {
         return d.id
       })
-      // ¹ØÓÚd3 data() enter() exit()µÄ½âÊÍ£¬¼ûhttps://www.cnblogs.com/jarvisniu/p/4734605.html
+      // å…³äºd3 data() enter() exit()çš„è§£é‡Šï¼Œè§https://www.cnblogs.com/jarvisniu/p/4734605.html
       node.exit().remove()
       let nodeEnter = node.enter().append('circle')
-      // °ó¶¨µ¥»÷ÊÂ¼ş
+      // ç»‘å®šå•å‡»äº‹ä»¶
       nodeEnter.on('click', function (d) {
-        console.log('µ¥»÷½Úµã£¬id£º' + d.id)
+        console.log('å•å‡»èŠ‚ç‚¹ï¼Œidï¼š' + d.id)
         _this.selectId = d.id
         let out_buttongroup_id = '.out_buttongroup_' + d.id
         let selectBtnGroup = d3.select(out_buttongroup_id)._groups[0][0]
-        // µ¥»÷½Úµã£¬¸Ä±ä½Úµã¹¤¾ßÀ¸ÏÔÊ¾×´Ì¬
+        // å•å‡»èŠ‚ç‚¹ï¼Œæ”¹å˜èŠ‚ç‚¹å·¥å…·æ æ˜¾ç¤ºçŠ¶æ€
         if (selectBtnGroup.classList.contains('notshow')) {
           _this.svg.selectAll('.buttongroup').classed('notshow', true)
-          // classed ÊÇÎª¶ÔÏóÔö¼ÓclassÊôĞÔ¶ø²»¸²¸ÇÔ­ÓĞclassÊôĞÔ
+          // classed æ˜¯ä¸ºå¯¹è±¡å¢åŠ classå±æ€§è€Œä¸è¦†ç›–åŸæœ‰classå±æ€§
           d3.select(out_buttongroup_id).classed('notshow', false)
         } else {
           d3.select(out_buttongroup_id).classed('notshow', true)
         }
-        // ×èÖ¹ÊÂ¼şÃ°Åİµ½¸¸ÔªËØ
+        // é˜»æ­¢äº‹ä»¶å†’æ³¡åˆ°çˆ¶å…ƒç´ 
         event.stopPropagation()
       })
-      // todo °ó¶¨Ë«»÷ÊÂ¼ş£¬ÔİÊ±Îª¿Õ
+      // todo ç»‘å®šåŒå‡»äº‹ä»¶ï¼Œæš‚æ—¶ä¸ºç©º
       nodeEnter.on('dblclick', function (d) {
-        console.log('Ë«»÷½Úµã£¬id£º' + d.id)
+        console.log('åŒå‡»èŠ‚ç‚¹ï¼Œidï¼š' + d.id)
         event.stopPropagation()
       })
-      // °ó¶¨Êó±êÒÆÈëÊÂ¼ş
+      // ç»‘å®šé¼ æ ‡ç§»å…¥äº‹ä»¶
       nodeEnter.on('mouseenter', function (d) {
-        console.log('Êó±êÒÆÈë½Úµã£¬id£º' + d.id)
-        // ¸Ä±ä±ßÔµ¿í¶È
+        console.log('é¼ æ ‡ç§»å…¥èŠ‚ç‚¹ï¼Œidï¼š' + d.id)
+        // æ”¹å˜è¾¹ç¼˜å®½åº¦
         d3.select(this).style('stroke-width', '6')
         event.stopPropagation()
       })
-      // °ó¶¨Êó±êÒÆ³öÊÂ¼ş
+      // ç»‘å®šé¼ æ ‡ç§»å‡ºäº‹ä»¶
       nodeEnter.on('mouseleave', function (d) {
-        console.log('Êó±êÒÆ³ö½Úµã£¬id£º' + d.id)
+        console.log('é¼ æ ‡ç§»å‡ºèŠ‚ç‚¹ï¼Œidï¼š' + d.id)
         d3.select(this).style('stroke-width', '2')
-        // ÆäËû½ÚµãÏÔÊ¾
+        // å…¶ä»–èŠ‚ç‚¹æ˜¾ç¤º
         d3.select('.node').style('fill-opacity', 1)
         d3.select('.nodetext').style('fill-opacity', 1)
         d3.selectAll('.line').style('stroke-opacity', 1)
         d3.selectAll('.linetext').style('fill-opacity', 1)
       })
-      // °ó¶¨Êó±êĞüÍ£ÊÂ¼ş
+      // ç»‘å®šé¼ æ ‡æ‚¬åœäº‹ä»¶
       nodeEnter.on('mouseover', function (d) {
-        // Òş²ØËùÓĞ½Úµã
+        // éšè—æ‰€æœ‰èŠ‚ç‚¹
         d3.selectAll('.node').style('fill-opacity', 0.1)
-        // Ñ°ÕÒÏà¹Ø½Úµã
+        // å¯»æ‰¾ç›¸å…³èŠ‚ç‚¹
         let relatedNodeIds = []
         let relatedNodes = _this.graph.links.filter(function (n) {
           return n.sourceId == d.id || n.targetId == d.id
@@ -532,7 +532,7 @@ export default {
           relatedNodeIds.push(i.sourceId)
           relatedNodeIds.push(i.targetId)
         })
-        // ÏÔÊ¾Ïà¹Ø½Úµã
+        // æ˜¾ç¤ºç›¸å…³èŠ‚ç‚¹
         _this.qaGraphNode
             .selectAll('circle')
             .style('fill-opacity', function (node) {
@@ -540,9 +540,9 @@ export default {
                 return 1.0
               }
             })
-        // Òş²ØËùÓĞ½ÚµãÎÄ×Ö
+        // éšè—æ‰€æœ‰èŠ‚ç‚¹æ–‡å­—
         d3.selectAll('.nodetext').style('fill-opacity', 0.1)
-        // ÏÔÊ¾Ïà¹Ø½ÚµãÎÄ×Ö
+        // æ˜¾ç¤ºç›¸å…³èŠ‚ç‚¹æ–‡å­—
         _this.qaGraphNodeText
             .selectAll('text')
             .style('fill-opacity', function (node) {
@@ -550,9 +550,9 @@ export default {
                 return 1.0
               }
             })
-        // Òş²ØËùÓĞÁ¬Ïß
+        // éšè—æ‰€æœ‰è¿çº¿
         d3.selectAll('.line').style('stroke-opacity', 0.1)
-        // ÏÔÊ¾Ïà¹ØÁ¬Ïß
+        // æ˜¾ç¤ºç›¸å…³è¿çº¿
         _this.qaGraphLink
             .selectAll('line')
             .style('stroke-opacity', function (node) {
@@ -560,9 +560,9 @@ export default {
                 return 1.0
               }
             })
-        // Òş²ØËùÓĞÁ¬ÏßÎÄ×Ö
+        // éšè—æ‰€æœ‰è¿çº¿æ–‡å­—
         d3.selectAll('.linetext').style('fill-opacity', 0.1)
-        // ÏÔÊ¾Ïà¹ØÁ¬ÏßÎÄ×Ö
+        // æ˜¾ç¤ºç›¸å…³è¿çº¿æ–‡å­—
         _this.qaGraphLinkText
             .selectAll('.linetext')
             .style('fill-opacity', function (node) {
@@ -571,19 +571,19 @@ export default {
               }
             })
       })
-      // °ó¶¨ÍÏ¶¯ÊÂ¼ş
+      // ç»‘å®šæ‹–åŠ¨äº‹ä»¶
       nodeEnter.call(
           d3.drag()
               .on('start', _this.dragStart())
               .on('drag', _this.dragging())
               .on('end', _this.dragEnd())
       )
-      // Ê¹ÓÃmergeº¯Êı¶ÔnodeµÄÊı¾İ½øĞĞ¸üĞÂ
-      // ÕâÀï¸üĞÂµÄÊÇtitle
+      // ä½¿ç”¨mergeå‡½æ•°å¯¹nodeçš„æ•°æ®è¿›è¡Œæ›´æ–°
+      // è¿™é‡Œæ›´æ–°çš„æ˜¯title
       node = nodeEnter.merge(node).text(function (d) {
         return d.name
       })
-      // todo ÉèÖÃ½ÚµãÑùÊ½
+      // todo è®¾ç½®èŠ‚ç‚¹æ ·å¼
       node.style('stroke', function (d) {
         if (d.color) return d.color
         else return '#A4ED6C'
@@ -596,14 +596,14 @@ export default {
       node.attr('fill', function (d, i) {
         if (d.imgsrc) {
           let img_w = 77, img_h = 80
-          // SVG ÔÊĞíÎÒÃÇ¶¨ÒåÒÔºóĞèÒªÖØ¸´Ê¹ÓÃµÄÍ¼ĞÎÔªËØ¡£
-          // ½¨Òé°ÑËùÓĞĞèÒªÔÙ´ÎÊ¹ÓÃµÄÒıÓÃÔªËØ¶¨ÒåÔÚdefsÔªËØÀïÃæ¡£
-          // ÕâÑù×ö¿ÉÒÔÔö¼ÓSVGÄÚÈİµÄÒ×¶ÁĞÔºÍ¿É·ÃÎÊĞÔ¡£
-          // ÔÚdefsÔªËØÖĞ¶¨ÒåµÄÍ¼ĞÎÔªËØ²»»áÖ±½Ó³ÊÏÖ¡£
-          // Äã¿ÉÒÔÔÚÄãµÄÊÓ¿ÚµÄÈÎÒâµØ·½ÀûÓÃ <use>ÔªËØ³ÊÏÖÕâĞ©ÔªËØ¡£
+          // SVG å…è®¸æˆ‘ä»¬å®šä¹‰ä»¥åéœ€è¦é‡å¤ä½¿ç”¨çš„å›¾å½¢å…ƒç´ ã€‚
+          // å»ºè®®æŠŠæ‰€æœ‰éœ€è¦å†æ¬¡ä½¿ç”¨çš„å¼•ç”¨å…ƒç´ å®šä¹‰åœ¨defså…ƒç´ é‡Œé¢ã€‚
+          // è¿™æ ·åšå¯ä»¥å¢åŠ SVGå†…å®¹çš„æ˜“è¯»æ€§å’Œå¯è®¿é—®æ€§ã€‚
+          // åœ¨defså…ƒç´ ä¸­å®šä¹‰çš„å›¾å½¢å…ƒç´ ä¸ä¼šç›´æ¥å‘ˆç°ã€‚
+          // ä½ å¯ä»¥åœ¨ä½ çš„è§†å£çš„ä»»æ„åœ°æ–¹åˆ©ç”¨ <use>å…ƒç´ å‘ˆç°è¿™äº›å…ƒç´ ã€‚
           let defs = d3.selectAll('svg >defs')
-          // <pattern>ÊÇSVGµÄÒ»¸öÍ¼°¸Ìî³ä±êÇ©
-          // ¿ÉÒÔÔÚpatternÖĞ¶¨ÒåºÃÍ¼°¸£¬È»ºóÍ¨¹ıidÒıÓÃÀ´¶ÔÄ³¸öÍ¼ĞÎ½øĞĞÌî³ä
+          // <pattern>æ˜¯SVGçš„ä¸€ä¸ªå›¾æ¡ˆå¡«å……æ ‡ç­¾
+          // å¯ä»¥åœ¨patternä¸­å®šä¹‰å¥½å›¾æ¡ˆï¼Œç„¶åé€šè¿‡idå¼•ç”¨æ¥å¯¹æŸä¸ªå›¾å½¢è¿›è¡Œå¡«å……
           let cat_pattern = defs
               .append('pattern')
               .attr('id', 'catpattern' + i)
@@ -622,14 +622,14 @@ export default {
           else return _this.colorList[2]
         }
       })
-      // Îª½ÚµãÉèÖÃtitleÊôĞÔ
+      // ä¸ºèŠ‚ç‚¹è®¾ç½®titleå±æ€§
       node.append('title').text(function (d) {
         if (d.name) return d.name
         else return ''
       })
       return node
     },
-    // »æÖÆ½ÚµãÉÏµÄÎÄ×Ö
+    // ç»˜åˆ¶èŠ‚ç‚¹ä¸Šçš„æ–‡å­—
     drawNodeText(nodes) {
       let _this = this
       let nodeText = _this.qaGraphNodeText.selectAll('text')
@@ -647,14 +647,14 @@ export default {
       nodeText = nodeTextEnter.merge(nodeText).text(function (d) {
         return d.name
       })
-      // todo ÉèÖÃ½ÚµãÎÄ×ÖÑùÊ½
+      // todo è®¾ç½®èŠ‚ç‚¹æ–‡å­—æ ·å¼
       nodeText
           .style('fill', function () {
             return '#333'
           })
           .attr('class', 'nodetext')
           .attr('dy', '3.6em')
-          .attr('font-family', 'ËÎÌå')
+          .attr('font-family', 'å®‹ä½“')
           .attr('font-size', 16)
           .attr('text-anchor', 'middle')
           .text(function (d) {
@@ -677,7 +677,7 @@ export default {
       nodeButton.exit().remove()
       let nodeButtonEnter = nodeButton
           .enter()
-          .append('use') // ÎªÃ¿¸ö½Úµã×éÌí¼ÓÒ»¸ö use ×ÓÔªËØ
+          .append('use') // ä¸ºæ¯ä¸ªèŠ‚ç‚¹ç»„æ·»åŠ ä¸€ä¸ª use å­å…ƒç´ 
           .attr('r', function (d) {
             if (!d.r) {
               return _this.defaultR
@@ -692,7 +692,7 @@ export default {
               return '#out_circle_' + _this.defaultR
             }
             return '#out_circle_' + d.r
-          }) //  Ö¸¶¨ use ÒıÓÃµÄÄÚÈİ
+          }) //  æŒ‡å®š use å¼•ç”¨çš„å†…å®¹
           .attr('class', function (d) {
             return 'buttongroup out_buttongroup_' + d.id
           })
@@ -700,14 +700,14 @@ export default {
       nodeButton = nodeButtonEnter.merge(nodeButton)
       return nodeButton
     },
-    // »æÖÆ¹ØÏµ
+    // ç»˜åˆ¶å…³ç³»
     drawLink(links) {
       let _this = this
       let link = this.qaGraphLink.selectAll('line').data(links, function (d) {
         return d.id
       })
       link.exit().remove()
-      // todo ÉèÖÃ¹ØÏµÑùÊ½
+      // todo è®¾ç½®å…³ç³»æ ·å¼
       let linkEnter = link
           .enter()
           .append('line')
@@ -716,11 +716,11 @@ export default {
           .attr('stroke', function () {
             return _this.colorList[2]
           })
-          .attr('marker-end', 'url(#arrow)') // ¼ıÍ·
+          .attr('marker-end', 'url(#arrow)') // ç®­å¤´
       link = linkEnter.merge(link)
       return link
     },
-    // »æÖÆ¹ØÏµÉÏµÄÎÄ×Ö
+    // ç»˜åˆ¶å…³ç³»ä¸Šçš„æ–‡å­—
     drawLinkText(links) {
       let _this = this
       let linkText = _this.qaGraphLinkText
@@ -729,7 +729,7 @@ export default {
             return d.id
           })
       linkText.exit().remove()
-      // todo ÉèÖÃ¹ØÏµÎÄ×ÖÑùÊ½
+      // todo è®¾ç½®å…³ç³»æ–‡å­—æ ·å¼
       let linkTextEnter = linkText
           .enter()
           .append('text')
@@ -758,7 +758,7 @@ export default {
       d.fx = d3.event.x
       d.fy = d3.event.y
     },
-    // ¹öÂÖzoomÊÂ¼ş
+    // æ»šè½®zoomäº‹ä»¶
     zoomed() {
       d3.selectAll('.node').attr('transform', d3.event.transform)
       d3.selectAll('.nodetext text').attr('transform', d3.event.transform)
@@ -766,10 +766,10 @@ export default {
       d3.selectAll('.linetext text').attr('transform', d3.event.transform)
       d3.selectAll('.nodebutton').attr('transform', d3.event.transform)
     },
-    // µã»÷zoomÊÂ¼ş
+    // ç‚¹å‡»zoomäº‹ä»¶
     zoomClick(direction) {
       let _this = this
-      // Ã¿´Î·Å´ó/ËõĞ¡µÄ³Ì¶È
+      // æ¯æ¬¡æ”¾å¤§/ç¼©å°çš„ç¨‹åº¦
       let factor = 0.2
       let targetZoom = 1
       let extent = _this.zoom.scaleExtent()
@@ -777,20 +777,20 @@ export default {
       if (targetZoom < extent[0] || targetZoom > extent[1]) return false
       _this.zoom.scaleBy(_this.svg, targetZoom)
     },
-    // ·Å´ó
+    // æ”¾å¤§
     zoomIn() {
       this.zoomClick(1)
     },
-    // ËõĞ¡
+    // ç¼©å°
     zoomOut() {
       this.zoomClick(-1)
     },
-    // ¸´Ô­
+    // å¤åŸ
     refresh() {
-      // zoomIdentityÊÇËõ·ÅÖĞĞÄµã
+      // zoomIdentityæ˜¯ç¼©æ”¾ä¸­å¿ƒç‚¹
       this.svg.call(this.zoom.transform, d3.zoomIdentity)
     },
-    // È«ÆÁ
+    // å…¨å±
     showFull() {
       this.isFullscreen = !this.isFullscreen
       let full = document.getElementById('kg_container')
@@ -817,33 +817,33 @@ export default {
         element.msRequestFullscreen()
       }
     },
-    // ÒÔÏÂÊÇ°´Å¥×éÊÂ¼ş·½·¨£¬ĞèÒªÊ¹ÓÃµ½api
+    // ä»¥ä¸‹æ˜¯æŒ‰é’®ç»„äº‹ä»¶æ–¹æ³•ï¼Œéœ€è¦ä½¿ç”¨åˆ°api
 
-    // »ñÈ¡¸ü¶à½ÚµãÊÂ¼ş
+    // è·å–æ›´å¤šèŠ‚ç‚¹äº‹ä»¶
     getMoreNode() {
       // todo
     },
-    // É¾³ı½Úµã¼°Ïà¹ØÁªÏµ
+    // åˆ é™¤èŠ‚ç‚¹åŠç›¸å…³è”ç³»
     deleteNode() {
       // todo
     },
-    // Ìí¼Ó½Úµã
+    // æ·»åŠ èŠ‚ç‚¹
     createNode(){
       // todo
     },
-    // É¾³ıÁªÏµ
+    // åˆ é™¤è”ç³»
     deleteLink(){
       // todo
     },
-    // Ìí¼ÓÁªÏµ
+    // æ·»åŠ è”ç³»
     createLink() {
       // todo
     },
-    // ¸ü¸Ä½ÚµãÃû³Æ
+    // æ›´æ”¹èŠ‚ç‚¹åç§°
     updateNodeName(){
       // todo
     },
-    // ¸ü¸Ä¹ØÏµÃû³Æ
+    // æ›´æ”¹å…³ç³»åç§°
     updateLinkName(){
       // todo
     },
