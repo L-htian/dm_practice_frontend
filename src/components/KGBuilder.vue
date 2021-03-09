@@ -57,7 +57,7 @@
 
 <script>
 import axios from 'axios'
-import * as d3 from 'd3'
+import * as d3 from '../static/js/d3.v4.min'
 import $ from 'jquery'
 import '../static/js/index'
 
