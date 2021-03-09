@@ -19,7 +19,7 @@ const routes = [
 
 const createRouter = () => new VueRouter({
     mode: 'history',
-    base: 'kojima-coin',
+    base: '/kojima-coin/',
     routes: routes
 })
 
