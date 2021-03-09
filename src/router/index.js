@@ -6,7 +6,8 @@ const routes = [
     {
         path: '/',
         name: 'index',
-        component: () => import('@/view/index'),
+        // todo 更改
+        component: () => import('@/App'),
         children:[
             {
                 path: '/KGEditor',
