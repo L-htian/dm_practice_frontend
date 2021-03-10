@@ -2,15 +2,21 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
+
 const routes = [
     {
         path: '/',
-        name: 'index',
-        // todo 更改
+        name: 'app',
         component: () => import('@/App'),
-        children:[
+        redirect: '/index',
+        children: [
             {
-                path: '/KGEditor',
+                path: 'index',
+                name: 'index',
+                component: () => import('@/view/index'),
+            },
+            {
+                path: 'KGEditor',
                 name: 'KGEditor',
                 component: () => import('@/view/KGEditor')
             }
@@ -20,11 +26,16 @@ const routes = [
 
 const createRouter = () => new VueRouter({
     mode: 'history',
-    base: '/kojima-coin/',
+    base: process.env.BASE_URL,
     routes: routes
 })
 
 const router = createRouter()
+
+const VueRouterPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(to){
+    return VueRouterPush.call(this, to).catch(err => err)
+}
 
 // reset router
 export function resetRouter() {
