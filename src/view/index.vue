@@ -3,9 +3,7 @@
     <img alt="Vue logo" src="../assets/logo.png">
     <h1>Kojima Coin</h1>
     <div>
-      <a-button type="primary" @click="jumpToEditor()">
-        打开编辑器
-      </a-button>
+
     </div>
   </div>
 </template>

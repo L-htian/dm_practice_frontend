@@ -6,14 +6,18 @@
   </div>
   <div class="svg-set-box clearfix">
     <div class="ctwh-dibmr">
-      <span>显示范围:</span>
-      <a
-          :key="index"
-          v-for="(m, index) in pagesizelist"
-          @click="setmatchsize(m, this)"
-          href="javascript:void(0)"
-          :class="[m.isActive ? 'sd-active' : '', 'ss-d sd' + (index + 1)]"
-      ></a>
+      <ul class="toolbar">
+        <li>
+          <a href="javascript:;" @click="addOneNode">
+            <span><i class="el-icon-plus"></i>添加节点</span>
+          </a>
+        </li>
+        <li>
+          <a href="javascript:;">
+            <span><i class="el-icon-picture-outline"></i>保存为图片</span>
+          </a>
+        </li>
+      </ul>
     </div>
     <div class="ctwh-dibmr" style="float: right">
       <ul class="toolbar">
@@ -52,6 +56,30 @@
         </li>
       </ul>
     </div>
+    <el-dialog title="联系选项" :visible.sync="EditLinkDialogVisible">
+      <el-form>
+        <el-form-item label="id" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingLinkEntity.id"></el-input>
+        </el-form-item>
+        <el-form-item label="源节点id" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingLinkEntity.sourceId "></el-input>
+        </el-form-item>
+        <el-form-item label="目标节点id" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingLinkEntity.targetId"></el-input>
+        </el-form-item>
+        <el-form-item label="联系名" :label-width="formLabelWidth">
+          <el-input :disabled="false" v-model="EditingLinkEntity.name"></el-input>
+        </el-form-item>
+        <el-form-item label="联系线条颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingLinkEntity.color"></el-input>
+          <el-color-picker v-model="EditingLinkEntity.color"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="联系名颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingLinkEntity.textColor"></el-input>
+          <el-color-picker v-model="EditingLinkEntity.textColor"></el-color-picker>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -66,6 +94,39 @@ export default {
   props: ['pid'],
   data() {
     return {
+      formLabelWidth: "120px",
+      EditingLinkEntity: {
+        id: '',
+        sourceId: '',
+        targetId: '',
+        name: '',
+        color: '',
+        textColor: '',
+      },
+      EditingNodeEntity: {
+        id: '',
+        name: '',
+        color: '',
+        strokeColor: '',
+        textColor: '',
+      },
+      EditLinkDialogVisible: false,
+      EditNodeDialogVisible: false,
+      isAddingNode: false,
+      isEditingNode: false,
+      isDeletingLink: false,
+      txx: {},
+      tyy: {},
+      // 默认颜色
+      DefaultButtonGroupColor: '#E6A23C',
+      DefaultButtonGroupStrokeColor: '#fff',
+      DefaultButtonGroupTextColor: '#6CB7ED',
+      DefaultNodeStrokeColor: '#A4ED6C',
+      DefaultNodeTextColor: '#333',
+      DefaultNodeColor: '#ff8373',
+      DefaultLinkColor: '#a5ca34',
+      DefaultLinkActiveColor: '#ff9e9e',
+      DefaultLinkTextColor: '#875034',
       theme: 0,
       // 是否正在加载
       loading: false,
@@ -85,6 +146,7 @@ export default {
       simulation: {},
       // 是否全屏
       isFullscreen: false,
+      // svg图形对象
       qaGraphNode: {},
       qaButtonGroup: {},
       qaGraphNodeText: {},
@@ -95,26 +157,11 @@ export default {
         nodes: [],
         links: [],
       },
+      // 默认节点半径
       defaultR: 30,
-      colorList: [
-        '#ff8373',
-        '#f9c62c',
-        '#a5ca34',
-        '#6fce7a',
-        '#70d3bd',
-        '#ea91b0',
-      ],
-      pagesizelist: [
-        {size: 100, isActive: false},
-        {size: 300, isActive: false},
-        {size: 500, isActive: true},
-        {size: 1000, isActive: false},
-      ],
       // 节点工具栏的内容
       toolbarData: [
         {name: '编辑', value: 1, code: 'edit'},
-        {name: '展开', value: 1, code: 'more'},
-        {name: '追加', value: 1, code: 'append'},
         {name: '连线', value: 1, code: 'link'},
         {name: '删除', value: 1, code: 'delete'},
       ],
@@ -122,56 +169,41 @@ export default {
       selectId: 0,
       nodeRecordList: [],
       nodebuttonAction: '',
+      // 正在选择的节点id
+      selectnodeid: '',
+      // 正在选择的源节点id，联系用
+      selectsourcenodeid: '',
+      // 正在选择的目标节点id，联系用
+      selecttargetnodeid: '',
+      // 正在选择的联系id
+      selectrelationid: ''
     }
   },
   components: {},
   mounted() {
     this.initGraphContainer()
     this.addArrowMaker()
+    this.initJQueryEvents()
     this.initGraph()
   },
   created() {
   },
   watch: {},
   methods: {
-    // 节点示例
-    openNode() {
+    initJQueryEvents() {
       let _this = this
-      let newNodes = [
-        {
-          flag: '1',
-          code: '27301111',
-          parentCode: '273',
-          grade: '2',
-          name: '儒家',
-          id: '4617858011',
-        },
-        {
-          code: '273012222',
-          flag: '1',
-          parentCode: '273',
-          grade: '3',
-          name: '故事轶闻',
-          id: '2636501111',
-        }
-      ]
-      let newShips = [
-        {
-          sourceId: '273',
-          targetId: '2636501111',
-          name: '',
-          id: '91804213',
-        },
-        {
-          sourceId: '273',
-          targetId: '4617858011',
-          name: '',
-          id: '91804389'
-        }
-      ]
-      _this.graph.nodes = _this.graph.nodes.concat(newNodes)
-      _this.graph.links = _this.graph.links.concat(newShips)
-      _this.updateGraph()
+      $(function () {
+        $(".grid").bind("click", function (event) {
+          let cursor = document.getElementById("grid").style.cursor;
+          if (cursor == 'crosshair' && _this.isAddingNode) {
+            d3.select('.grid').style("cursor", "");
+            _this.txx = event.offsetX;
+            _this.tyy = event.offsetY;
+            _this.createNode();
+          }
+          event.preventDefault();
+        });
+      })
     },
     // 初始化图容器
     initGraphContainer() {
@@ -218,7 +250,7 @@ export default {
       axios.get('/static/data.json', {}).then(function (response) {
         let data = response.data
         _this.graph.nodes = data.node
-        _this.graph.links = data.relationships
+        _this.graph.links = data.relationship
         _this.updateGraph()
       })
     },
@@ -330,21 +362,13 @@ export default {
         if (_this.nodebuttonAction) {
           switch (_this.nodebuttonAction) {
             case "EDIT":
-              _this.isedit = true;
+              _this.isEditingNode = true;
               _this.propactiveName = 'propedit';
               _this.txx = d.x;
               _this.tyy = d.y;
               break;
-            case "MORE":
-              _this.getMoreNode();
-              break;
-            case "APPEND":
-              _this.operatetype = 2;
-              _this.isbatchcreate = true;
-              _this.isedit = false;
-              break;
             case "LINK":
-              _this.isaddlink = true;
+              _this.isAddinglink = true;
               _this.selectsourcenodeid = d.id;
               break;
             case "DELETE":
@@ -357,15 +381,8 @@ export default {
       })
 
       // 按钮事件绑定
-      // eslint-disable-next-line no-unused-vars
       _this.svg.selectAll(".action_edit").on("click", function (d) {
         _this.nodebuttonAction = 'EDIT';
-      });
-      _this.svg.selectAll(".action_more").on("click", function (d) {
-        _this.nodebuttonAction = 'MORE';
-      });
-      _this.svg.selectAll(".action_append").on("click", function (d) {
-        _this.nodebuttonAction = 'APPEND';
       });
       _this.svg.selectAll(".action_link").on("click", function (d) {
         _this.nodebuttonAction = 'LINK';
@@ -381,13 +398,10 @@ export default {
       let links = _this.graph.links
       let nodes = _this.graph.nodes
       nodes.forEach(function (node) {
-        // 若这个点是中心节点
-        if (node.center === 1 || node.center === '1') {
-          node.fx = _this.width / 2
-          node.fy = _this.height / 2
-        }
         if (typeof node.fx === 'undefined' || node.fx === '') node.fx = null
         if (typeof node.fy === 'undefined' || node.fy === '') node.fy = null
+        if (typeof node.fx === 'string') node.fx = parseFloat(node.fx)
+        if (typeof node.fy === 'string') node.fy = parseFloat(node.fy)
       })
       let resLinks = []
       links.forEach(function (link) {
@@ -446,9 +460,9 @@ export default {
               .attr('d', function (d) {
                 return arc(d)
               })
-              .attr('fill', '#E6A23C') // 填充
+              .attr('fill', _this.DefaultButtonGroupColor) // 填充
               .style('opacity', 0.6)
-              .attr('stroke', '#6CB7ED') // 轮廓
+              .attr('stroke', _this.DefaultButtonGroupStrokeColor) // 轮廓
               .attr('stroke-width', 1)
           // 设置工具栏文字
           buttonGroupEnter
@@ -461,7 +475,7 @@ export default {
               .text(function (d) {
                 return d.data.name
               }).style('fill', function () {
-            return '#fff'
+            return _this.DefaultButtonGroupTextColor
           })
               .attr('font-size', 10)
         }
@@ -479,7 +493,6 @@ export default {
       // 绑定单击事件
       nodeEnter.on('click', function (d) {
         console.log('单击节点，id：' + d.id)
-        _this.selectId = d.id
         let out_buttongroup_id = '.out_buttongroup_' + d.id
         let selectBtnGroup = d3.select(out_buttongroup_id)._groups[0][0]
         // 单击节点，改变节点工具栏显示状态
@@ -489,6 +502,16 @@ export default {
           d3.select(out_buttongroup_id).classed('notshow', false)
         } else {
           d3.select(out_buttongroup_id).classed('notshow', true)
+        }
+        // 如果正在添加联系
+        if (_this.isAddinglink) {
+          _this.selecttargetnodeid = d.id
+          if (_this.selectsourcenodeid === _this.selecttargetnodeid) {
+            event.stopPropagation()
+            return
+          }
+          _this.createLink()
+          d.fixed = false
         }
         // 阻止事件冒泡到父元素
         event.stopPropagation()
@@ -579,49 +602,24 @@ export default {
       node = nodeEnter.merge(node).text(function (d) {
         return d.name
       })
-      // todo 设置节点样式
+      // 设置节点样式
       node.style('stroke', function (d) {
-        if (d.color) return d.color
-        else return '#A4ED6C'
+        if (d.strokeColor) return d.strokeColor
+        else return _this.DefaultNodeStrokeColor
       })
       node.style('stroke-opacity', 0.6)
       node.attr('r', function (d) {
         if (d.r) return d.r
-        else return d.index === 0 ? 28 : 20
+        else return _this.defaultR
       })
       node.attr('fill', function (d, i) {
-        if (d.imgsrc) {
-          let img_w = 77, img_h = 80
-          // SVG 允许我们定义以后需要重复使用的图形元素。
-          // 建议把所有需要再次使用的引用元素定义在defs元素里面。
-          // 这样做可以增加SVG内容的易读性和可访问性。
-          // 在defs元素中定义的图形元素不会直接呈现。
-          // 你可以在你的视口的任意地方利用 <use>元素呈现这些元素。
-          let defs = d3.selectAll('svg >defs')
-          // <pattern>是SVG的一个图案填充标签
-          // 可以在pattern中定义好图案，然后通过id引用来对某个图形进行填充
-          let cat_pattern = defs
-              .append('pattern')
-              .attr('id', 'catpattern' + i)
-              .attr('height', 1)
-              .attr('width', 1)
-          cat_pattern
-              .append('image')
-              .attr('x', -(img_w / 2 - d.r))
-              .attr('y', -(img_h / 2 - d.r))
-              .attr('width', img_w)
-              .attr('height', img_h)
-              .attr('xlink:href', d.imgsrc)
-          return 'url(#catpattern' + i + ')'
-        } else {
-          if (d.cur === '1') return _this.colorList[0]
-          else return _this.colorList[2]
-        }
+        if (d.color) return d.color
+        else return _this.DefaultNodeColor
       })
       // 为节点设置title属性
       node.append('title').text(function (d) {
         if (d.name) return d.name
-        else return ''
+        else return '节点'
       })
       return node
     },
@@ -643,14 +641,15 @@ export default {
       nodeText = nodeTextEnter.merge(nodeText).text(function (d) {
         return d.name
       })
-      // todo 设置节点文字样式
+      // 设置节点文字样式
       nodeText
-          .style('fill', function () {
-            return '#333'
+          .style('fill', function (d) {
+            if (d.textColor) return d.textColor
+            else return _this.DefaultNodeTextColor
           })
           .attr('class', 'nodetext')
           .attr('dy', '3.6em')
-          .attr('font-family', '宋体')
+          .attr('font-family', 'Microsoft YaHei')
           .attr('font-size', 16)
           .attr('text-anchor', 'middle')
           .text(function (d) {
@@ -658,7 +657,7 @@ export default {
           })
       nodeText.append('title').text(function (d) {
         if (d.name) return d.name
-        else return ''
+        else return '节点'
       })
       return nodeText
     },
@@ -703,16 +702,36 @@ export default {
         return d.id
       })
       link.exit().remove()
-      // todo 设置关系样式
+      // 设置关系样式
       let linkEnter = link
           .enter()
           .append('line')
           .attr('class', 'link')
           .attr('stroke-width', 1)
-          .attr('stroke', function () {
-            return _this.colorList[2]
+          .attr('stroke', function (d) {
+            if (d.color) return d.link.color
+            else return _this.DefaultLinkColor
           })
           .attr('marker-end', 'url(#arrow)') // 箭头
+      linkEnter.on('mouseenter', function () {
+        d3.select(this)
+            .style('stroke-width', '6')
+            .attr('stroke', _this.DefaultLinkActiveColor)
+            .attr('marker-end', 'url(#arrow)')
+      })
+      linkEnter.on('mouseleave', function () {
+        d3.select(this)
+            .style('stroke-width', '1')
+            .attr('stroke', function (d) {
+              if (d.color) return d.link.color
+              else return _this.DefaultLinkColor
+            })
+            .attr('marker-end', 'url(#arrow)')
+      })
+      linkEnter.on('dblclick', function (d) {
+        _this.selectrelationid = d.link.id
+        // todo 双击连线修改
+      })
       link = linkEnter.merge(link)
       return link
     },
@@ -725,18 +744,30 @@ export default {
             return d.id
           })
       linkText.exit().remove()
-      // todo 设置关系文字样式
+      // 设置关系文字样式
       let linkTextEnter = linkText
           .enter()
           .append('text')
           .attr('class', 'linetext')
-          .style('fill', '#875034')
-          .style('font-size', '10px')
+          .style('fill', function (d) {
+            if (d.link.textColor) return d.link.textColor
+            else return _this.DefaultLinkTextColor
+          })
+          .append('textPath')
+          .attr("startOffset", "50%")
+          .attr("text-anchor", "middle")
+          .attr("xlink:href", function (d) {
+            return "#invis_" + d.link.sourceId + "-" + d.link.name + "-" + d.link.targetId;
+          })
+          .style('font-family', 'Microsoft YaHei')
+          .style('font-size', '14px')
           .text(function (d) {
-            return d.link.name
+            if (d.link.name) return d.link.name
+            else return '联系'
           })
       linkText = linkTextEnter.merge(linkText).text(function (d) {
-        return d.link.name
+        if (d.link.name) return d.link.name
+        else return '联系'
       })
       return linkText
     },
@@ -813,37 +844,148 @@ export default {
         element.msRequestFullscreen()
       }
     },
-    // 以下是按钮组事件方法，需要使用到api
-
-    // 获取更多节点事件
-    getMoreNode() {
-      // todo
+    // 创建node的id
+    nodeIdBuilder() {
+      let id = 0
+      let existedIds = []
+      this.graph.nodes.forEach(function (node) {
+        existedIds.push(node.id)
+      })
+      existedIds.sort((num1, num2) => {
+        return num2 - num1
+      })
+      id = existedIds[0] + 1
+      return id.toString()
+    },
+    // 创建link的id
+    linkIdBuilder() {
+      let id = 0
+      let existedIds = []
+      this.graph.links.forEach(function (link) {
+        existedIds.push(link.id)
+      })
+      existedIds.sort((num1, num2) => {
+        return num2 - num1
+      })
+      id = existedIds[0] + 1
+      return id.toString()
     },
     // 删除节点及相关联系
-    deleteNode() {
-      // todo
+    deleteNode(out_buttongroup_id) {
+      let _this = this
+      _this.$confirm({
+        title: '将要删除节点和所有以该节点为源或目标的关系，是否继续？',
+        content: '该操作不可撤销',
+        okText: '确定',
+        okType: 'warning',
+        cancelText: '取消',
+        onOk() {
+          // 移除节点旁工具栏
+          _this.svg.selectAll(out_buttongroup_id).remove()
+          // 移除与节点相关的关系
+          for (let i = 0; i < _this.graph.links.length; i++) {
+            if (_this.graph.links[i].sourceId === _this.selectnodeid ||
+                _this.graph.links[i].targetId === _this.selectnodeid) {
+              _this.graph.links.splice(i, 1)
+              i = i - 1
+            }
+          }
+          // 移除节点
+          for (let i = 0; i < _this.graph.nodes.length; i++) {
+            if (_this.graph.nodes[i].id === _this.selectnodeid) {
+              _this.graph.node.splice(i, 1)
+              break;
+            }
+          }
+          _this.updateGraph()
+          _this.selectnodeid = ''
+          _this.$message({
+            type: 'success',
+            message: '删除节点成功！'
+          })
+        },
+        onCancel() {
+          _this.$message({
+            type: 'success',
+            message: '操作已取消'
+          })
+        }
+      })
     },
-    // 添加节点
-    createNode(){
-      // todo
+    // 当添加节点按钮被按下，鼠标样式改变为+
+    // 当鼠标再次在界面中点击，创建节点，鼠标样式恢复
+    addOneNode() {
+      this.isAddingNode = true
+      d3.select('.grid').style("cursor", "crosshair")
+    },
+    // 添加节点方法
+    createNode() {
+      let _this = this
+      let newNode = {}
+      newNode.name = '名称'
+      newNode.id = _this.nodeIdBuilder()
+      newNode.x = _this.txx
+      newNode.y = _this.tyy
+      newNode.fx = _this.txx
+      newNode.fy = _this.tyy
+      _this.graph.nodes.push(newNode)
+      _this.updateGraph()
+      _this.isAddingNode = false
     },
     // 删除联系
-    deleteLink(){
-      // todo
+    deleteOneLink() {
+      this.isDeletingLink = true
+      d3.select()
+    },
+    deleteLink() {
+      let _this = this
+      _this.$confirm({
+        title: '将要删除该联系，是否继续？',
+        content: '该操作不可撤销',
+        okText: '确定',
+        okType: 'warning',
+        cancelText: '取消',
+        onOk() {
+          for (let i = 0; i < _this.graph.links.length; i++) {
+            if (_this.graph.links[i].id === _this.selectrelationid) {
+              _this.graph.links.splice(i, 1)
+              break
+            }
+          }
+          _this.updateGraph()
+          _this.selectrelationid = ''
+          _this.isDeletingLink = false
+        },
+        onCancel() {
+          _this.$message({
+            type: 'success',
+            message: '操作已取消'
+          })
+        }
+      })
     },
     // 添加联系
     createLink() {
-      // todo
+      let _this = this
+      let newShip = {}
+      newShip.sourceId = _this.selectsourcenodeid
+      newShip.targetId = _this.selecttargetnodeid
+      newShip.id = _this.linkIdBuilder()
+      newShip.name = '联系'
+      _this.graph.links.push(newShip)
+      _this.updateGraph()
+      _this.isAddinglink = false
+      _this.selectsourcenodeid = '';
+      _this.selecttargetnodeid = '';
     },
     // 更改节点名称
-    updateNodeName(){
+    updateNodeName() {
       // todo
     },
     // 更改关系名称
-    updateLinkName(){
+    updateLinkName() {
       // todo
     },
-
   }
 }
 </script>
