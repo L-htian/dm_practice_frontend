@@ -3,12 +3,8 @@
     <el-upload
         class="uploadFile"
         :action="setUrl()"
-        :on-preview="handlePreview"
-        :on-remove="handleRemove"
-        :before-remove="beforeRemove"
         :limit="1"
-        :on-exceed="handleExceed"
-        accept=".json,.csv"
+        accept="application/json,text/csv"
         :file-list="fileList">
       <el-button size="small" type="primary">点击上传</el-button>
       <div slot="tip" class="el-upload__tip">只能上传json,csv文件</div>
