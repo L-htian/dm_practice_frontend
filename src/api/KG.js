@@ -64,15 +64,21 @@ export function saveAsJsonAPI(){
         method: 'POST',
     })
 }
-export function saveAsXmlAPI(){
-    return axios({
+export async function saveAsXmlAPI(params){
+    const res = await axios({
         url: `${api.KGPre}/saveAsXml`,
         method: 'POST',
-    })
+        data:params,
+        headers:{
+            'Content-Type':'application/xml; charset=utf-8'
+        },
+        responseType:'blob',
+    });
+    return res.data;
 }
-export function saveAsPictureAPI(){
-    return axios({
-        url: `${api.KGPre}/saveAsPicture`,
-        method: 'POST',
-    })
-}
+// export function saveAsPictureAPI(){
+//     return axios({
+//         url: `${api.KGPre}/saveAsPicture`,
+//         method: 'POST',
+//     })
+// }
