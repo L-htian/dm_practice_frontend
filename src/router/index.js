@@ -6,9 +6,13 @@ Vue.use(VueRouter)
 const routes = [
     {
         path: '/',
-        name: 'app',
-        component: () => import('@/App'),
-        redirect: '/index',
+        redirect: '/Kojima-Coin'
+    },
+    {
+        path: '/Kojima-Coin',
+        name: 'layout',
+        component: () => import('@/view/layout'),
+        redirect: '/Kojima-Coin/index',
         children: [
             {
                 path: 'index',
@@ -25,7 +29,7 @@ const routes = [
 ]
 
 const createRouter = () => new VueRouter({
-    mode: 'history',
+    mode: 'hash',
     base: process.env.BASE_URL,
     routes: routes
 })

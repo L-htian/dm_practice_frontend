@@ -2,9 +2,6 @@
   <div id="index">
     <img alt="Vue logo" src="../assets/logo.png">
     <h1>Kojima Coin</h1>
-    <div>
-
-    </div>
   </div>
 </template>
 

@@ -14,6 +14,8 @@ module.exports = {
     // 是否在保存时使用‘eslint-loader’进行检查 // 有效值: true | false | 'error'
     // 当设置为‘error’时，检查出的错误会触发编译失败
     lintOnSave: true,
+    assetsDir: 'static',
+    parallel: false,
 
     devServer:{
         assetsPublicPath: './',

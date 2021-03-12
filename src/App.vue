@@ -1,6 +1,8 @@
 <template>
-  <div id="app">
-    <router-view />
+  <div id="app" v-title data-title="Kojima-Coin">
+    <transition name="fade-transform" mode="out-in">
+      <router-view/>
+    </transition>
   </div>
 </template>
 
@@ -13,9 +15,6 @@ export default {
     return {}
   },
   methods:{
-    jumpToEditor(){
-      this.$router.push({name:'KGEditor'})
-    }
   }
 }
 </script>
@@ -29,5 +28,32 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+#nav {
+  padding: 30px;
+}
 
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+#nav a.router-link-exact-active {
+  color: #42b983;
+}
+
+/* fade-transform */
+.fade-transform-leave-active,
+.fade-transform-enter-active {
+  transition: all .5s;
+}
+
+.fade-transform-enter {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.fade-transform-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
 </style>
