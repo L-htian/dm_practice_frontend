@@ -1,20 +1,22 @@
 <template>
-  <div id="Uploader">
+  <div class="Uploader">
     <el-upload
         class="uploadFile"
+        drag
         :action="setUrl()"
         :limit="1"
+        :on-success="jumpToEditor"
         accept="application/json,text/csv"
         :file-list="fileList">
-      <el-button size="small" type="primary">点击上传</el-button>
-      <div slot="tip" class="el-upload__tip">只能上传json,csv文件</div>
+      <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+      <div class="el-upload__tip" slot="tip">只能上传Json,csv文件</div>
     </el-upload>
   </div>
 </template>
 
 <script>
 export default {
-  name: "UploadFile",
+  name: "Uploader",
   data() {
     return {
       fileList:[]
@@ -23,6 +25,9 @@ export default {
   methods: {
     setUrl:function (){
       return "/api/KGUpload/upload"
+    },
+    jumpToEditor() {
+      this.$router.push('/Kojima-Coin/index')
     }
   }
 }
@@ -30,5 +35,16 @@ export default {
 </script>
 
 <style scoped>
-@import url("//unpkg.com/element-ui@2.15.1/lib/theme-chalk/index.css");
+.Uploader /deep/ .uploadFile {
+  border-color: #303133;
+}
+.el-upload__text{
+  text-align: center;
+  font-size: medium;
+  padding-top: 79px;
+}
+.el-upload__tip{
+  font-size: medium;
+  font-weight: bolder;
+}
 </style>

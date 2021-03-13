@@ -2,12 +2,17 @@
   <div id="index">
     <img id="logo" alt="Vue logo" src="../assets/kojima-logo.png">
     <h1>Kojima Studio Represents</h1>
+    <Uploader></Uploader>
   </div>
 </template>
 
 <script>
+import Uploader from "@/components/Uploader";
 export default {
   name: "index",
+  components: {
+    Uploader
+  },
   data(){
     return {}
   },
@@ -18,7 +23,6 @@ export default {
   }
 }
 </script>
-
 <style scoped>
 #index{
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -29,4 +33,6 @@ export default {
 #logo{
   height: 320px;
 }
+
+
 </style>
