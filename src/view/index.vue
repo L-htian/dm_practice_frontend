@@ -1,7 +1,7 @@
 <template>
   <div id="index">
     <img id="logo" alt="Vue logo" src="../assets/kojima-logo.png">
-    <h1>Kojima Studio Represents</h1>
+    <h1>Kojima Studio Presents</h1>
     <Uploader></Uploader>
   </div>
 </template>
