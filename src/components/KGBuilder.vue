@@ -1,6 +1,8 @@
 <template>
-  <div id="grid_container" style="float:left;">
-    <div id="grid"></div>
+  <div>
+    <div id="grid_container" style="float:left;">
+      <div id="grid" class="grid"></div>
+    </div>
     <div class="svg-set-box clearfix">
       <div class="ctwh-dibmr">
         <ul class="toolbar" style="float: left;">
@@ -114,9 +116,8 @@
 
 <script>
 import axios from 'axios'
-import * as d3 from '../static/js/d3.v4.min'
+import * as d3 from 'd3'
 import $ from 'jquery'
-import '../static/js/index'
 
 export default {
   name: "KGBuilder",
@@ -219,6 +220,24 @@ export default {
   },
   watch: {},
   methods: {
+    testNode() {
+      this.graph.nodes = [
+        {
+          "name": "田所浩二",
+          "id": "114514",
+        },
+        {
+          "name": "远野",
+          "id": "1919810",
+        }
+      ]
+      this.graph.links = [{
+        "sourceId": "114514",
+        "targetId": "1919810",
+        "id": "9527",
+        "name": "是先辈"
+      }]
+    },
     initJQueryEvents() {
       let _this = this
       $(function () {
@@ -276,12 +295,8 @@ export default {
     // todo 传入不同的图文件，逻辑放入api
     initGraph() {
       let _this = this
-      axios.get('/static/data.json', {}).then(function (response) {
-        let data = response.data
-        _this.graph.nodes = data.node
-        _this.graph.links = data.relationship
-        _this.updateGraph()
-      })
+      _this.testNode()
+      _this.updateGraph()
     },
     // 制作箭头
     addArrowMaker() {
@@ -306,19 +321,22 @@ export default {
       let links = data.links
       // 定义按钮组引用的use元素
       _this.drawToolButton()
-      // 更新节点
-      let graphNode = _this.drawNode(nodes)
-      // 更新节点文字
-      let graphNodeText = _this.drawNodeText(nodes)
-      // 更新按钮组
-      let graphNodeButtonGroup = _this.drawButtonGroup(nodes)
       // 更新连线
       let graphLink = _this.drawLink(links)
       // 更新连线文字
       let graphLinkText = _this.drawLinkText(links)
+      // 更新按钮组
+      let graphNodeButtonGroup = _this.drawButtonGroup(nodes)
+      // 更新节点
+      let graphNode = _this.drawNode(nodes)
+      // 更新节点文字
+      let graphNodeText = _this.drawNodeText(nodes)
 
       // tick 每到一个时刻都需要调用方法来更新节点的坐标
       _this.simulation.nodes(nodes).alphaTarget(0).alphaDecay(0.05).on('tick', ticked)
+      _this.simulation.force('link').links(links)
+      _this.simulation.force('center', d3.forceCenter(_this.width / 2, _this.height / 2))
+      _this.simulation.alpha(1).restart()
 
       function ticked() {
         // 更新连线坐标
@@ -376,9 +394,6 @@ export default {
             })
       }
 
-      _this.simulation.force('link').links(links)
-      _this.simulation.force('center', d3.forceCenter(_this.width / 2, _this.height / 2))
-      _this.simulation.alpha(1).restart()
       // 鼠标滚轮缩放
       // 最小缩放到0.1，最大扩大到4倍
       _this.zoom = d3.zoom().scaleExtent([0.1, 4]).on('zoom', _this.zoomed)
@@ -409,6 +424,7 @@ export default {
               break;
             case "LINK":
               _this.isAddinglink = true;
+              d3.select('.grid').style("cursor", "pointer")
               _this.selectsourcenodeid = d.id;
               break;
             case "DELETE":
@@ -493,7 +509,8 @@ export default {
               .data(piedata)
               .enter()
               // 这里传入的参数实际上是它本身，下同
-              .append('g').attr('class', function (d) {
+              .append('g')
+              .attr('class', function (d) {
                 return 'action_' + d.data.code
               })
           // 绘制同心圆
@@ -552,9 +569,11 @@ export default {
         if (_this.isAddinglink) {
           _this.selecttargetnodeid = d.id
           if (_this.selectsourcenodeid == _this.selecttargetnodeid) {
+            d3.select('.grid').style("cursor", "");
             event.stopPropagation()
             return
           }
+          d3.select('.grid').style("cursor", "");
           _this.createLink()
           d.fixed = false
         }
@@ -636,12 +655,12 @@ export default {
             })
       })
       // 绑定拖动事件
-      nodeEnter.call(
-          d3.drag()
-              .on('start', _this.dragStart())
-              .on('drag', _this.dragging())
-              .on('end', _this.dragEnd())
-      )
+      // nodeEnter.call(
+      //     d3.drag()
+      //         .on('start', _this.dragStart())
+      //         .on('drag', _this.dragging())
+      //         .on('end', _this.dragEnd())
+      // )
       // 使用merge函数对node的数据进行更新
       // 这里更新的是title
       node = nodeEnter.merge(node).text(function (d) {
@@ -677,12 +696,12 @@ export default {
           })
       nodeText.exit().remove()
       let nodeTextEnter = nodeText.enter().append('text')
-      nodeTextEnter.call(
-          d3.drag()
-              .on('start', _this.dragStart())
-              .on('drag', _this.dragging())
-              .on('end', _this.dragEnd())
-      )
+      // nodeTextEnter.call(
+      //     d3.drag()
+      //         .on('start', _this.dragStart())
+      //         .on('drag', _this.dragging())
+      //         .on('end', _this.dragEnd())
+      // )
       nodeText = nodeTextEnter.merge(nodeText).text(function (d) {
         return d.name
       })
@@ -979,43 +998,39 @@ export default {
     // 删除节点及相关联系
     deleteNode(out_buttongroup_id) {
       let _this = this
-      _this.$confirm({
-        title: '将要删除节点和所有以该节点为源或目标的关系，是否继续？',
-        content: '该操作不可撤销',
-        okText: '确定',
-        okType: 'warning',
-        cancelText: '取消',
-        onOk() {
-          // 移除节点旁工具栏
-          _this.svg.selectAll(out_buttongroup_id).remove()
-          // 移除与节点相关的关系
-          for (let i = 0; i < _this.graph.links.length; i++) {
-            if (_this.graph.links[i].sourceId == _this.selectnodeid ||
-                _this.graph.links[i].targetId == _this.selectnodeid) {
-              _this.graph.links.splice(i, 1)
-              i = i - 1
-            }
+      _this.$confirm('该操作不可撤销', '将要删除节点和所有以该节点为源或目标的关系，是否继续？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 移除节点旁工具栏
+        _this.svg.selectAll(out_buttongroup_id).remove()
+        // 移除与节点相关的关系
+        for (let i = 0; i < _this.graph.links.length; i++) {
+          if (_this.graph.links[i].sourceId == _this.selectnodeid ||
+              _this.graph.links[i].targetId == _this.selectnodeid) {
+            _this.graph.links.splice(i, 1)
+            i = i - 1
           }
-          // 移除节点
-          for (let i = 0; i < _this.graph.nodes.length; i++) {
-            if (_this.graph.nodes[i].id == _this.selectnodeid) {
-              _this.graph.node.splice(i, 1)
-              break;
-            }
-          }
-          _this.updateGraph()
-          _this.selectnodeid = ''
-          _this.$message({
-            type: 'success',
-            message: '删除节点成功！'
-          })
-        },
-        onCancel() {
-          _this.$message({
-            type: 'success',
-            message: '操作已取消'
-          })
         }
+        // 移除节点
+        for (let i = 0; i < _this.graph.nodes.length; i++) {
+          if (_this.graph.nodes[i].id == _this.selectnodeid) {
+            _this.graph.node.splice(i, 1)
+            break;
+          }
+        }
+        _this.updateGraph()
+        _this.selectnodeid = ''
+        _this.$message({
+          type: 'success',
+          message: '删除节点成功！'
+        })
+      }).catch(() => {
+        _this.$message({
+          type: 'success',
+          message: '操作已取消'
+        })
       })
     },
     // 当添加节点按钮被按下，鼠标样式改变为+
@@ -1041,39 +1056,35 @@ export default {
     // 删除联系
     deleteLink() {
       let _this = this
-      _this.$confirm({
-        title: '将要删除该联系，是否继续？',
-        content: '该操作不可撤销',
-        okText: '确定',
-        okType: 'warning',
-        cancelText: '取消',
-        onOk() {
-          for (let i = 0; i < _this.graph.links.length; i++) {
-            if (_this.graph.links[i].id == _this.selectrelationid) {
-              _this.graph.links.splice(i, 1)
-              break
-            }
+      _this.$confirm('该操作不可撤销', '将要删除该联系，是否继续？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        for (let i = 0; i < _this.graph.links.length; i++) {
+          if (_this.graph.links[i].id == _this.selectrelationid) {
+            _this.graph.links.splice(i, 1)
+            break
           }
-          _this.updateGraph()
-          _this.selectrelationid = ''
-          _this.isEditingLink = false
-          _this.emptyLinkEntity()
-          _this.EditLinkDialogVisible = false
-          _this.$message({
-            type: 'success',
-            message: '删除成功！'
-          })
-        },
-        onCancel() {
-          _this.selectrelationid = ''
-          _this.isEditingLink = false
-          _this.emptyLinkEntity()
-          _this.EditLinkDialogVisible = false
-          _this.$message({
-            type: 'success',
-            message: '操作已取消'
-          })
         }
+        _this.updateGraph()
+        _this.selectrelationid = ''
+        _this.isEditingLink = false
+        _this.emptyLinkEntity()
+        _this.EditLinkDialogVisible = false
+        _this.$message({
+          type: 'success',
+          message: '删除成功！'
+        })
+      }).catch(() => {
+        _this.selectrelationid = ''
+        _this.isEditingLink = false
+        _this.emptyLinkEntity()
+        _this.EditLinkDialogVisible = false
+        _this.$message({
+          type: 'success',
+          message: '操作已取消'
+        })
       })
     },
     // 添加联系
@@ -1102,6 +1113,7 @@ export default {
           break
         }
       }
+      _this.updateGraph()
     },
     // 更改关系信息
     updateLinkInfo() {
@@ -1114,6 +1126,7 @@ export default {
           break
         }
       }
+      _this.updateGraph()
     },
   }
 }
