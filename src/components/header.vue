@@ -2,14 +2,14 @@
   <div class="header">
     <div class="label">
       <img src="@/assets/kojima-logo.png" class="logo" alt="logo" @click="jumpToHome">
-      <span class="title">Kojima-Coin</span>
+      <span class="title" @click="jumpToHome">Kojima Coin</span>
     </div>
     <el-menu
         :default-active="current"
         class="menu"
         mode="horizontal"
         text-color="#606266"
-        active-text-color="#2c3e50">
+        active-text-color="#303133">
       <router-link to="/Kojima-Coin/index">
         <el-menu-item index="1">
           <i class="el-icon-house"></i>
@@ -54,9 +54,9 @@ export default {
   justify-content: space-between;
   width: 100%;
   min-width: 800px;
-  color: #fff;
+  background-color: #fff;
   display: flex;
-  position: relative;
+  position: fixed;
   border-bottom: 1px solid #dcdfe6;
 
   .label {
@@ -94,8 +94,10 @@ export default {
       font-size: 15px;
       height: 60px;
       float: left;
-      //text-decoration: none;
       font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      a:hover &{
+        background: #E4E7ED;
+      }
     }
   }
 }

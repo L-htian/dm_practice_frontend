@@ -3,7 +3,7 @@
     <div id="grid"></div>
     <div class="svg-set-box clearfix">
       <div class="ctwh-dibmr">
-        <ul class="toolbar">
+        <ul class="toolbar" style="float: left;">
           <li>
             <a href="javascript:;" @click="addOneNode">
               <span><i class="el-icon-plus"></i>添加节点</span>
@@ -160,7 +160,7 @@ export default {
       // 是否正在加载
       loading: false,
       // 组件的宽
-      width: 1600,
+      width: window.innerWidth,
       // 组件的高
       height: 800,
       // 图容器
@@ -1121,6 +1121,7 @@ export default {
 
 <style scoped type="less">
 .svg-set-box {
+  width: 75%;
   height: 46px;
   line-height: 46px;
   padding-left: 15px;
@@ -1167,8 +1168,6 @@ export default {
 }
 
 .toolbar {
-  margin-left: 150px;
-  margin-right: 15px;
   line-height: 18px;
 }
 
