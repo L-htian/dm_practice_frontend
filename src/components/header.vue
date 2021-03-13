@@ -76,7 +76,7 @@ export default {
 
     .title {
       font-size: 30px;
-      color: #2c3e50;
+      color: #303133;
       font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
       font-weight: 600;
       position: relative;
@@ -89,6 +89,7 @@ export default {
     background: none;
     height: 60px;
     float: left;
+    min-width: 400px;
 
     .el-menu-item {
       font-size: 15px;
