@@ -3,27 +3,26 @@
     <div class="label">
       <img src="@/assets/kojima-logo.png" class="logo" alt="logo" @click="jumpToHome">
       <span class="title">Kojima-Coin</span>
-      <el-menu
-          :default-active="current"
-          class="el-menu-demo"
-          mode="horizontal"
-          background-color="#545c64"
-          text-color="#fff"
-          active-text-color="#ffd04b">
-        <el-menu-item index="1">
-          <router-link to="/index">
-            <i class="el-icon-house"></i>
-            首页
-          </router-link>
-        </el-menu-item>
-        <el-menu-item index="2">
-          <router-link to="/KGEditor">
-            <i class="el-icon-paperclip"></i>
-            知识图谱编辑器
-          </router-link>
-        </el-menu-item>
-      </el-menu>
     </div>
+    <el-menu
+        :default-active="current"
+        class="menu"
+        mode="horizontal"
+        text-color="#606266"
+        active-text-color="#2c3e50">
+      <router-link to="/Kojima-Coin/index">
+        <el-menu-item index="1">
+          <i class="el-icon-house"></i>
+          <span>首页</span>
+        </el-menu-item>
+      </router-link>
+      <router-link to="/Kojima-Coin/KGEditor">
+        <el-menu-item index="2">
+          <i class="el-icon-paperclip"></i>
+          <span>知识图谱编辑器</span>
+        </el-menu-item>
+      </router-link>
+    </el-menu>
   </div>
 </template>
 
@@ -41,7 +40,7 @@ export default {
   },
   methods: {
     jumpToHome() {
-      this.$router.push('/index')
+      this.$router.push('/Kojima-Coin/index')
     }
   }
 }
@@ -49,34 +48,38 @@ export default {
 
 <style scoped lang="less">
 .header {
-  display: flex;
-  line-height: 44px;
-  height: 44px;
+  line-height: 60px;
+  height: 60px;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   min-width: 800px;
+  color: #fff;
+  display: flex;
+  position: relative;
+  border-bottom: 1px solid #dcdfe6;
 
   .label {
-    height: 44px;
-    line-height: 44px;
+    float: left;
+    height: 60px;
+    line-height: 60px;
     vertical-align: middle;
     min-width: 400px;
 
     .logo {
-      height: 44px;
+      height: 60px;
       vertical-align: top;
-      margin-right: 16px;
+      margin-right: 20px;
       border-style: none;
       cursor: pointer;
     }
 
     .title {
-      font-size: 33px;
-      color: rgba(0, 0, 0, .85);
+      font-size: 30px;
+      color: #2c3e50;
       font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
       font-weight: 600;
       position: relative;
-      top: 2px;
     }
   }
 }
@@ -84,6 +87,16 @@ export default {
 .header {
   .el-menu {
     background: none;
+    height: 60px;
+    float: left;
+
+    .el-menu-item {
+      font-size: 15px;
+      height: 60px;
+      float: left;
+      //text-decoration: none;
+      font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
   }
 }
 </style>

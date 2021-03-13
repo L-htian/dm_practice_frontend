@@ -1,60 +1,58 @@
 <template>
-  <div>
-    <div id="grid_container" style="float:left">
-      <div id="grid"></div>
-    </div>
-  </div>
-  <div class="svg-set-box clearfix">
-    <div class="ctwh-dibmr">
-      <ul class="toolbar">
-        <li>
-          <a href="javascript:;" @click="addOneNode">
-            <span><i class="el-icon-plus"></i>添加节点</span>
-          </a>
-        </li>
-        <li>
-          <a href="javascript:;">
-            <span><i class="el-icon-picture-outline"></i>保存为图片</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-    <div class="ctwh-dibmr" style="float: right">
-      <ul class="toolbar">
-        <li>
-          <a href="javascript:;" @click="zoomIn">
-            <span><i class="el-icon-zoom-in"></i>放大</span>
-          </a>
-        </li>
-        <li>
-          <a href="javascript:;" @click="zoomOut">
-            <span><i class="el-icon-zoom-out"></i>缩小</span>
-          </a>
-        </li>
-        <li>
-          <a href="javascript:;" @click="refresh">
-            <span><i class="el-icon-refresh-right"></i>还原</span>
-          </a>
-        </li>
-        <li>
-          <a
-              v-if="!isFullscreen"
-              id="fullScreenBtn"
-              href="javascript:;"
-              @click="showFull"
-          >
-            <span><i class="el-icon-full-screen"></i>全屏</span>
-          </a>
-          <a
-              v-else
-              id="cancelFullScreenBtn"
-              href="javascript:;"
-              @click="exitFullScreen"
-          >
-            <span><i class="el-icon-full-screen"></i>退出全屏</span>
-          </a>
-        </li>
-      </ul>
+  <div id="grid_container" style="float:left;">
+    <div id="grid"></div>
+    <div class="svg-set-box clearfix">
+      <div class="ctwh-dibmr">
+        <ul class="toolbar">
+          <li>
+            <a href="javascript:;" @click="addOneNode">
+              <span><i class="el-icon-plus"></i>添加节点</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:;">
+              <span><i class="el-icon-picture-outline"></i>保存为图片</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="ctwh-dibmr" style="float: right;">
+        <ul class="toolbar">
+          <li>
+            <a href="javascript:;" @click="zoomIn">
+              <span><i class="el-icon-zoom-in"></i>放大</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:;" @click="zoomOut">
+              <span><i class="el-icon-zoom-out"></i>缩小</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:;" @click="refresh">
+              <span><i class="el-icon-refresh-right"></i>还原</span>
+            </a>
+          </li>
+          <li>
+            <a
+                v-if="!isFullscreen"
+                id="fullScreenBtn"
+                href="javascript:;"
+                @click="showFull"
+            >
+              <span><i class="el-icon-full-screen"></i>全屏</span>
+            </a>
+            <a
+                v-else
+                id="cancelFullScreenBtn"
+                href="javascript:;"
+                @click="exitFullScreen"
+            >
+              <span><i class="el-icon-full-screen"></i>退出全屏</span>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
     <el-dialog title="联系选项" :visible.sync="EditLinkDialogVisible">
       <el-form>
@@ -162,8 +160,8 @@ export default {
       // 是否正在加载
       loading: false,
       // 组件的宽
-      width: 1000,
-      // 组件的长
+      width: 1600,
+      // 组件的高
       height: 800,
       // 图容器
       graphContainer: {},
@@ -1121,7 +1119,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped type="less">
 .svg-set-box {
   height: 46px;
   line-height: 46px;
@@ -1181,7 +1179,12 @@ li {
 
 .toolbar li {
   float: left;
-  width: 60px;
+  margin-left: 5px;
+}
+
+.toolbar li a {
+  text-decoration: none;
+  color: #606266;
 }
 
 .notshow {

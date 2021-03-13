@@ -11,11 +11,11 @@ import KGBuilder from "@/components/KGBuilder";
 
 export default {
   name: "KGEditor",
-  comments:{
+  components: {
     KGBuilder
   },
-  data(){
-    return{}
+  data() {
+    return {}
   }
 }
 </script>
