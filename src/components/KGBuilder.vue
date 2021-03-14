@@ -12,7 +12,7 @@
             </a>
           </li>
           <li>
-            <a href="javascript:;">
+            <a href="javascript:;" @click="exportImage">
               <span><i class="el-icon-picture-outline"></i>保存为图片</span>
             </a>
           </li>
@@ -119,6 +119,7 @@ import axios from 'axios'
 import _ from 'underscore'
 import * as d3 from 'd3'
 import $ from 'jquery'
+import html2canvas from 'html2canvas'
 
 export default {
   name: "KGBuilder",
@@ -1129,6 +1130,16 @@ export default {
       }
       _this.updateGraph()
     },
+    //保存为图片
+    exportImage(){
+      html2canvas(document.querySelector(".grid")).then(function (canvas) {
+        var a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');  //将画布内的信息导出为png图片数据
+        var timestamp = Date.parse(new Date());
+        a.download = timestamp;  //设定下载名称
+        a.click(); //点击触发下载
+      });
+    }
   }
 }
 </script>
