@@ -81,8 +81,8 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancelLinkEdit">取消</el-button>
-        <el-button type="primary" @click="saveLinkEdit">保存修改</el-button>
         <el-button type="warning" @click="deleteLink">删除联系</el-button>
+        <el-button type="primary" @click="saveLinkEdit">保存修改</el-button>
       </div>
     </el-dialog>
     <el-dialog title="节点选项" :visible.sync="EditNodeDialogVisible" custom-class="customWidth">
