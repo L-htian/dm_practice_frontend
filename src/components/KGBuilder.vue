@@ -56,26 +56,26 @@
         </ul>
       </div>
     </div>
-    <el-dialog title="联系选项" :visible.sync="EditLinkDialogVisible">
+    <el-dialog title="联系选项" :visible.sync="EditLinkDialogVisible" custom-class="customWidth">
       <el-form>
         <el-form-item label="id" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingLinkEntity.id"></el-input>
+          <el-input :disabled="true" v-model="EditingLinkEntity.id" class="withoutColor"></el-input>
         </el-form-item>
         <el-form-item label="源节点id" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingLinkEntity.sourceId"></el-input>
+          <el-input :disabled="true" v-model="EditingLinkEntity.sourceId" class="withoutColor"></el-input>
         </el-form-item>
         <el-form-item label="目标节点id" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingLinkEntity.targetId"></el-input>
+          <el-input :disabled="true" v-model="EditingLinkEntity.targetId" class="withoutColor"></el-input>
         </el-form-item>
         <el-form-item label="联系名" :label-width="formLabelWidth">
-          <el-input :disabled="false" v-model="EditingLinkEntity.name"></el-input>
+          <el-input :disabled="false" v-model="EditingLinkEntity.name" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="联系线条颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingLinkEntity.color"></el-input>
-          <el-color-picker v-model="EditingLinkEntity.color"></el-color-picker>
+        <el-form-item label="联系线条颜色" :label-width="formLabelWidth" >
+          <el-input :disabled="true" v-model="EditingLinkEntity.color" class="lineColor" ></el-input>
+          <el-color-picker v-model="EditingLinkEntity.color" ></el-color-picker>
         </el-form-item>
-        <el-form-item label="联系名颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingLinkEntity.textColor"></el-input>
+        <el-form-item label="联系名颜色" :label-width="formLabelWidth" >
+          <el-input :disabled="true" v-model="EditingLinkEntity.textColor" class="lineColor"></el-input>
           <el-color-picker v-model="EditingLinkEntity.textColor"></el-color-picker>
         </el-form-item>
       </el-form>
@@ -85,24 +85,24 @@
         <el-button type="warning" @click="deleteLink">删除联系</el-button>
       </div>
     </el-dialog>
-    <el-dialog title="节点选项" :visible.sync="EditNodeDialogVisible">
+    <el-dialog title="节点选项" :visible.sync="EditNodeDialogVisible" custom-class="customWidth">
       <el-form>
         <el-form-item label="id" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.id"></el-input>
+          <el-input :disabled="true" v-model="EditingNodeEntity.id" class="withoutColor"></el-input>
         </el-form-item>
         <el-form-item label="节点名" :label-width="formLabelWidth">
-          <el-input :disabled="false" v-model="EditingNodeEntity.name"></el-input>
+          <el-input :disabled="false" v-model="EditingNodeEntity.name" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="节点填充颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.color"></el-input>
+        <el-form-item label="节点填充颜色" :label-width="formLabelWidth" >
+          <el-input :disabled="true" v-model="EditingNodeEntity.color" class="lineColor"></el-input>
           <el-color-picker v-model="EditingNodeEntity.color"></el-color-picker>
         </el-form-item>
         <el-form-item label="节点边框颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.strokeColor"></el-input>
+          <el-input :disabled="true" v-model="EditingNodeEntity.strokeColor" class="lineColor"></el-input>
           <el-color-picker v-model="EditingNodeEntity.strokeColor"></el-color-picker>
         </el-form-item>
         <el-form-item label="节点名颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.textColor"></el-input>
+          <el-input :disabled="true" v-model="EditingNodeEntity.textColor" class="lineColor"></el-input>
           <el-color-picker v-model="EditingNodeEntity.textColor"></el-color-picker>
         </el-form-item>
       </el-form>
@@ -125,6 +125,7 @@ export default {
   props: ['pid'],
   data() {
     return {
+      // labelLocation:"left",
       formLabelWidth: "120px",
       EditingLinkEntity: {
         id: '',
@@ -1214,5 +1215,18 @@ li {
 .nodetext:hover {
   stroke-dashoffset: 0;
   stroke-dasharray: 100;
+}
+/*dialog宽度调整*/
+.customWidth{
+  width: 28%;
+}
+/*form-item样式*/
+.lineColor{
+  width: 80%;
+  float:left;
+}
+.withoutColor{
+  width: 97%;
+  float: left;
 }
 </style>
