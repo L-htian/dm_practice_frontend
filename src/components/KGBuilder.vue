@@ -116,6 +116,7 @@
 
 <script>
 import axios from 'axios'
+import _ from 'underscore'
 import * as d3 from 'd3'
 import $ from 'jquery'
 
@@ -157,6 +158,7 @@ export default {
       DefaultLinkColor: '#a5ca34',
       DefaultLinkActiveColor: '#ff9e9e',
       DefaultLinkTextColor: '#875034',
+      DefaultArrowColor: '#a5ca34',
       theme: 0,
       // 是否正在加载
       loading: false,
@@ -212,7 +214,6 @@ export default {
   components: {},
   mounted() {
     this.initGraphContainer()
-    this.addArrowMaker()
     this.initJQueryEvents()
     this.initGraph()
   },
@@ -273,8 +274,10 @@ export default {
       // d3力导布局模拟设置初始化
       this.simulation = d3
           .forceSimulation()
-          .force('charge', d3.forceManyBody().strength(-1500)) // 节点之间的引力
-          .force('link', d3.forceLink().distance(60).id(function (d) {
+          .force('charge', d3.forceManyBody().strength(-15)) // 节点之间的引力
+          .force('link', d3.forceLink().distance(function (d) {
+            return Math.floor(Math.random() * (300 - 100)) + 50;
+          }).id(function (d) {
             return d.id
           })) // 节点之间的弹力
           .force('collide', d3.forceCollide().strength(-30)) // 节点碰撞力，防止节点重叠
@@ -287,8 +290,12 @@ export default {
       this.qaGraphNode = this.svg.append('g').attr('class', 'node')
       this.qaGraphNodeText = this.svg.append('g').attr('class', 'nodetext')
       this.nodebuttonGroup = this.svg.append('g').attr('class', 'nodebutton')
+      this.addArrowMaker()
+      // 定义按钮组引用的use元素
+      this.drawToolButton()
+      // .buttongroup
       this.svg.on('click', function () {
-        d3.selectAll('.buttongroup').classed('notshow', true)
+        d3.selectAll('use').classed('notshow', true)
       }, false)
     },
     // 初始化知识图谱
@@ -304,14 +311,14 @@ export default {
           .append('marker')
           .attr('id', 'arrow')
           .attr('markerUnits', 'strokeWidth')
-          .attr('markerWidth', '12') //
-          .attr('markerHeight', '12')
-          .attr('viewBox', '0 0 12 12')
-          .attr('refX', '38')
-          .attr('refY', '6')
+          .attr('markerWidth', '20') //
+          .attr('markerHeight', '20')
+          .attr('viewBox', '0 -5 10 10')
+          .attr('refX', '22')
+          .attr('refY', '0')
           .attr('orient', 'auto')
-      let arrowPath = 'M2,2 L10,6 L2,10 L6,6 L2,2' // 定义箭头形状
-      arrowMarker.append('path').attr('d', arrowPath).attr('fill', '#ccc')
+      let arrowPath = 'M0,-5L10,0L0,5' // 定义箭头形状
+      arrowMarker.append('path').attr('d', arrowPath).attr('fill', this.DefaultArrowColor)
     },
     // 更新知识图谱
     updateGraph() {
@@ -319,18 +326,17 @@ export default {
       let data = _this.formatData()
       let nodes = data.nodes
       let links = data.links
-      // 定义按钮组引用的use元素
-      _this.drawToolButton()
-      // 更新连线
-      let graphLink = _this.drawLink(links)
-      // 更新连线文字
-      let graphLinkText = _this.drawLinkText(links)
-      // 更新按钮组
-      let graphNodeButtonGroup = _this.drawButtonGroup(nodes)
+
       // 更新节点
       let graphNode = _this.drawNode(nodes)
       // 更新节点文字
       let graphNodeText = _this.drawNodeText(nodes)
+      // 更新按钮组
+      let graphNodeButtonGroup = _this.drawButtonGroup(nodes)
+      // 更新连线
+      let graphLink = _this.drawLink(links)
+      // 更新连线文字
+      let graphLinkText = _this.drawLinkText(links)
 
       // tick 每到一个时刻都需要调用方法来更新节点的坐标
       _this.simulation.nodes(nodes).alphaTarget(0).alphaDecay(0.05).on('tick', ticked)
@@ -484,64 +490,55 @@ export default {
     // 制作节点工具栏
     drawToolButton() {
       let _this = this
-      // 删除所有为节点自定义的按钮组
-      d3.selectAll('svg >defs').remove()
+      let nodeButtonGroup = _this.svg.append('defs')
+      let nodebtg = nodeButtonGroup.append('g').attr("id", "out_circle")
+
       let nodes = _this.graph.nodes
       // 制作饼型工具栏，这里的pie是一个函数
       let pie = d3.pie().value(function (d) {
         return d.value
       })
       let piedata = pie(_this.toolbarData)
-      let nodeButtonGroup = _this.svg.append('defs')
-      // 节点半径数组
-      let nodeRArray = []
-      nodes.forEach(function (node) {
-        if (!node.r) {
-          node.r = _this.defaultR
-        }
-        // 按半径分别定义每种按钮组的图标
-        if (nodeRArray.indexOf(node.r) == -1) {
-          nodeRArray.push(node.r)
-          // 为每种半径定制一种按钮组和一个特有的id
-          let nodebtg = nodeButtonGroup.append('g').attr('id', 'out_circle_' + node.r)
-          let buttonGroupEnter = nodebtg
-              .selectAll('.buttongroup')
-              .data(piedata)
-              .enter()
-              // 这里传入的参数实际上是它本身，下同
-              .append('g')
-              .attr('class', function (d) {
-                return 'action_' + d.data.code
-              })
-          // 绘制同心圆
-          let arc = d3.arc().innerRadius(node.r).outerRadius(node.r + 30)
-          // 设置工具栏形状
-          buttonGroupEnter
-              .append('path')
-              // d属性代表路径，通过描述路径绘制出svg图像
-              .attr('d', function (d) {
-                return arc(d)
-              })
-              .attr('fill', _this.DefaultButtonGroupColor) // 填充
-              .style('opacity', 0.6)
-              .attr('stroke', _this.DefaultButtonGroupStrokeColor) // 轮廓
-              .attr('stroke-width', 1)
-          // 设置工具栏文字
-          buttonGroupEnter
-              .append('text')
-              // transform 代表变换
-              .attr('transform', function (d) {
-                return 'translate(' + arc.centroid(d) + ')'
-              })
-              .attr('text-anchor', 'middle')
-              .text(function (d) {
-                return d.data.name
-              }).style('fill', function () {
-            return _this.DefaultButtonGroupTextColor
+
+      let buttonGroupEnter = nodebtg
+          .selectAll('.buttongroup')
+          .data(piedata)
+          .enter()
+          // 这里传入的参数实际上是它本身，下同
+          .append('g')
+          .attr('class', function (d) {
+            return 'action_' + d.data.code
           })
-              .attr('font-size', 10)
-        }
+
+      // 绘制同心圆
+      let arc = d3.arc().innerRadius(_this.defaultR).outerRadius(_this.defaultR + 30)
+
+      // 设置工具栏形状
+      buttonGroupEnter
+          .append('path')
+          // d属性代表路径，通过描述路径绘制出svg图像
+          .attr('d', function (d) {
+            return arc(d)
+          })
+          .attr('fill', _this.DefaultButtonGroupColor) // 填充
+          .style('opacity', 0.6)
+          .attr('stroke', _this.DefaultButtonGroupStrokeColor) // 轮廓
+          .attr('stroke-width', 2)
+
+      // 设置工具栏文字
+      buttonGroupEnter
+          .append('text')
+          // transform 代表变换
+          .attr('transform', function (d) {
+            return 'translate(' + arc.centroid(d) + ')'
+          })
+          .attr('text-anchor', 'middle')
+          .text(function (d) {
+            return d.data.name
+          }).style('fill', function () {
+        return _this.DefaultButtonGroupTextColor
       })
+          .attr('font-size', 10)
     },
     // 绘制节点
     drawNode(nodes) {
@@ -558,13 +555,9 @@ export default {
         let out_buttongroup_id = '.out_buttongroup_' + d.id
         let selectBtnGroup = d3.select(out_buttongroup_id)._groups[0][0]
         // 单击节点，改变节点工具栏显示状态
-        if (selectBtnGroup.classList.contains('notshow')) {
-          _this.svg.selectAll('.buttongroup').classed('notshow', true)
-          // classed 是为对象增加class属性而不覆盖原有class属性
-          d3.select(out_buttongroup_id).classed('notshow', false)
-        } else {
-          d3.select(out_buttongroup_id).classed('notshow', true)
-        }
+        _this.svg.selectAll('use').classed('notshow', true)
+        // classed 是为对象增加class属性而不覆盖原有class属性
+        _this.svg.selectAll(out_buttongroup_id).classed('notshow', false)
         // 如果正在添加联系
         if (_this.isAddinglink) {
           _this.selecttargetnodeid = d.id
@@ -608,6 +601,7 @@ export default {
         d3.selectAll('.node').style('fill-opacity', 0.1)
         // 寻找相关节点
         let relatedNodeIds = []
+        relatedNodeIds.push(d.id)
         let relatedNodes = _this.graph.links.filter(function (n) {
           return n.sourceId == d.id || n.targetId == d.id
         })
@@ -616,6 +610,7 @@ export default {
           relatedNodeIds.push(i.targetId)
         })
         // 显示相关节点
+
         _this.qaGraphNode
             .selectAll('circle')
             .style('fill-opacity', function (node) {
@@ -639,7 +634,7 @@ export default {
         _this.qaGraphLink
             .selectAll('line')
             .style('stroke-opacity', function (node) {
-              if (node.link.targetId == d.id) {
+              if (node.link.targetId == d.id || node.link.sourceId == d.id) {
                 return 1.0
               }
             })
@@ -649,18 +644,18 @@ export default {
         _this.qaGraphLinkText
             .selectAll('.linetext')
             .style('fill-opacity', function (node) {
-              if (node.link.targetId == d.id) {
+              if (node.link.targetId == d.id || node.link.sourceId == d.id) {
                 return 1.0
               }
             })
       })
       // 绑定拖动事件
-      // nodeEnter.call(
-      //     d3.drag()
-      //         .on('start', _this.dragStart())
-      //         .on('drag', _this.dragging())
-      //         .on('end', _this.dragEnd())
-      // )
+      nodeEnter.call(
+          d3.drag()
+              .on('start', _this.dragStart)
+              .on('drag', _this.dragging)
+              .on('end', _this.dragEnd)
+      )
       // 使用merge函数对node的数据进行更新
       // 这里更新的是title
       node = nodeEnter.merge(node).text(function (d) {
@@ -696,12 +691,12 @@ export default {
           })
       nodeText.exit().remove()
       let nodeTextEnter = nodeText.enter().append('text')
-      // nodeTextEnter.call(
-      //     d3.drag()
-      //         .on('start', _this.dragStart())
-      //         .on('drag', _this.dragging())
-      //         .on('end', _this.dragEnd())
-      // )
+      nodeTextEnter.call(
+          d3.drag()
+              .on('start', _this.dragStart)
+              .on('drag', _this.dragging)
+              .on('end', _this.dragEnd)
+      )
       nodeText = nodeTextEnter.merge(nodeText).text(function (d) {
         return d.name
       })
@@ -736,6 +731,7 @@ export default {
       nodeButton.exit().remove()
       let nodeButtonEnter = nodeButton
           .enter()
+          .append('g')
           .append('use') // 为每个节点组添加一个 use 子元素
           .attr('r', function (d) {
             if (!d.r) {
@@ -746,12 +742,15 @@ export default {
           .attr('id', function (d) {
             return d.id
           })
+          // 指定use引用的内容
           .attr('xlink:href', function (d) {
-            if (!d.r) {
-              return '#out_circle_' + _this.defaultR
-            }
-            return '#out_circle_' + d.r
-          }) //  指定 use 引用的内容
+            // todo
+            // if (!d.r) {
+            //   return '#out_circle_' + _this.defaultR
+            // }
+            // return '#out_circle_' + d.r
+            return '#out_circle'
+          })
           .attr('class', function (d) {
             return 'buttongroup out_buttongroup_' + d.id
           })
@@ -779,7 +778,7 @@ export default {
           .attr('marker-end', 'url(#arrow)') // 箭头
       linkEnter.on('mouseenter', function () {
         d3.select(this)
-            .style('stroke-width', '6')
+            .style('stroke-width', '3')
             .attr('stroke', _this.DefaultLinkActiveColor)
             .attr('marker-end', 'url(#arrow)')
       })
@@ -1011,6 +1010,7 @@ export default {
               _this.graph.links[i].targetId == _this.selectnodeid) {
             _this.graph.links.splice(i, 1)
             i = i - 1
+            if (i >= _this.graph.links.length) break
           }
         }
         // 移除节点
@@ -1028,7 +1028,7 @@ export default {
         })
       }).catch(() => {
         _this.$message({
-          type: 'success',
+          type: 'info',
           message: '操作已取消'
         })
       })
@@ -1082,7 +1082,7 @@ export default {
         _this.emptyLinkEntity()
         _this.EditLinkDialogVisible = false
         _this.$message({
-          type: 'success',
+          type: 'info',
           message: '操作已取消'
         })
       })
@@ -1132,7 +1132,7 @@ export default {
 }
 </script>
 
-<style scoped type="less">
+<style>
 .svg-set-box {
   width: 75%;
   height: 46px;
