@@ -70,11 +70,11 @@
         <el-form-item label="联系名" :label-width="formLabelWidth">
           <el-input :disabled="false" v-model="EditingLinkEntity.name" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="联系线条颜色" :label-width="formLabelWidth" >
-          <el-input :disabled="true" v-model="EditingLinkEntity.color" class="lineColor" ></el-input>
-          <el-color-picker v-model="EditingLinkEntity.color" ></el-color-picker>
+        <el-form-item label="联系线条颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingLinkEntity.color" class="lineColor"></el-input>
+          <el-color-picker v-model="EditingLinkEntity.color"></el-color-picker>
         </el-form-item>
-        <el-form-item label="联系名颜色" :label-width="formLabelWidth" >
+        <el-form-item label="联系名颜色" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingLinkEntity.textColor" class="lineColor"></el-input>
           <el-color-picker v-model="EditingLinkEntity.textColor"></el-color-picker>
         </el-form-item>
@@ -93,7 +93,7 @@
         <el-form-item label="节点名" :label-width="formLabelWidth">
           <el-input :disabled="false" v-model="EditingNodeEntity.name" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="节点填充颜色" :label-width="formLabelWidth" >
+        <el-form-item label="节点填充颜色" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingNodeEntity.color" class="lineColor"></el-input>
           <el-color-picker v-model="EditingNodeEntity.color"></el-color-picker>
         </el-form-item>
@@ -116,7 +116,6 @@
 
 <script>
 import axios from 'axios'
-import _ from 'underscore'
 import * as d3 from 'd3'
 import $ from 'jquery'
 
@@ -233,12 +232,14 @@ export default {
           "id": "1919810",
         }
       ]
-      this.graph.links = [{
-        "sourceId": "114514",
-        "targetId": "1919810",
-        "id": "9527",
-        "name": "是先辈"
-      }]
+      this.graph.links = [
+        {
+          "sourceId": "114514",
+          "targetId": "1919810",
+          "id": "9527",
+          "name": "是先辈",
+        }
+      ]
     },
     initJQueryEvents() {
       let _this = this
@@ -275,13 +276,11 @@ export default {
       // d3力导布局模拟设置初始化
       this.simulation = d3
           .forceSimulation()
-          .force('charge', d3.forceManyBody().strength(-15)) // 节点之间的引力
-          .force('link', d3.forceLink().distance(function (d) {
-            return Math.floor(Math.random() * (300 - 100)) + 50;
-          }).id(function (d) {
+          .force('charge', d3.forceManyBody().strength(-20)) // 节点之间的引力
+          .force('link', d3.forceLink().distance(30).id(function (d) {
             return d.id
           })) // 节点之间的弹力
-          .force('collide', d3.forceCollide().strength(-30)) // 节点碰撞力，防止节点重叠
+          .force('collide', d3.forceCollide().radius(40).iterations(2)) // 节点碰撞力，防止节点重叠
           .force('center', d3.forceCenter(this.width / 2, this.height / 2)) // 向心力，节点围绕在某一点旁
       // 元素g是用来组合对象的容器。添加到g元素上的变换会应用到其所有的子元素上。
       // 添加到g元素的属性会被其所有的子元素继承。
@@ -312,8 +311,8 @@ export default {
           .append('marker')
           .attr('id', 'arrow')
           .attr('markerUnits', 'strokeWidth')
-          .attr('markerWidth', '20') //
-          .attr('markerHeight', '20')
+          .attr('markerWidth', '12')
+          .attr('markerHeight', '18')
           .attr('viewBox', '0 -5 10 10')
           .attr('refX', '22')
           .attr('refY', '0')
@@ -461,13 +460,13 @@ export default {
       let links = _this.graph.links
       let nodes = _this.graph.nodes
       nodes.forEach(function (node) {
-        if (typeof node.fx === 'undefined' || node.fx === '') node.fx = null
-        if (typeof node.fy === 'undefined' || node.fy === '') node.fy = null
-        if (typeof node.fx === 'string') node.fx = parseFloat(node.fx)
-        if (typeof node.fy === 'string') node.fy = parseFloat(node.fy)
-        if (typeof node.color === 'undefined' || node.color === '') node.color = _this.DefaultNodeColor
-        if (typeof node.textColor === 'undefined' || node.textColor === '') node.textColor = _this.DefaultNodeTextColor
-        if (typeof node.strokeColor === 'undefined' || node.strokeColor === '') node.strokeColor = _this.DefaultNodeStrokeColor
+        if (typeof (node.fx) === 'undefined' || node.fx === '') node.fx = null
+        if (typeof (node.fy) === 'undefined' || node.fy === '') node.fy = null
+        if (typeof (node.fx) === 'string') node.fx = parseFloat(node.fx)
+        if (typeof (node.fy) === 'string') node.fy = parseFloat(node.fy)
+        if (typeof (node.color) === 'undefined' || node.color === '') node.color = _this.DefaultNodeColor
+        if (typeof (node.textColor) === 'undefined' || node.textColor === '') node.textColor = _this.DefaultNodeTextColor
+        if (typeof (node.strokeColor) === 'undefined' || node.strokeColor === '') node.strokeColor = _this.DefaultNodeStrokeColor
       })
       let resLinks = []
       links.forEach(function (link) {
@@ -479,9 +478,9 @@ export default {
           return node.id == link.targetId
         })[0]
         if (!targetNode) return
-        if (typeof link.color === 'undefined' || link.color === '') link.color = _this.DefaultLinkColor
-        if (typeof link.textColor === 'undefined' || link.textColor === '') link.textColor = _this.DefaultLinkTextColor
-        resLinks.push({source: sourceNode.id, target: targetNode.id, link: link})
+        if (typeof (link.color) === 'undefined' || link.color === '') link.color = _this.DefaultLinkColor
+        if (typeof (link.textColor) === 'undefined' || link.textColor === '') link.textColor = _this.DefaultLinkTextColor
+        resLinks.push({source: sourceNode.id, target: targetNode.id, lk: link})
       })
       let data = {}
       data.nodes = nodes
@@ -494,7 +493,6 @@ export default {
       let nodeButtonGroup = _this.svg.append('defs')
       let nodebtg = nodeButtonGroup.append('g').attr("id", "out_circle")
 
-      let nodes = _this.graph.nodes
       // 制作饼型工具栏，这里的pie是一个函数
       let pie = d3.pie().value(function (d) {
         return d.value
@@ -563,9 +561,29 @@ export default {
         if (_this.isAddinglink) {
           _this.selecttargetnodeid = d.id
           if (_this.selectsourcenodeid == _this.selecttargetnodeid) {
-            d3.select('.grid').style("cursor", "");
+            d3.select('.grid').style("cursor", "")
+            _this.isAddinglink = false
+            _this.$message({
+              type: 'error',
+              message: '连接出错：不支持节点自身连接自身！'
+            })
             event.stopPropagation()
             return
+          }
+          for (let i = 0; i < _this.graph.links.length; i++) {
+            if ((_this.graph.links[i].sourceId == _this.selectsourcenodeid &&
+                _this.graph.links[i].targetId == _this.selecttargetnodeid) ||
+                (_this.graph.links[i].sourceId == _this.selecttargetnodeid &&
+                    _this.graph.links[i].targetId == _this.selectsourcenodeid)) {
+              d3.select('.grid').style("cursor", "")
+              _this.isAddinglink = false
+              _this.$message({
+                type: 'error',
+                message: '连接出错：两节点之间已经存在一条连接！'
+              })
+              event.stopPropagation()
+              return
+            }
           }
           d3.select('.grid').style("cursor", "");
           _this.createLink()
@@ -634,8 +652,8 @@ export default {
         // 显示相关连线
         _this.qaGraphLink
             .selectAll('line')
-            .style('stroke-opacity', function (node) {
-              if (node.link.targetId == d.id || node.link.sourceId == d.id) {
+            .style('stroke-opacity', function (link) {
+              if (link.lk.targetId == d.id || link.lk.sourceId == d.id) {
                 return 1.0
               }
             })
@@ -644,8 +662,8 @@ export default {
         // 显示相关连线文字
         _this.qaGraphLinkText
             .selectAll('.linetext')
-            .style('fill-opacity', function (node) {
-              if (node.link.targetId == d.id || node.link.sourceId == d.id) {
+            .style('fill-opacity', function (link) {
+              if (link.lk.targetId == d.id || link.lk.sourceId == d.id) {
                 return 1.0
               }
             })
@@ -745,7 +763,6 @@ export default {
           })
           // 指定use引用的内容
           .attr('xlink:href', function (d) {
-            // todo
             // if (!d.r) {
             //   return '#out_circle_' + _this.defaultR
             // }
@@ -767,16 +784,8 @@ export default {
       })
       link.exit().remove()
       // 设置关系样式
-      let linkEnter = link
-          .enter()
-          .append('line')
-          .attr('class', 'link')
-          .attr('stroke-width', 1)
-          .attr('stroke', function (d) {
-            if (d.color) return d.link.color
-            else return _this.DefaultLinkColor
-          })
-          .attr('marker-end', 'url(#arrow)') // 箭头
+      let linkEnter = link.enter().append('line')
+
       linkEnter.on('mouseenter', function () {
         d3.select(this)
             .style('stroke-width', '3')
@@ -785,24 +794,32 @@ export default {
       })
       linkEnter.on('mouseleave', function () {
         d3.select(this)
-            .style('stroke-width', '1')
+            .style('stroke-width', '2')
             .attr('stroke', function (d) {
-              if (d.color) return d.link.color
+              if (d.lk.color) return d.lk.color
               else return _this.DefaultLinkColor
             })
             .attr('marker-end', 'url(#arrow)')
       })
       linkEnter.on('dblclick', function (d) {
-        _this.selectrelationid = d.link.id
+        _this.selectrelationid = d.lk.id
         _this.isEditingLink = true
-        _this.EditingLinkEntity.id = d.link.id
-        _this.EditingLinkEntity.sourceId = d.link.sourceId
-        _this.EditingLinkEntity.targetId = d.link.targetId
-        _this.EditingLinkEntity.color = d.link.color
-        _this.EditingLinkEntity.textColor = d.link.textColor
+        _this.EditingLinkEntity.name = d.lk.name
+        _this.EditingLinkEntity.id = d.lk.id
+        _this.EditingLinkEntity.sourceId = d.lk.sourceId
+        _this.EditingLinkEntity.targetId = d.lk.targetId
+        _this.EditingLinkEntity.color = d.lk.color
+        _this.EditingLinkEntity.textColor = d.lk.textColor
         _this.EditLinkDialogVisible = true
       })
       link = linkEnter.merge(link)
+      link.attr('class', 'link')
+          .attr('stroke-width', '2')
+          .attr('stroke', function (d) {
+            if (d.lk.color) return d.lk.color
+            else return _this.DefaultLinkColor
+          })
+          .attr('marker-end', 'url(#arrow)') // 箭头
       return link
     },
     // 绘制关系上的文字
@@ -815,30 +832,31 @@ export default {
           })
       linkText.exit().remove()
       // 设置关系文字样式
-      let linkTextEnter = linkText
-          .enter()
-          .append('text')
+      let linkTextEnter = linkText.enter().append('text')
+
+      linkText = linkTextEnter.merge(linkText).text(function (d) {
+        if (d.lk.name) return d.lk.name
+        else return '联系'
+      })
+
+      linkText
           .attr('class', 'linetext')
           .style('fill', function (d) {
-            if (d.link.textColor) return d.link.textColor
+            if (d.lk.textColor) return d.lk.textColor
             else return _this.DefaultLinkTextColor
           })
           .append('textPath')
-          .attr("startOffset", "50%")
+          .attr("startOffset", "60%")
           .attr("text-anchor", "middle")
-          .attr("xlink:href", function (d) {
-            return "#invis_" + d.link.sourceId + "-" + d.link.name + "-" + d.link.targetId;
-          })
+          // .attr("xlink:href", function (d) {
+          //   return "#invis_" + d.lk.sourceId + "-" + d.lk.name + "-" + d.lk.targetId;
+          // })
           .style('font-family', 'Microsoft YaHei')
           .style('font-size', '14px')
           .text(function (d) {
-            if (d.link.name) return d.link.name
+            if (d.lk.name) return d.lk.name
             else return '联系'
           })
-      linkText = linkTextEnter.merge(linkText).text(function (d) {
-        if (d.link.name) return d.link.name
-        else return '联系'
-      })
       return linkText
     },
     dragStart(d) {
@@ -916,6 +934,7 @@ export default {
     },
     // 创建node的id
     nodeIdBuilder() {
+      if (this.graph.nodes.length == 0) return '0'
       let id = 0
       let existedIds = []
       this.graph.nodes.forEach(function (node) {
@@ -924,11 +943,12 @@ export default {
       existedIds.sort((num1, num2) => {
         return num2 - num1
       })
-      id = existedIds[0] + 1
+      id = Number(existedIds[0]) + 1
       return id.toString()
     },
     // 创建link的id
     linkIdBuilder() {
+      if (this.graph.links.length == 0) return '0'
       let id = 0
       let existedIds = []
       this.graph.links.forEach(function (link) {
@@ -937,7 +957,7 @@ export default {
       existedIds.sort((num1, num2) => {
         return num2 - num1
       })
-      id = existedIds[0] + 1
+      id = Number(existedIds[0]) + 1
       return id.toString()
     },
     // 清空记录关系
@@ -1011,13 +1031,12 @@ export default {
               _this.graph.links[i].targetId == _this.selectnodeid) {
             _this.graph.links.splice(i, 1)
             i = i - 1
-            if (i >= _this.graph.links.length) break
           }
         }
         // 移除节点
         for (let i = 0; i < _this.graph.nodes.length; i++) {
           if (_this.graph.nodes[i].id == _this.selectnodeid) {
-            _this.graph.node.splice(i, 1)
+            _this.graph.nodes.splice(i, 1)
             break;
           }
         }
@@ -1106,7 +1125,7 @@ export default {
     updateNodeInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.nodes.length; i++) {
-        if (_this.selectnodeid === _this.graph.nodes[i].id) {
+        if (_this.selectnodeid == _this.graph.nodes[i].id) {
           _this.graph.nodes[i].name = _this.EditingNodeEntity.name
           _this.graph.nodes[i].color = _this.EditingNodeEntity.color
           _this.graph.nodes[i].textColor = _this.EditingNodeEntity.textColor
@@ -1120,7 +1139,7 @@ export default {
     updateLinkInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.links.length; i++) {
-        if (_this.selectrelationid === _this.graph.links[i].id) {
+        if (_this.selectrelationid == _this.graph.links[i].id) {
           _this.graph.links[i].name = _this.EditingLinkEntity.name
           _this.graph.links[i].color = _this.EditingLinkEntity.color
           _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor
@@ -1134,6 +1153,20 @@ export default {
 </script>
 
 <style>
+circle {
+  cursor: pointer;
+}
+
+text {
+  cursor: pointer;
+  max-width: 25px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
 .svg-set-box {
   width: 75%;
   height: 46px;
@@ -1216,16 +1249,19 @@ li {
   stroke-dashoffset: 0;
   stroke-dasharray: 100;
 }
+
 /*dialog宽度调整*/
-.customWidth{
+.customWidth {
   width: 28%;
 }
+
 /*form-item样式*/
-.lineColor{
+.lineColor {
   width: 80%;
-  float:left;
+  float: left;
 }
-.withoutColor{
+
+.withoutColor {
   width: 97%;
   float: left;
 }
