@@ -24,11 +24,14 @@ export default {
   },
   methods: {
     setUrl:function (){
-      return "/api/KGUpload/upload"
+      return "http://localhost:8089/api/KGUpload/upload"
     },
     jumpToEditor() {
       this.$router.push('/Kojima-Coin/index')
-    }
+    },
+    // showFile:function (response,file,fileList){
+    //   console.log(response.fileList)
+    // }
   }
 }
 
