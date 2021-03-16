@@ -67,7 +67,7 @@ export default {
     min-width: 400px;
 
     .logo {
-      height: 60px;
+      height: 57px;
       vertical-align: top;
       margin-right: 20px;
       border-style: none;

@@ -4,56 +4,106 @@
       <div id="grid" class="grid"></div>
     </div>
     <div class="svg-set-box clearfix">
-      <div class="ctwh-dibmr">
-        <ul class="toolbar" style="float: left;">
-          <li>
-            <a href="javascript:;" @click="addOneNode">
-              <span><i class="el-icon-plus"></i>添加节点</span>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:;" @click="exportImage">
-              <span><i class="el-icon-picture-outline"></i>保存为图片</span>
-            </a>
-          </li>
-        </ul>
+      <div class="ctwh-dibmr leftBox" style="float: left;">
+        <el-tooltip effect="light"
+                    content="添加节点"
+                    placement="top"
+        >
+          <el-button icon="el-icon-plus" circle
+                     @click="addOneNode"
+                     class="tools"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="light"
+                    content="保存为图片"
+                    placement="top"
+        >
+          <el-button icon="el-icon-picture-outline" circle
+                     @click="exportImage"
+                     class="tools"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="light"
+                    content="保存为Json"
+                    placement="top"
+        >
+          <el-button icon="iconfont icon-json" circle
+                     @click="exportJson"
+                     class="tools"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="light"
+                    content="保存为XML"
+                    placement="top"
+        >
+          <el-button icon="iconfont icon-xml" circle
+                     @click="exportXML"
+                     class="tools"
+          ></el-button>
+        </el-tooltip>
       </div>
-      <div class="ctwh-dibmr" style="float: right;">
-        <ul class="toolbar">
-          <li>
-            <a href="javascript:;" @click="zoomIn">
-              <span><i class="el-icon-zoom-in"></i>放大</span>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:;" @click="zoomOut">
-              <span><i class="el-icon-zoom-out"></i>缩小</span>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:;" @click="refresh">
-              <span><i class="el-icon-refresh-right"></i>还原</span>
-            </a>
-          </li>
-          <li>
-            <a
-                v-if="!isFullscreen"
-                id="fullScreenBtn"
-                href="javascript:;"
-                @click="showFull"
-            >
-              <span><i class="el-icon-full-screen"></i>全屏</span>
-            </a>
-            <a
-                v-else
-                id="cancelFullScreenBtn"
-                href="javascript:;"
-                @click="exitFullScreen"
-            >
-              <span><i class="el-icon-full-screen"></i>退出全屏</span>
-            </a>
-          </li>
-        </ul>
+      <div class="ctwh-dibmr cancelBox">
+        <el-tooltip v-if="isCancelOperationShow"
+                    effect="light"
+                    :content="cancelOperationMessage"
+                    placement="top"
+        >
+          <el-button icon="el-icon-close" circle
+                     @click="cancelOperation"
+                     v-if="isCancelOperationShow"
+          ></el-button>
+        </el-tooltip>
+      </div>
+      <div class="ctwh-dibmr rightBox" style="float: right;">
+        <el-tooltip effect="light"
+                    content="放大"
+                    placement="top"
+        >
+          <el-button icon="el-icon-zoom-in" circle
+                     @click="zoomIn"
+                     class="tools"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="light"
+                    content="缩小"
+                    placement="top"
+        >
+          <el-button icon="el-icon-zoom-out" circle
+                     @click="zoomOut"
+                     class="tools"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="light"
+                    content="还原"
+                    placement="top"
+        >
+          <el-button icon="el-icon-refresh-right" circle
+                     @click="refresh"
+                     class="tools"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="light"
+                    content="全屏"
+                    placement="top"
+                    v-if="!isFullscreen"
+        >
+          <el-button icon="el-icon-full-screen" circle
+                     @click="showFull"
+                     class="tools"
+                     v-if="!isFullscreen"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="light"
+                    content="退出全屏"
+                    placement="top"
+                    v-if="isFullscreen"
+        >
+          <el-button icon="el-icon-full-screen" circle
+                     @click="exitFullScreen"
+                     class="tools"
+                     v-if="isFullscreen"
+          ></el-button>
+        </el-tooltip>
       </div>
     </div>
     <el-dialog title="联系选项" :visible.sync="EditLinkDialogVisible" custom-class="customWidth">
@@ -119,6 +169,7 @@ import axios from 'axios'
 import * as d3 from 'd3'
 import $ from 'jquery'
 import html2canvas from 'html2canvas'
+import '@/static/iconfont/iconfont.css'
 
 export default {
   name: "KGBuilder",
@@ -126,6 +177,8 @@ export default {
   data() {
     return {
       // labelLocation:"left",
+      cancelOperationMessage: '',
+      isCancelOperationShow: false,
       formLabelWidth: "120px",
       EditingLinkEntity: {
         id: '',
@@ -164,7 +217,7 @@ export default {
       // 是否正在加载
       loading: false,
       // 组件的宽
-      width: window.innerWidth,
+      width: 1503.2,
       // 组件的高
       height: 800,
       // 图容器
@@ -242,6 +295,16 @@ export default {
         }
       ]
     },
+    cancelOperation() {
+      d3.select('.grid').style("cursor", "")
+      if (this.isAddingNode) {
+        this.isAddingNode = false
+      } else if (this.isAddinglink) {
+        this.isAddinglink = false
+      }
+      this.cancelOperationMessage = ''
+      this.isCancelOperationShow = false
+    },
     initJQueryEvents() {
       let _this = this
       $(function () {
@@ -277,11 +340,11 @@ export default {
       // d3力导布局模拟设置初始化
       this.simulation = d3
           .forceSimulation()
-          .force('charge', d3.forceManyBody().strength(-20)) // 节点之间的引力
+          .force('charge', d3.forceManyBody().strength(-1500)) // 节点之间的电荷力，正值为引力负值为斥力
           .force('link', d3.forceLink().distance(30).id(function (d) {
             return d.id
-          })) // 节点之间的弹力
-          .force('collide', d3.forceCollide().radius(40).iterations(2)) // 节点碰撞力，防止节点重叠
+          })) // 节点之间的弹力，通过link牵引
+          .force('collide', d3.forceCollide().radius(30).strength(0.8).iterations(2)) // 节点碰撞力，防止节点重叠
           .force('center', d3.forceCenter(this.width / 2, this.height / 2)) // 向心力，节点围绕在某一点旁
       // 元素g是用来组合对象的容器。添加到g元素上的变换会应用到其所有的子元素上。
       // 添加到g元素的属性会被其所有的子元素继承。
@@ -340,7 +403,7 @@ export default {
       let graphLinkText = _this.drawLinkText(links)
 
       // tick 每到一个时刻都需要调用方法来更新节点的坐标
-      _this.simulation.nodes(nodes).alphaTarget(0).alphaDecay(0.05).on('tick', ticked)
+      _this.simulation.nodes(nodes).alphaTarget(0).alphaDecay(0.03).on('tick', ticked)
       _this.simulation.force('link').links(links)
       _this.simulation.force('center', d3.forceCenter(_this.width / 2, _this.height / 2))
       _this.simulation.alpha(1).restart()
@@ -419,19 +482,21 @@ export default {
               for (let j = 0; j < _this.graph.nodes.length; j++) {
                 if (_this.graph.nodes[j].id == _this.selectnodeid) {
                   _this.EditingNodeEntity.id = _this.selectnodeid;
-                  _this.EditingNodeEntity.name = _this.graph.nodes[j].name
-                  _this.EditingNodeEntity.color = _this.graph.nodes[j].color
-                  _this.EditingNodeEntity.textColor = _this.graph.nodes[j].textColor
-                  _this.EditingNodeEntity.strokeColor = _this.graph.nodes[j].strokeColor
-                  _this.isEditingNode = true
-                  _this.EditNodeDialogVisible = true
+                  _this.EditingNodeEntity.name = _this.graph.nodes[j].name;
+                  _this.EditingNodeEntity.color = _this.graph.nodes[j].color;
+                  _this.EditingNodeEntity.textColor = _this.graph.nodes[j].textColor;
+                  _this.EditingNodeEntity.strokeColor = _this.graph.nodes[j].strokeColor;
+                  _this.isEditingNode = true;
+                  _this.EditNodeDialogVisible = true;
                   break;
                 }
               }
               break;
             case "LINK":
               _this.isAddinglink = true;
-              d3.select('.grid').style("cursor", "pointer")
+              _this.isCancelOperationShow = true;
+              _this.cancelOperationMessage = '取消添加连线';
+              d3.select('.grid').style("cursor", "pointer");
               _this.selectsourcenodeid = d.id;
               break;
             case "DELETE":
@@ -564,6 +629,8 @@ export default {
           if (_this.selectsourcenodeid == _this.selecttargetnodeid) {
             d3.select('.grid').style("cursor", "")
             _this.isAddinglink = false
+            _this.isCancelOperationShow = false
+            _this.cancelOperationMessage = ''
             _this.$message({
               type: 'error',
               message: '连接出错：不支持节点自身连接自身！'
@@ -578,6 +645,8 @@ export default {
                     _this.graph.links[i].targetId == _this.selectsourcenodeid)) {
               d3.select('.grid').style("cursor", "")
               _this.isAddinglink = false
+              _this.isCancelOperationShow = false
+              _this.cancelOperationMessage = ''
               _this.$message({
                 type: 'error',
                 message: '连接出错：两节点之间已经存在一条连接！'
@@ -587,13 +656,16 @@ export default {
             }
           }
           d3.select('.grid').style("cursor", "");
+          _this.isAddinglink = false
+          _this.isCancelOperationShow = false
+          _this.cancelOperationMessage = ''
           _this.createLink()
           d.fixed = false
+
         }
         // 阻止事件冒泡到父元素
         event.stopPropagation()
       })
-      // todo 绑定双击事件，暂时为空
       nodeEnter.on('dblclick', function (d) {
         console.log('双击节点，id：' + d.id)
         event.stopPropagation()
@@ -1058,6 +1130,8 @@ export default {
     // 当鼠标再次在界面中点击，创建节点，鼠标样式恢复
     addOneNode() {
       this.isAddingNode = true
+      this.cancelOperationMessage = '取消添加节点'
+      this.isCancelOperationShow = true
       d3.select('.grid').style("cursor", "crosshair")
     },
     // 添加节点方法
@@ -1072,6 +1146,8 @@ export default {
       newNode.fy = _this.tyy
       _this.graph.nodes.push(newNode)
       _this.updateGraph()
+      _this.isCancelOperationShow = false
+      _this.cancelOperationMessage = ''
       _this.isAddingNode = false
     },
     // 删除联系
@@ -1149,8 +1225,8 @@ export default {
       }
       _this.updateGraph()
     },
-    //保存为图片
-    exportImage(){
+    // 保存为图片
+    exportImage() {
       html2canvas(document.querySelector(".grid")).then(function (canvas) {
         var a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');  //将画布内的信息导出为png图片数据
@@ -1158,6 +1234,14 @@ export default {
         a.download = timestamp;  //设定下载名称
         a.click(); //点击触发下载
       });
+    },
+    // 导出为Json
+    exportJson() {
+      // todo
+    },
+    // 导出为XML
+    exportXML() {
+      // todo
     }
   }
 }
@@ -1179,14 +1263,15 @@ text {
 }
 
 .svg-set-box {
-  width: 75%;
+  width: 97%;
   height: 46px;
   line-height: 46px;
   padding-left: 15px;
   color: #7f7f7f;
   /* background: #f7f7f7; */
   position: absolute;
-  bottom: 0;
+  bottom: 10px;
+  text-align: center;
 }
 
 .ctwh-dibmr {
@@ -1225,23 +1310,25 @@ text {
   background: #08aefc !important;
 }
 
-.toolbar {
-  line-height: 18px;
+.cancelBox {
+  margin: 0 auto;
+}
+
+.leftBox {
+  margin-left: 15%;
+}
+
+.rightBox {
+  margin-right: 15%;
+}
+
+.tools{
+  margin-left: 30px;
 }
 
 ul,
 li {
   list-style: none;
-}
-
-.toolbar li {
-  float: left;
-  margin-left: 5px;
-}
-
-.toolbar li a {
-  text-decoration: none;
-  color: #606266;
 }
 
 .notshow {
