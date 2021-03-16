@@ -1255,11 +1255,11 @@ export default {
     // 导出为Json
     exportJson() {
       // todo
-      axios.get('/saveAsJson', {
-        responseType: 'arraybuffer'
+      axios.get('http://localhost:8089/api/KG/saveAsJson', {
+        responseType: 'blob'
       }).then((response) => {
-        const blob = new Blob([response.data], {type: 'application/xml;charset=utf-8'});
-        const fileName = `${new Date().valueOf()}.json`;
+        const blob = new Blob([response.data], {type: 'application/json'});
+        const fileName = `Kojima_Coin_${new Date().valueOf()}.json`;
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
         link.download = fileName;
@@ -1270,6 +1270,17 @@ export default {
     // 导出为XML
     exportXML() {
       // todo
+      axios.get('http://localhost:8089/api/KG/saveAsXml', {
+        responseType: 'blob'
+      }).then((response) => {
+        const blob = new Blob([response.data], {type: 'application/xml'});
+        const fileName = `Kojima_Coin_${new Date().valueOf()}.xml`;
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+      })
     }
   }
 }

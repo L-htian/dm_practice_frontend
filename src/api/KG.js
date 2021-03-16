@@ -58,27 +58,25 @@ export function getKGDataAPI(id){
         method: 'GET',
     })
 }
-export async function saveAsJsonAPI(){
-    const res = await axios({
-        url: `${api.KGPre}/saveAsJson`,
-        method: 'POST',
-        data:params,
-        headers:{
-            'Content-Type':'application/json; charset=utf-8'
-        },
-        responseType:'blob',
-    });
-    return res.data;
-}
-export async function saveAsXmlAPI(params){
-    const res = await axios({
-        url: `${api.KGPre}/saveAsXml`,
-        method: 'POST',
-        data:params,
-        headers:{
-            'Content-Type':'application/xml; charset=utf-8'
-        },
-        responseType:'blob',
-    });
-    return res.data;
-}
+// export async function saveAsJsonAPI(){
+//     const res = await axios({
+//         url: `${api.KGPre}/saveAsJson`,
+//         method: 'POST',
+//         headers:{
+//             'Content-Type':'application/json; charset=utf-8'
+//         },
+//         responseType:'blob',
+//     });
+//     return res.data;
+// }
+// export async function saveAsXmlAPI(){
+//     const res = await axios({
+//         url: `${api.KGPre}/saveAsXml`,
+//         method: 'POST',
+//         headers:{
+//             'Content-Type':'application/xml; charset=utf-8'
+//         },
+//         responseType:'blob',
+//     });
+//     return res.data;
+// }
