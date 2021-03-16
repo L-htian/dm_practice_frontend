@@ -25,4 +25,17 @@ export default {
   height: 100vh;
   width: 100%;
 }
+/*全屏背景色更改*/
+#kg_container:fullscreen{
+  background-color: rgba(255,255,255,0);
+}
+#kg_container:-webkit-full-screen {
+  background-color: rgba(255,255,255,0);
+}
+#kg_container:-moz-full-screen {
+  background-color: rgba(255,255,255,0);
+}
+::backdrop{
+  background-color: rgba(255,255,255,0);
+}
 </style>

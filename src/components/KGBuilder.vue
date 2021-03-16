@@ -204,6 +204,7 @@ export default {
       tyy: {},
       // 默认颜色
       DefaultButtonGroupColor: '#d1d6d7',
+      DefaultButtonGroupColorHover: '#ce458a',
       DefaultButtonGroupStrokeColor: '#fff',
       DefaultButtonGroupTextColor: '#0c0c0c',
       DefaultNodeStrokeColor: '#d5dede',
@@ -213,6 +214,7 @@ export default {
       DefaultLinkActiveColor: '#878585',
       DefaultLinkTextColor: '#0c0c0c',
       DefaultArrowColor: 'rgba(158,152,152,0.98)',
+
       theme: 0,
       // 是否正在加载
       loading: false,
@@ -575,9 +577,11 @@ export default {
             return 'action_' + d.data.code
           })
 
+
+
       // 绘制同心圆
       let arc = d3.arc().innerRadius(_this.defaultR).outerRadius(_this.defaultR + 30)
-
+      // let arcHover=d3.arc().innerRadius(_this.defaultR).outerRadius(_this.defaultR + 40)
       // 设置工具栏形状
       buttonGroupEnter
           .append('path')
@@ -585,10 +589,20 @@ export default {
           .attr('d', function (d) {
             return arc(d)
           })
+          // .attr("style", "pointer-events: auto;")
           .attr('fill', _this.DefaultButtonGroupColor) // 填充
           .style('opacity', 0.6)
           .attr('stroke', _this.DefaultButtonGroupStrokeColor) // 轮廓
           .attr('stroke-width', 2)
+          // .on("mouseover", function(d) {
+          //   d3.select(this).attr('fill',_this.DefaultButtonGroupColorHover)
+          //   console.log('mouseover')
+          // })
+          // .on("mouseout", function(d) {
+          //   d3.select(this).attr('fill',_this.DefaultButtonGroupColor)
+          //   console.log('mouseout')
+          // })
+
 
       // 设置工具栏文字
       buttonGroupEnter
@@ -604,6 +618,7 @@ export default {
         return _this.DefaultButtonGroupTextColor
       })
           .attr('font-size', 10)
+
     },
     // 绘制节点
     drawNode(nodes) {
@@ -983,6 +998,8 @@ export default {
       this.isFullscreen = !this.isFullscreen
       let full = document.getElementById('kg_container')
       this.fullScreen(full)
+      //组件通信给header传值
+      window.Event.$emit('isFullScreen',this.isFullscreen)
     },
     exitFullScreen() {
       this.isFullscreen = !this.isFullscreen
@@ -993,6 +1010,7 @@ export default {
       } else if (document.webkitExitFullscreen) {
         document.webkitExitFullscreen()
       }
+      window.Event.$emit('isFullScreen',this.isFullscreen)
     },
     fullScreen(element) {
       if (element.requestFullscreen) {
@@ -1363,4 +1381,10 @@ li {
   width: 97%;
   float: left;
 }
+/*path.hover{*/
+/*  background-color: rgba(0, 0, 0, .5);*/
+/*}*/
+/*#kg_container:fullscreen{*/
+/*  background-color: rgba(255,255,255,0);*/
+/*}*/
 </style>
