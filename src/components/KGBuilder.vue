@@ -578,7 +578,6 @@ export default {
           })
 
 
-
       // 绘制同心圆
       let arc = d3.arc().innerRadius(_this.defaultR).outerRadius(_this.defaultR + 30)
       // let arcHover=d3.arc().innerRadius(_this.defaultR).outerRadius(_this.defaultR + 40)
@@ -594,14 +593,14 @@ export default {
           .style('opacity', 0.6)
           .attr('stroke', _this.DefaultButtonGroupStrokeColor) // 轮廓
           .attr('stroke-width', 2)
-          // .on("mouseover", function(d) {
-          //   d3.select(this).attr('fill',_this.DefaultButtonGroupColorHover)
-          //   console.log('mouseover')
-          // })
-          // .on("mouseout", function(d) {
-          //   d3.select(this).attr('fill',_this.DefaultButtonGroupColor)
-          //   console.log('mouseout')
-          // })
+      // .on("mouseover", function(d) {
+      //   d3.select(this).attr('fill',_this.DefaultButtonGroupColorHover)
+      //   console.log('mouseover')
+      // })
+      // .on("mouseout", function(d) {
+      //   d3.select(this).attr('fill',_this.DefaultButtonGroupColor)
+      //   console.log('mouseout')
+      // })
 
 
       // 设置工具栏文字
@@ -999,7 +998,7 @@ export default {
       let full = document.getElementById('kg_container')
       this.fullScreen(full)
       //组件通信给header传值
-      window.Event.$emit('isFullScreen',this.isFullscreen)
+      window.Event.$emit('isFullScreen', this.isFullscreen)
     },
     exitFullScreen() {
       this.isFullscreen = !this.isFullscreen
@@ -1010,7 +1009,7 @@ export default {
       } else if (document.webkitExitFullscreen) {
         document.webkitExitFullscreen()
       }
-      window.Event.$emit('isFullScreen',this.isFullscreen)
+      window.Event.$emit('isFullScreen', this.isFullscreen)
     },
     fullScreen(element) {
       if (element.requestFullscreen) {
@@ -1256,14 +1255,17 @@ export default {
     // 导出为Json
     exportJson() {
       // todo
-      const foo = {hello: "world"};
-      const blob = new Blob([JSON.stringify(foo)], {type: 'application/xml;charset=utf-8'});
-      const fileName = `${new Date().valueOf()}.json`;
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.download = fileName;
-      link.click();
-      window.URL.revokeObjectURL(link.href);
+      axios.get('/saveAsJson', {
+        responseType: 'arraybuffer'
+      }).then((response) => {
+        const blob = new Blob([response.data], {type: 'application/xml;charset=utf-8'});
+        const fileName = `${new Date().valueOf()}.json`;
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+      })
     },
     // 导出为XML
     exportXML() {
@@ -1348,7 +1350,7 @@ text {
   margin-right: 15%;
 }
 
-.tools{
+.tools {
   margin-left: 30px;
 }
 
@@ -1389,6 +1391,7 @@ li {
   width: 97%;
   float: left;
 }
+
 /*path.hover{*/
 /*  background-color: rgba(0, 0, 0, .5);*/
 /*}*/
