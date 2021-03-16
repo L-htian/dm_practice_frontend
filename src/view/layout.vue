@@ -1,6 +1,6 @@
 <template>
   <div id="layout">
-    <Header  v-show="showHeader"></Header>
+    <Header v-show="showHeader"></Header>
     <transition name="fade-transform" mode="out-in">
       <router-view/>
     </transition>

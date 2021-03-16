@@ -1,62 +1,10 @@
-import {axios} from "@/static/utils/request";
+import axios from 'axios';
 const api = {
-    KGPre : '/api/KG'
-}
-// 节点相关
-export function addNodeAPI(data){
-    return axios({
-        url: `${api.KGPre}/addNode`,
-        method: 'POST',
-        data,
-    })
-}
-export function deleteNodeAPI(id){
-    return axios({
-        url: `${api.KGPre}/${id}/deleteNode`,
-        method: 'POST',
-    })
-}
-export function setNodeNameAPI(data){
-    return axios({
-        url: `${api.KGPre}/${data.id}/setNodeName`,
-        method: 'POST',
-        data: {"name":data.name},
-    })
-}
-export function setImgsrcAPI(data){
-    return axios({
-        url: `${api.KGPre}/${data.id}/setImgsrcName`,
-        method: 'POST',
-        data: {"imgsrc":data.imgsrc},
-    })
-}
-// 联系相关
-export function addLinkAPI(data){
-    return axios({
-        url: `${api.KGPre}/addLink`,
-        method: 'POST',
-        data,
-    })
-}
-export function deleteLinkAPI(id){
-    return axios({
-        url: `${api.KGPre}/${id}/deleteLink`,
-        method: 'POST',
-    })
-}
-export function setLinkNameAPI(data){
-    return axios({
-        url: `${api.KGPre}/${data.id}/setLinkName`,
-        method: 'POST',
-        data: {"name":data.name},
-    })
+    KGPre : 'http://localhost:8089/api/KG/'
 }
 // 图谱相关
 export function getKGDataAPI(id){
-    return axios({
-        url: `${api.KGPre}/${id}/getKGData`,
-        method: 'GET',
-    })
+    // todo
 }
 // export async function saveAsJsonAPI(){
 //     const res = await axios({

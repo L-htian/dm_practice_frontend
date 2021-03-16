@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     setUrl:function (){
-      return "http://localhost:8089/api/KGUpload/upload"
+      return "http://localhost:8089/api/KG/upload"
     },
     jumpToEditor() {
       this.$router.push('/Kojima-Coin/index')

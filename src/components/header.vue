@@ -9,7 +9,8 @@
         class="menu"
         mode="horizontal"
         text-color="#606266"
-        active-text-color="#303133">
+        active-text-color="#303133"
+    >
       <router-link to="/Kojima-Coin/index">
         <el-menu-item index="1">
           <i class="el-icon-house"></i>
@@ -80,6 +81,10 @@ export default {
       font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
       font-weight: 600;
       position: relative;
+      cursor: pointer;
+      &:hover {
+        color: #455355;
+      }
     }
   }
 }
@@ -96,9 +101,14 @@ export default {
       height: 60px;
       float: left;
       font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
-      a:hover &{
+      &:hover {
         background: #E4E7ED;
       }
+    }
+
+    .is-active {
+      background: #fff;
+      border-bottom-color: #303133;
     }
   }
 }

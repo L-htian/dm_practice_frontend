@@ -177,6 +177,8 @@ export default {
   data() {
     return {
       // labelLocation:"left",
+      nextNodeId: '',
+      nextLinkId: '',
       cancelOperationMessage: '',
       isCancelOperationShow: false,
       formLabelWidth: "120px",
@@ -204,9 +206,9 @@ export default {
       tyy: {},
       // 默认颜色
       DefaultButtonGroupColor: '#d1d6d7',
-      DefaultButtonGroupColorHover: '#ce458a',
       DefaultButtonGroupStrokeColor: '#fff',
       DefaultButtonGroupTextColor: '#0c0c0c',
+      DefaultButtonGroupActiveColor: '#627f73',
       DefaultNodeStrokeColor: '#d5dede',
       DefaultNodeTextColor: '#33434b',
       DefaultNodeColor: 'rgb(94,95,95)',
@@ -253,9 +255,6 @@ export default {
         {name: '连线', value: 1, code: 'link'},
         {name: '删除', value: 1, code: 'delete'},
       ],
-      // 正在选中的节点的id
-      selectId: 0,
-      nodeRecordList: [],
       nodebuttonAction: '',
       // 正在选择的节点id
       selectnodeid: '',
@@ -405,10 +404,10 @@ export default {
       let graphLinkText = _this.drawLinkText(links)
 
       // tick 每到一个时刻都需要调用方法来更新节点的坐标
-      _this.simulation.nodes(nodes).alphaTarget(0).alphaDecay(0.03).on('tick', ticked)
+      _this.simulation.nodes(nodes).on('tick', ticked)
       _this.simulation.force('link').links(links)
       _this.simulation.force('center', d3.forceCenter(_this.width / 2, _this.height / 2))
-      _this.simulation.alpha(1).restart()
+      _this.simulation.alpha(1).alphaTarget(0).alphaDecay(0.05).restart()
 
       function ticked() {
         // 更新连线坐标
@@ -520,6 +519,26 @@ export default {
       _this.svg.selectAll(".action_delete").on("click", function (d) {
         _this.nodebuttonAction = 'DELETE';
       });
+
+      _this.svg.selectAll(".action_edit").on("mouseenter", function (d) {
+        _this.svg.selectAll(".action_edit_path").style('fill', _this.DefaultButtonGroupActiveColor)
+      });
+      _this.svg.selectAll(".action_link").on("mouseenter", function (d) {
+        _this.svg.selectAll(".action_link_path").style('fill', _this.DefaultButtonGroupActiveColor)
+      });
+      _this.svg.selectAll(".action_delete").on("mouseenter", function (d) {
+        _this.svg.selectAll(".action_delete_path").style('fill', _this.DefaultButtonGroupActiveColor)
+      });
+
+      _this.svg.selectAll(".action_edit").on("mouseleave", function (d) {
+        _this.svg.selectAll(".action_edit_path").style('fill', _this.DefaultButtonGroupColor)
+      });
+      _this.svg.selectAll(".action_link").on("mouseleave", function (d) {
+        _this.svg.selectAll(".action_link_path").style('fill', _this.DefaultButtonGroupColor)
+      });
+      _this.svg.selectAll(".action_delete").on("mouseleave", function (d) {
+        _this.svg.selectAll(".action_delete_path").style('fill', _this.DefaultButtonGroupColor)
+      });
     },
     // 建立实体，实体，关系三元组
     // 返回所有节点信息和所有三元组
@@ -576,7 +595,7 @@ export default {
           .attr('class', function (d) {
             return 'action_' + d.data.code
           })
-
+          .attr('cursor', 'pointer')
 
       // 绘制同心圆
       let arc = d3.arc().innerRadius(_this.defaultR).outerRadius(_this.defaultR + 30)
@@ -584,24 +603,17 @@ export default {
       // 设置工具栏形状
       buttonGroupEnter
           .append('path')
+          .attr('class', function (d) {
+            return 'action_' + d.data.code + '_path'
+          })
           // d属性代表路径，通过描述路径绘制出svg图像
           .attr('d', function (d) {
             return arc(d)
           })
-          // .attr("style", "pointer-events: auto;")
           .attr('fill', _this.DefaultButtonGroupColor) // 填充
           .style('opacity', 0.6)
           .attr('stroke', _this.DefaultButtonGroupStrokeColor) // 轮廓
           .attr('stroke-width', 2)
-      // .on("mouseover", function(d) {
-      //   d3.select(this).attr('fill',_this.DefaultButtonGroupColorHover)
-      //   console.log('mouseover')
-      // })
-      // .on("mouseout", function(d) {
-      //   d3.select(this).attr('fill',_this.DefaultButtonGroupColor)
-      //   console.log('mouseout')
-      // })
-
 
       // 设置工具栏文字
       buttonGroupEnter
@@ -813,9 +825,9 @@ export default {
             else return _this.DefaultNodeTextColor
           })
           .attr('class', 'nodetext')
-          .attr('dy', '3.6em')
+          .attr('dy', '3.2em')
           .attr('font-family', 'Microsoft YaHei')
-          .attr('font-size', 16)
+          .attr('font-size', 14)
           .attr('text-anchor', 'middle')
           .text(function (d) {
             return d.name
@@ -933,7 +945,7 @@ export default {
             else return _this.DefaultLinkTextColor
           })
           .append('textPath')
-          .attr("startOffset", "60%")
+          .attr("startOffset", "50%")
           .attr("text-anchor", "middle")
           // .attr("xlink:href", function (d) {
           //   return "#invis_" + d.lk.sourceId + "-" + d.lk.name + "-" + d.lk.targetId;
@@ -950,6 +962,7 @@ export default {
       if (!d3.event.active) this.simulation.alphaTarget(0.8).restart()
       d.fx = d.x
       d.fy = d.y
+      d.fixed = true
     },
     dragging(d) {
       d.fx = d3.event.x
@@ -1024,31 +1037,45 @@ export default {
     },
     // 创建node的id
     nodeIdBuilder() {
-      if (this.graph.nodes.length == 0) return '0'
-      let id = 0
-      let existedIds = []
-      this.graph.nodes.forEach(function (node) {
-        existedIds.push(node.id)
-      })
-      existedIds.sort((num1, num2) => {
-        return num2 - num1
-      })
-      id = Number(existedIds[0]) + 1
-      return id.toString()
+      if (this.graph.nodes.length == 0) {
+        this.nextNodeId = '0'
+        return '0'
+      } else if (this.nextNodeId == '') {
+        let id = 0
+        let existedIds = []
+        this.graph.nodes.forEach(function (node) {
+          existedIds.push(node.id)
+        })
+        existedIds.sort((num1, num2) => {
+          return num2 - num1
+        })
+        id = Number(existedIds[0]) + 1
+        this.nextNodeId = id.toString()
+        return this.nextNodeId
+      }
+      this.nextNodeId = Number(this.nextNodeId + 1).toString()
+      return this.nextNodeId
     },
     // 创建link的id
     linkIdBuilder() {
-      if (this.graph.links.length == 0) return '0'
-      let id = 0
-      let existedIds = []
-      this.graph.links.forEach(function (link) {
-        existedIds.push(link.id)
-      })
-      existedIds.sort((num1, num2) => {
-        return num2 - num1
-      })
-      id = Number(existedIds[0]) + 1
-      return id.toString()
+      if (this.graph.links.length == 0) {
+        this.nextLinkId = '0'
+        return '0'
+      } else if (this.nextLinkId == '') {
+        let id = 0
+        let existedIds = []
+        this.graph.links.forEach(function (node) {
+          existedIds.push(node.id)
+        })
+        existedIds.sort((num1, num2) => {
+          return num2 - num1
+        })
+        id = Number(existedIds[0]) + 1
+        this.nextLinkId = id.toString()
+        return this.nextLinkId
+      }
+      this.nextLinkId = Number(this.nextLinkId + 1).toString()
+      return this.nextLinkId
     },
     // 清空记录关系
     emptyLinkEntity() {
@@ -1254,7 +1281,6 @@ export default {
     },
     // 导出为Json
     exportJson() {
-      // todo
       axios.get('http://localhost:8089/api/KG/saveAsJson', {
         responseType: 'blob'
       }).then((response) => {
@@ -1269,7 +1295,6 @@ export default {
     },
     // 导出为XML
     exportXML() {
-      // todo
       axios.get('http://localhost:8089/api/KG/saveAsXml', {
         responseType: 'blob'
       }).then((response) => {
