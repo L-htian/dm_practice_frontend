@@ -76,9 +76,3 @@ export async function saveAsXmlAPI(params){
     });
     return res.data;
 }
-// export function saveAsPictureAPI(){
-//     return axios({
-//         url: `${api.KGPre}/saveAsPicture`,
-//         method: 'POST',
-//     })
-// }

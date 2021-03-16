@@ -9,7 +9,7 @@
         accept="application/json,text/csv"
         :file-list="fileList">
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-      <div class="el-upload__tip" slot="tip">只能上传Json,csv文件</div>
+      <div class="el-upload__tip" slot="tip">只能上传Json文件</div>
     </el-upload>
   </div>
 </template>

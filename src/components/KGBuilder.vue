@@ -1256,6 +1256,14 @@ export default {
     // 导出为Json
     exportJson() {
       // todo
+      const foo = {hello: "world"};
+      const blob = new Blob([JSON.stringify(foo)], {type: 'application/xml;charset=utf-8'});
+      const fileName = `${new Date().valueOf()}.json`;
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
+      window.URL.revokeObjectURL(link.href);
     },
     // 导出为XML
     exportXML() {
