@@ -176,6 +176,7 @@ export default {
   props: ['pid'],
   data() {
     return {
+      hasUpload: false,
       // labelLocation:"left",
       nextNodeId: '',
       nextLinkId: '',
@@ -247,6 +248,10 @@ export default {
         nodes: [],
         links: [],
       },
+      save_graph: {
+        nodes: [],
+        links: [],
+      },
       // 默认节点半径
       defaultR: 30,
       // 节点工具栏的内容
@@ -271,30 +276,62 @@ export default {
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
+    //用户有咩有上传文件
+    window.Event.$on('haveUpload', val => {
+      this.hasUpload = val
+    })
   },
   created() {
   },
   watch: {},
   methods: {
     testNode() {
-      this.graph.nodes = [
-        {
-          "name": "田所浩二",
-          "id": "114514",
-        },
-        {
-          "name": "远野",
-          "id": "1919810",
-        }
-      ]
-      this.graph.links = [
-        {
-          "sourceId": "114514",
-          "targetId": "1919810",
-          "id": "9527",
-          "name": "是先辈",
-        }
-      ]
+      if (!this.hasUpload) {
+        this.graph.nodes = [
+          {
+            "name": "田所浩二",
+            "id": "114514",
+          },
+          {
+            "name": "远野",
+            "id": "1919810",
+          }
+        ]
+        this.graph.links = [
+          {
+            "sourceId": "114514",
+            "targetId": "1919810",
+            "id": "9527",
+            "name": "是先辈",
+          }
+        ]
+      } else {
+        // Todo 接收后端数据
+        $.ajax("http://localhost:8090/api/KG/getUploadData", {
+          data: {},
+          dataType: 'json',
+          type: 'get',
+          async: 'false',
+          success: function (data) {
+            _this.graph.nodes = data.nodes
+            _this.graph.links = data.links
+          }
+        })
+      }
+      for (let j = 0; j < _this.graph.nodes.length; j++) {
+        let save_node = {}
+        save_node.name = _this.graph.nodes[j].name
+        save_node.id = _this.graph.nodes[j].id
+        _this.save_graph.push(save_node)
+      }
+      for (let j = 0; j < _this.graph.links.length; j++) {
+        let save_link = {}
+        save_link.sourceId = _this.graph.links[j].sourceId
+        save_link.targetId = _this.graph.links[j].targetId
+        save_link.id = _this.graph.links[j].id
+        save_link.name = _this.graph.links[j].name
+        _this.save_graph.push(save_link)
+      }
     },
     cancelOperation() {
       d3.select('.grid').style("cursor", "")
@@ -1147,6 +1184,7 @@ export default {
           if (_this.graph.links[i].sourceId == _this.selectnodeid ||
               _this.graph.links[i].targetId == _this.selectnodeid) {
             _this.graph.links.splice(i, 1)
+            _this.save_graph.links.splice(i, 1)
             i = i - 1
           }
         }
@@ -1154,6 +1192,7 @@ export default {
         for (let i = 0; i < _this.graph.nodes.length; i++) {
           if (_this.graph.nodes[i].id == _this.selectnodeid) {
             _this.graph.nodes.splice(i, 1)
+            _this.save_graph.nodes.splice(i, 1)
             break;
           }
         }
@@ -1182,13 +1221,17 @@ export default {
     createNode() {
       let _this = this
       let newNode = {}
+      let save_newNode = {}
       newNode.name = '节点'
+      save_newNode.name = newNode.name
       newNode.id = _this.nodeIdBuilder()
+      save_newNode.id = newNode.id
       newNode.x = _this.txx
       newNode.y = _this.tyy
       newNode.fx = _this.txx
       newNode.fy = _this.tyy
       _this.graph.nodes.push(newNode)
+      _this.save_graph.nodes.push(save_newNode)
       _this.updateGraph()
       _this.isCancelOperationShow = false
       _this.cancelOperationMessage = ''
@@ -1205,6 +1248,7 @@ export default {
         for (let i = 0; i < _this.graph.links.length; i++) {
           if (_this.graph.links[i].id == _this.selectrelationid) {
             _this.graph.links.splice(i, 1)
+            _this.save_graph.links.splice(i, 1)
             break
           }
         }
@@ -1237,6 +1281,7 @@ export default {
       newShip.id = _this.linkIdBuilder()
       newShip.name = '联系'
       _this.graph.links.push(newShip)
+      _this.save_graph.links.push(newShip)
       _this.updateGraph()
       _this.isAddinglink = false
       _this.selectsourcenodeid = '';
@@ -1248,6 +1293,7 @@ export default {
       for (let i = 0; i < _this.graph.nodes.length; i++) {
         if (_this.selectnodeid == _this.graph.nodes[i].id) {
           _this.graph.nodes[i].name = _this.EditingNodeEntity.name
+          _this.save_graph.nodes[i].name = _this.EditingNodeEntity.name
           _this.graph.nodes[i].color = _this.EditingNodeEntity.color
           _this.graph.nodes[i].textColor = _this.EditingNodeEntity.textColor
           _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor
@@ -1262,6 +1308,7 @@ export default {
       for (let i = 0; i < _this.graph.links.length; i++) {
         if (_this.selectrelationid == _this.graph.links[i].id) {
           _this.graph.links[i].name = _this.EditingLinkEntity.name
+          _this.save_graph.links[i].name = _this.EditingLinkEntity.name
           _this.graph.links[i].color = _this.EditingLinkEntity.color
           _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor
           break
@@ -1281,11 +1328,24 @@ export default {
     },
     // 导出为Json
     exportJson() {
+      // let content = JSON.stringify(this.save_graph)
+      // let eleLink = document.createElement('a');
+      // eleLink.download = `Kojima_Coin_${new Date().valueOf()}.json`;
+      // eleLink.style.display = 'none';
+      // // 字符内容转变成blob地址
+      // let blob = new Blob([content]);
+      // eleLink.href = URL.createObjectURL(blob);
+      // // 触发点击
+      // document.body.appendChild(eleLink);
+      // eleLink.click();
+      // // 然后移除
+      // document.body.removeChild(eleLink);
       axios.get('http://localhost:8089/api/KG/saveAsJson', {
         responseType: 'blob'
       }).then((response) => {
         const blob = new Blob([response.data], {type: 'application/json'});
         const fileName = `Kojima_Coin_${new Date().valueOf()}.json`;
+        console.log(blob)
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
         link.download = fileName;

@@ -9,9 +9,10 @@
 
 <script>
 import Header from '@/components/header'
-import Vue from 'vue'
 
+import Vue from 'vue'
 window.Event = new Vue()
+
 export default {
   name: "layout",
   components: {
