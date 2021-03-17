@@ -215,7 +215,7 @@ export default {
       DefaultNodeColor: 'rgb(94,95,95)',
       DefaultLinkColor: 'rgba(132,137,132,0.45)',
       DefaultLinkActiveColor: '#878585',
-      DefaultLinkTextColor: '#0c0c0c',
+      DefaultLinkTextColor: '#33434b',
       DefaultArrowColor: 'rgba(158,152,152,0.98)',
 
       theme: 0,
@@ -312,7 +312,10 @@ export default {
           {
             "name": "李邦国",
             "id": "5",
-            "color": "#233333"
+            "color": "rgba(115,177,143,0.88)",
+            "strokeColor": "rgb(131,246,221, 0.6)",
+            "fx": "750",
+            "fy": "400"
           },
           {
             "name": "棒球部部员",
@@ -941,7 +944,6 @@ export default {
             if (d.textColor) return d.textColor
             else return _this.DefaultNodeTextColor
           })
-          .attr('class', 'nodetext')
           .attr('dy', '3.2em')
           .attr('font-family', 'Microsoft YaHei')
           .attr('font-size', 14)
@@ -1068,7 +1070,7 @@ export default {
           //   return "#invis_" + d.lk.sourceId + "-" + d.lk.name + "-" + d.lk.targetId;
           // })
           .style('font-family', 'Microsoft YaHei')
-          .style('font-size', '14px')
+          .style('font-size', 14)
           .text(function (d) {
             if (d.lk.name) return d.lk.name
             else return '联系'
@@ -1482,38 +1484,6 @@ text {
   display: inline-block;
 }
 
-.ss-d {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 10px;
-  border-radius: 50%;
-  background: #dedede;
-}
-
-.sd1 {
-  width: 30px;
-  height: 30px;
-}
-
-.sd2 {
-  width: 26px;
-  height: 26px;
-}
-
-.sd3 {
-  width: 20px;
-  height: 20px;
-}
-
-.sd4 {
-  width: 16px;
-  height: 16px;
-}
-
-.sd-active {
-  background: #08aefc !important;
-}
-
 .cancelBox {
   margin: 0 auto;
 }
@@ -1542,14 +1512,6 @@ li {
 .nodetext {
   pointer-events: all;
   cursor: pointer;
-  stroke-dasharray: 0 0 0 0;
-  stroke-dashoffset: 10;
-  transition: all ease 0.1s;
-}
-
-.nodetext:hover {
-  stroke-dashoffset: 0;
-  stroke-dasharray: 100;
 }
 
 /*dialog宽度调整*/
@@ -1567,11 +1529,4 @@ li {
   width: 97%;
   float: left;
 }
-
-/*path.hover{*/
-/*  background-color: rgba(0, 0, 0, .5);*/
-/*}*/
-/*#kg_container:fullscreen{*/
-/*  background-color: rgba(255,255,255,0);*/
-/*}*/
 </style>
