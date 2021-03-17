@@ -23,6 +23,11 @@ const routes = [
                 path: 'KGEditor',
                 name: 'KGEditor',
                 component: () => import('@/view/KGEditor')
+            },
+            {
+                path: 'KGList',
+                name: 'KGList',
+                component: () => import('@/view/KGList')
             }
         ]
     }

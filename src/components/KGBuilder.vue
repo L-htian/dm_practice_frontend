@@ -286,23 +286,103 @@ export default {
   watch: {},
   methods: {
     testNode() {
+      let _this = this
       if (!this.hasUpload) {
         this.graph.nodes = [
           {
             "name": "田所浩二",
-            "id": "114514",
+            "id": "0",
           },
           {
             "name": "远野",
-            "id": "1919810",
+            "id": "1",
+          },
+          {
+            "name": "KMR",
+            "id": "2",
+          },
+          {
+            "name": "UMR",
+            "id": "3",
+          },
+          {
+            "name": "秘鲁",
+            "id": "4"
+          },
+          {
+            "name": "李邦国",
+            "id": "5",
+            "color": "#233333"
+          },
+          {
+            "name": "棒球部部员",
+            "id": "6"
+          },
+          {
+            "name": "极道",
+            "id": "7"
+          },
+          {
+            "name": "球鞋",
+            "id": "8"
+          },
+          {
+            "name": "豪车",
+            "id": "9"
+          },
+          {
+            "name": "别野",
+            "id": "10"
           }
         ]
         this.graph.links = [
           {
-            "sourceId": "114514",
-            "targetId": "1919810",
-            "id": "9527",
+            "sourceId": "0",
+            "targetId": "1",
+            "id": "0",
             "name": "是先辈",
+          },
+          {
+            "sourceId": "0",
+            "targetId": "2",
+            "id": "1",
+            "name": "是先辈",
+          },
+          {
+            "sourceId": "3",
+            "targetId": "2",
+            "id": "2",
+            "name": "是先辈",
+          },
+          {
+            "sourceId": "0",
+            "targetId": "4",
+            "id": "3",
+            "name": "喝",
+          },
+          {
+            "sourceId": "5",
+            "targetId": "8",
+            "id": "4",
+            "name": "购买",
+          },
+          {
+            "sourceId": "5",
+            "targetId": "9",
+            "id": "5",
+            "name": "购买",
+          },
+          {
+            "sourceId": "5",
+            "targetId": "10",
+            "id": "6",
+            "name": "购买",
+          },
+          {
+            "sourceId": "7",
+            "targetId": "6",
+            "id": "7",
+            "name": "胁迫",
           }
         ]
       } else {
@@ -322,7 +402,7 @@ export default {
         let save_node = {}
         save_node.name = _this.graph.nodes[j].name
         save_node.id = _this.graph.nodes[j].id
-        _this.save_graph.push(save_node)
+        _this.save_graph.nodes.push(save_node)
       }
       for (let j = 0; j < _this.graph.links.length; j++) {
         let save_link = {}
@@ -330,7 +410,7 @@ export default {
         save_link.targetId = _this.graph.links[j].targetId
         save_link.id = _this.graph.links[j].id
         save_link.name = _this.graph.links[j].name
-        _this.save_graph.push(save_link)
+        _this.save_graph.links.push(save_link)
       }
     },
     cancelOperation() {
@@ -378,8 +458,10 @@ export default {
       // d3力导布局模拟设置初始化
       this.simulation = d3
           .forceSimulation()
-          .force('charge', d3.forceManyBody().strength(-1500)) // 节点之间的电荷力，正值为引力负值为斥力
-          .force('link', d3.forceLink().distance(30).id(function (d) {
+          .force('charge', d3.forceManyBody().strength(-666)) // 节点之间的电荷力，正值为引力负值为斥力
+          .force('link', d3.forceLink().distance(function (d) {
+            return Math.random() * 100 + 150
+          }).id(function (d) {
             return d.id
           })) // 节点之间的弹力，通过link牵引
           .force('collide', d3.forceCollide().radius(30).strength(0.8).iterations(2)) // 节点碰撞力，防止节点重叠
@@ -401,7 +483,6 @@ export default {
       }, false)
     },
     // 初始化知识图谱
-    // todo 传入不同的图文件，逻辑放入api
     initGraph() {
       let _this = this
       _this.testNode()
@@ -414,7 +495,7 @@ export default {
           .attr('id', 'arrow')
           .attr('markerUnits', 'strokeWidth')
           .attr('markerWidth', '12')
-          .attr('markerHeight', '18')
+          .attr('markerHeight', '12')
           .attr('viewBox', '0 -5 10 10')
           .attr('refX', '22')
           .attr('refY', '0')
@@ -636,7 +717,6 @@ export default {
 
       // 绘制同心圆
       let arc = d3.arc().innerRadius(_this.defaultR).outerRadius(_this.defaultR + 30)
-      // let arcHover=d3.arc().innerRadius(_this.defaultR).outerRadius(_this.defaultR + 40)
       // 设置工具栏形状
       buttonGroupEnter
           .append('path')
