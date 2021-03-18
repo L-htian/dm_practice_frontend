@@ -173,9 +173,16 @@ import '@/static/iconfont/iconfont.css'
 
 export default {
   name: "KGBuilder",
-  props: ['pid'],
+  props: {
+    pid: String,
+    wantNew: Boolean,
+    hasUploaded: Boolean,
+    fileList: Array
+  },
   data() {
     return {
+      //是否跳转空
+
       // 静态量
       formLabelWidth: "120px",
       // 默认颜色
@@ -198,7 +205,6 @@ export default {
       height: 800,
 
       // 动态量
-      hasUploaded: false,
       nextNodeId: '',
       nextLinkId: '',
       cancelOperationMessage: '',
@@ -272,23 +278,28 @@ export default {
     }
   },
   components: {},
+
   mounted() {
+    //todo
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
-    // 用户有咩有上传文件
-    window.Event.$on('UploadFile', val => {
-      this.hasUploaded = val
-    })
+    console.log(this.hasUploaded)
+    console.log(this.wantNew)
   },
   created() {
+  },
+  beforeCreate() {
+  },
+  beforeDestroy() {
   },
   watch: {},
   methods: {
     testNode() {
       let _this = this
-      if (!this.hasUploaded) {
-        this.graph.nodes = [
+
+      if (!_this.hasUploaded && !_this.wantNew) {
+        _this.graph.nodes = [
           {
             "name": "田所浩二",
             "id": "0",
@@ -338,7 +349,7 @@ export default {
             "id": "10"
           }
         ]
-        this.graph.links = [
+        _this.graph.links = [
           {
             "sourceId": "0",
             "targetId": "1",
@@ -388,33 +399,52 @@ export default {
             "name": "胁迫",
           }
         ]
-      } else {
+      } else if (_this.hasUploaded && !_this.wantNew) {
         // Todo 接收后端数据
-        $.ajax("http://localhost:8090/api/KG/getUploadData", {
-          data: {},
-          dataType: 'json',
-          type: 'get',
-          async: 'false',
-          success: function (data) {
-            _this.graph.nodes = data.nodes
-            _this.graph.links = data.links
+        // $.ajax("http://localhost:8090/api/KG/getUploadData", {
+        //   data: {},
+        //   dataType: 'json',
+        //   type: 'get',
+        //   async: 'false',
+        //   success: function (data) {
+        //     _this.graph.nodes = data.nodes
+        //     _this.graph.links = data.links
+        //   }
+        // })
+        //Todo 前端直接读取执行
+        let file = _this.fileList[0]
+        let reader = new FileReader()
+        let document = ""
+        reader.readAsText(file.raw)
+        reader.onload = async (e) => {
+          try {
+            document = JSON.parse(e.target.result)
+            console.log(document.nodes)
+          } catch (err) {
+            console.log(`load JSON document from file error: ${err.message}`)
+            this.showSnackbar(`Load JSON document from file error: ${err.message}`, 4000)
           }
-        })
+        }
+        _this.graph.nodes = document.nodes
+        _this.graph.links = document.links
+        // console.log(file.raw)
+      } else if (_this.wantNew) {
+        console.log("newGraph")
       }
-      for (let j = 0; j < _this.graph.nodes.length; j++) {
-        let save_node = {}
-        save_node.name = _this.graph.nodes[j].name
-        save_node.id = _this.graph.nodes[j].id
-        _this.save_graph.nodes.push(save_node)
-      }
-      for (let j = 0; j < _this.graph.links.length; j++) {
-        let save_link = {}
-        save_link.sourceId = _this.graph.links[j].sourceId
-        save_link.targetId = _this.graph.links[j].targetId
-        save_link.id = _this.graph.links[j].id
-        save_link.name = _this.graph.links[j].name
-        _this.save_graph.links.push(save_link)
-      }
+      // for (let j = 0; j < _this.graph.nodes.length; j++) {
+      //   let save_node = {}
+      //   save_node.name = _this.graph.nodes[j].name
+      //   save_node.id = _this.graph.nodes[j].id
+      //   _this.save_graph.nodes.push(save_node)
+      // }
+      // for (let j = 0; j < _this.graph.links.length; j++) {
+      //   let save_link = {}
+      //   save_link.sourceId = _this.graph.links[j].sourceId
+      //   save_link.targetId = _this.graph.links[j].targetId
+      //   save_link.id = _this.graph.links[j].id
+      //   save_link.name = _this.graph.links[j].name
+      //   _this.save_graph.links.push(save_link)
+      // }
     },
     cancelOperation() {
       d3.select('.grid').style("cursor", "")

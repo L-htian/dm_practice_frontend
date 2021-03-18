@@ -3,46 +3,61 @@
     <el-upload
         class="uploadFile"
         drag
-        :action="setUrl()"
+        action="#"
         :limit="1"
-        :on-success="jumpToEditor"
+        :on-change="jumpToEditor"
         accept="application/json"
         :file-list="fileList">
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
       <div class="el-upload__tip" slot="tip">只能上传Json文件</div>
+      <div class="orText">或者您可以</div>
     </el-upload>
+    <el-button class="newGraphButton" type="info" round @click="getNewGraph">创建新的图谱</el-button>
   </div>
+
 </template>
 
 <script>
+import Vue from 'vue'
+
 export default {
   name: "Uploader",
   data() {
     return {
       fileList: [],
-      getUpload: false
+      getUpload: false,
+      getGraphNew: false,
     }
+  },
+  provide() {
+
+  },
+  beforeDestroy() {
   },
   methods: {
     setUrl: function () {
       return "http://localhost:8089/api/KG/upload"
     },
-    jumpToEditor() {
-      this.$router.push({name: '/Kojima-Coin/KGEditor'})
+    jumpToEditor(file, fileList) {
+      // this.$router.push({name: '/Kojima-Coin/KGEditor'})
+      this.fileList = fileList
       if (!this.getUpload) {
         this.getUpload = !this.getUpload
       }
       window.Event.$emit('UploadFile', this.getUpload)
+      window.Event.$emit('transferFileArray', this.fileList)
     },
+    getNewGraph() {
+      this.getGraphNew = true
+      window.Event.$emit('getNewGraph', this.getGraphNew)
+    },
+
   }
 }
 
 </script>
 
 <style scoped>
-.Uploader /deep/ .uploadFile {
-  border-color: #303133;
-}
 
 .el-upload__text {
   text-align: center;
@@ -53,5 +68,18 @@ export default {
 .el-upload__tip {
   font-size: medium;
   font-weight: bolder;
+}
+
+.orText {
+  position: fixed;
+  font-size: large;
+  top: 51%;
+  left: 46.5%;
+}
+
+.newGraphButton {
+  position: fixed;
+  top: 65%;
+  left: 45.5%;
 }
 </style>
