@@ -58,6 +58,12 @@ export default {
 </script>
 
 <style scoped>
+.Uploader{
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .el-upload__text {
   text-align: center;
@@ -75,12 +81,15 @@ export default {
   font-size: large;
   color: #606266;
   top: 56%;
-  left: 46.5%;
+  align-items: center;
+  justify-content: center;
 }
 
 .newGraphButton {
   position: fixed;
   top: 64%;
-  left: 45.3%;
+  margin: auto;
+  align-items: center;
+  justify-content: center;
 }
 </style>

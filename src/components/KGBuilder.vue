@@ -255,10 +255,6 @@ export default {
         nodes: [],
         links: [],
       },
-      save_graph: {
-        nodes: [],
-        links: [],
-      },
       // 节点工具栏的内容
       toolbarData: [
         {name: '编辑', value: 1, code: 'edit'},
@@ -425,20 +421,6 @@ export default {
       } else if (_this.wantNew) {
         _this.updateGraph()
       }
-      // for (let j = 0; j < _this.graph.nodes.length; j++) {
-      //   let save_node = {}
-      //   save_node.name = _this.graph.nodes[j].name
-      //   save_node.id = _this.graph.nodes[j].id
-      //   _this.save_graph.nodes.push(save_node)
-      // }
-      // for (let j = 0; j < _this.graph.links.length; j++) {
-      //   let save_link = {}
-      //   save_link.sourceId = _this.graph.links[j].sourceId
-      //   save_link.targetId = _this.graph.links[j].targetId
-      //   save_link.id = _this.graph.links[j].id
-      //   save_link.name = _this.graph.links[j].name
-      //   _this.save_graph.links.push(save_link)
-      // }
     },
     cancelOperation() {
       d3.select('.grid').style("cursor", "")
@@ -1284,7 +1266,6 @@ export default {
           if (_this.graph.links[i].sourceId == _this.SelectedNodeId ||
               _this.graph.links[i].targetId == _this.SelectedNodeId) {
             _this.graph.links.splice(i, 1)
-            _this.save_graph.links.splice(i, 1)
             i = i - 1
           }
         }
@@ -1292,7 +1273,6 @@ export default {
         for (let i = 0; i < _this.graph.nodes.length; i++) {
           if (_this.graph.nodes[i].id == _this.SelectedNodeId) {
             _this.graph.nodes.splice(i, 1)
-            _this.save_graph.nodes.splice(i, 1)
             break;
           }
         }
@@ -1331,7 +1311,6 @@ export default {
       newNode.fx = _this.txx
       newNode.fy = _this.tyy
       _this.graph.nodes.push(newNode)
-      _this.save_graph.nodes.push(save_newNode)
       _this.updateGraph()
       _this.isCancelOperationShow = false
       _this.cancelOperationMessage = ''
@@ -1348,7 +1327,6 @@ export default {
         for (let i = 0; i < _this.graph.links.length; i++) {
           if (_this.graph.links[i].id == _this.SelectedLinkId) {
             _this.graph.links.splice(i, 1)
-            _this.save_graph.links.splice(i, 1)
             break
           }
         }
@@ -1381,7 +1359,6 @@ export default {
       newShip.id = _this.linkIdBuilder()
       newShip.name = '联系'
       _this.graph.links.push(newShip)
-      _this.save_graph.links.push(newShip)
       _this.updateGraph()
       _this.isAddingLink = false
       _this.SelectedSourceNodeId = '';
@@ -1393,7 +1370,6 @@ export default {
       for (let i = 0; i < _this.graph.nodes.length; i++) {
         if (_this.SelectedNodeId == _this.graph.nodes[i].id) {
           _this.graph.nodes[i].name = _this.EditingNodeEntity.name
-          _this.save_graph.nodes[i].name = _this.EditingNodeEntity.name
           _this.graph.nodes[i].color = _this.EditingNodeEntity.color
           _this.graph.nodes[i].textColor = _this.EditingNodeEntity.textColor
           _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor
@@ -1408,7 +1384,6 @@ export default {
       for (let i = 0; i < _this.graph.links.length; i++) {
         if (_this.SelectedLinkId == _this.graph.links[i].id) {
           _this.graph.links[i].name = _this.EditingLinkEntity.name
-          _this.save_graph.links[i].name = _this.EditingLinkEntity.name
           _this.graph.links[i].color = _this.EditingLinkEntity.color
           _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor
           break
