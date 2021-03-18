@@ -176,13 +176,33 @@ export default {
   props: ['pid'],
   data() {
     return {
-      hasUpload: false,
-      // labelLocation:"left",
+      // 静态量
+      formLabelWidth: "120px",
+      // 默认颜色
+      DefaultButtonGroupColor: '#d1d6d7',
+      DefaultButtonGroupStrokeColor: '#fff',
+      DefaultButtonGroupTextColor: '#0c0c0c',
+      DefaultButtonGroupActiveColor: '#627f73',
+      DefaultNodeStrokeColor: '#d5dede',
+      DefaultNodeTextColor: '#33434b',
+      DefaultNodeColor: 'rgb(94,95,95)',
+      DefaultLinkColor: 'rgba(132,137,132,0.45)',
+      DefaultLinkActiveColor: '#878585',
+      DefaultLinkTextColor: '#33434b',
+      DefaultArrowColor: 'rgba(158,152,152,0.98)',
+      // 默认节点半径
+      defaultR: 30,
+      // 组件的宽
+      width: 1503.2,
+      // 组件的高
+      height: 800,
+
+      // 动态量
+      hasUploaded: false,
       nextNodeId: '',
       nextLinkId: '',
       cancelOperationMessage: '',
       isCancelOperationShow: false,
-      formLabelWidth: "120px",
       EditingLinkEntity: {
         id: '',
         sourceId: '',
@@ -201,30 +221,12 @@ export default {
       EditLinkDialogVisible: false,
       EditNodeDialogVisible: false,
       isAddingNode: false,
+      isAddingLink: false,
       isEditingNode: false,
       isEditingLink: false,
-      txx: {},
-      tyy: {},
-      // 默认颜色
-      DefaultButtonGroupColor: '#d1d6d7',
-      DefaultButtonGroupStrokeColor: '#fff',
-      DefaultButtonGroupTextColor: '#0c0c0c',
-      DefaultButtonGroupActiveColor: '#627f73',
-      DefaultNodeStrokeColor: '#d5dede',
-      DefaultNodeTextColor: '#33434b',
-      DefaultNodeColor: 'rgb(94,95,95)',
-      DefaultLinkColor: 'rgba(132,137,132,0.45)',
-      DefaultLinkActiveColor: '#878585',
-      DefaultLinkTextColor: '#33434b',
-      DefaultArrowColor: 'rgba(158,152,152,0.98)',
+      txx: '',
+      tyy: '',
 
-      theme: 0,
-      // 是否正在加载
-      loading: false,
-      // 组件的宽
-      width: 1503.2,
-      // 组件的高
-      height: 800,
       // 图容器
       graphContainer: {},
       // 矢量图
@@ -252,23 +254,21 @@ export default {
         nodes: [],
         links: [],
       },
-      // 默认节点半径
-      defaultR: 30,
       // 节点工具栏的内容
       toolbarData: [
         {name: '编辑', value: 1, code: 'edit'},
         {name: '连线', value: 1, code: 'link'},
         {name: '删除', value: 1, code: 'delete'},
       ],
-      nodebuttonAction: '',
+      NodeButtonAction: '',
       // 正在选择的节点id
-      selectnodeid: '',
+      SelectedNodeId: '',
       // 正在选择的源节点id，联系用
-      selectsourcenodeid: '',
+      SelectedSourceNodeId: '',
       // 正在选择的目标节点id，联系用
-      selecttargetnodeid: '',
+      SelectedTargetNodeId: '',
       // 正在选择的联系id
-      selectrelationid: ''
+      SelectedLinkId: ''
     }
   },
   components: {},
@@ -276,9 +276,9 @@ export default {
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
-    //用户有咩有上传文件
-    window.Event.$on('haveUpload', val => {
-      this.hasUpload = val
+    // 用户有咩有上传文件
+    window.Event.$on('UploadFile', val => {
+      this.hasUploaded = val
     })
   },
   created() {
@@ -287,7 +287,7 @@ export default {
   methods: {
     testNode() {
       let _this = this
-      if (!this.hasUpload) {
+      if (!this.hasUploaded) {
         this.graph.nodes = [
           {
             "name": "田所浩二",
@@ -420,8 +420,8 @@ export default {
       d3.select('.grid').style("cursor", "")
       if (this.isAddingNode) {
         this.isAddingNode = false
-      } else if (this.isAddinglink) {
-        this.isAddinglink = false
+      } else if (this.isAddingLink) {
+        this.isAddingLink = false
       }
       this.cancelOperationMessage = ''
       this.isCancelOperationShow = false
@@ -594,16 +594,16 @@ export default {
 
       // 为按钮组绑定事件
       _this.svg.selectAll(".buttongroup").on('click', function (d, i) {
-        if (_this.nodebuttonAction) {
-          switch (_this.nodebuttonAction) {
+        if (_this.NodeButtonAction) {
+          switch (_this.NodeButtonAction) {
             case "EDIT":
               _this.isEditingNode = true;
               _this.txx = d.x;
               _this.tyy = d.y;
-              _this.selectnodeid = d.id;
+              _this.SelectedNodeId = d.id;
               for (let j = 0; j < _this.graph.nodes.length; j++) {
-                if (_this.graph.nodes[j].id == _this.selectnodeid) {
-                  _this.EditingNodeEntity.id = _this.selectnodeid;
+                if (_this.graph.nodes[j].id == _this.SelectedNodeId) {
+                  _this.EditingNodeEntity.id = _this.SelectedNodeId;
                   _this.EditingNodeEntity.name = _this.graph.nodes[j].name;
                   _this.EditingNodeEntity.color = _this.graph.nodes[j].color;
                   _this.EditingNodeEntity.textColor = _this.graph.nodes[j].textColor;
@@ -615,14 +615,14 @@ export default {
               }
               break;
             case "LINK":
-              _this.isAddinglink = true;
+              _this.isAddingLink = true;
               _this.isCancelOperationShow = true;
               _this.cancelOperationMessage = '取消添加连线';
               d3.select('.grid').style("cursor", "pointer");
-              _this.selectsourcenodeid = d.id;
+              _this.SelectedSourceNodeId = d.id;
               break;
             case "DELETE":
-              _this.selectnodeid = d.id;
+              _this.SelectedNodeId = d.id;
               let out_buttongroup_id = '.out_buttongroup_' + i;
               _this.deleteNode(out_buttongroup_id);
               break;
@@ -632,13 +632,13 @@ export default {
 
       // 按钮事件绑定
       _this.svg.selectAll(".action_edit").on("click", function (d) {
-        _this.nodebuttonAction = 'EDIT';
+        _this.NodeButtonAction = 'EDIT';
       });
       _this.svg.selectAll(".action_link").on("click", function (d) {
-        _this.nodebuttonAction = 'LINK';
+        _this.NodeButtonAction = 'LINK';
       });
       _this.svg.selectAll(".action_delete").on("click", function (d) {
-        _this.nodebuttonAction = 'DELETE';
+        _this.NodeButtonAction = 'DELETE';
       });
 
       _this.svg.selectAll(".action_edit").on("mouseenter", function (d) {
@@ -771,10 +771,10 @@ export default {
         _this.svg.selectAll(out_buttongroup_id).classed('notshow', false)
         // 如果正在添加联系
         if (_this.isAddinglink) {
-          _this.selecttargetnodeid = d.id
-          if (_this.selectsourcenodeid == _this.selecttargetnodeid) {
+          _this.SelectedTargetNodeId = d.id
+          if (_this.SelectedSourceNodeId == _this.SelectedTargetNodeId) {
             d3.select('.grid').style("cursor", "")
-            _this.isAddinglink = false
+            _this.isAddingLink = false
             _this.isCancelOperationShow = false
             _this.cancelOperationMessage = ''
             _this.$message({
@@ -785,12 +785,12 @@ export default {
             return
           }
           for (let i = 0; i < _this.graph.links.length; i++) {
-            if ((_this.graph.links[i].sourceId == _this.selectsourcenodeid &&
-                _this.graph.links[i].targetId == _this.selecttargetnodeid) ||
-                (_this.graph.links[i].sourceId == _this.selecttargetnodeid &&
-                    _this.graph.links[i].targetId == _this.selectsourcenodeid)) {
+            if ((_this.graph.links[i].sourceId == _this.SelectedSourceNodeId &&
+                _this.graph.links[i].targetId == _this.SelectedTargetNodeId) ||
+                (_this.graph.links[i].sourceId == _this.SelectedTargetNodeId &&
+                    _this.graph.links[i].targetId == _this.SelectedSourceNodeId)) {
               d3.select('.grid').style("cursor", "")
-              _this.isAddinglink = false
+              _this.isAddingLink = false
               _this.isCancelOperationShow = false
               _this.cancelOperationMessage = ''
               _this.$message({
@@ -802,7 +802,7 @@ export default {
             }
           }
           d3.select('.grid').style("cursor", "");
-          _this.isAddinglink = false
+          _this.isAddingLink = false
           _this.isCancelOperationShow = false
           _this.cancelOperationMessage = ''
           _this.createLink()
@@ -1020,7 +1020,7 @@ export default {
             .attr('marker-end', 'url(#arrow)')
       })
       linkEnter.on('dblclick', function (d) {
-        _this.selectrelationid = d.lk.id
+        _this.SelectedLinkId = d.lk.id
         _this.isEditingLink = true
         _this.EditingLinkEntity.name = d.lk.name
         _this.EditingLinkEntity.id = d.lk.id
@@ -1219,20 +1219,20 @@ export default {
     },
     cancelLinkEdit() {
       this.emptyLinkEntity()
-      this.selectrelationid = ''
+      this.SelectedLinkId = ''
       this.isEditingLink = false
       this.EditLinkDialogVisible = false
     },
     cancelNodeEdit() {
       this.emptyNodeEntity()
-      this.selectnodeid = ''
+      this.SelectedNodeId = ''
       this.isEditingNode = false
       this.EditNodeDialogVisible = false
     },
     saveLinkEdit() {
       this.updateLinkInfo()
       this.emptyLinkEntity()
-      this.selectrelationid = ''
+      this.SelectedLinkId = ''
       this.isEditingLink = false
       this.EditLinkDialogVisible = false
       this.$message({
@@ -1243,7 +1243,7 @@ export default {
     saveNodeEdit() {
       this.updateNodeInfo()
       this.emptyNodeEntity()
-      this.selectnodeid = ''
+      this.SelectedNodeId = ''
       this.isEditingNode = false
       this.EditNodeDialogVisible = false
       this.$message({
@@ -1263,8 +1263,8 @@ export default {
         _this.svg.selectAll(out_buttongroup_id).remove()
         // 移除与节点相关的关系
         for (let i = 0; i < _this.graph.links.length; i++) {
-          if (_this.graph.links[i].sourceId == _this.selectnodeid ||
-              _this.graph.links[i].targetId == _this.selectnodeid) {
+          if (_this.graph.links[i].sourceId == _this.SelectedNodeId ||
+              _this.graph.links[i].targetId == _this.SelectedNodeId) {
             _this.graph.links.splice(i, 1)
             _this.save_graph.links.splice(i, 1)
             i = i - 1
@@ -1272,14 +1272,14 @@ export default {
         }
         // 移除节点
         for (let i = 0; i < _this.graph.nodes.length; i++) {
-          if (_this.graph.nodes[i].id == _this.selectnodeid) {
+          if (_this.graph.nodes[i].id == _this.SelectedNodeId) {
             _this.graph.nodes.splice(i, 1)
             _this.save_graph.nodes.splice(i, 1)
             break;
           }
         }
         _this.updateGraph()
-        _this.selectnodeid = ''
+        _this.SelectedNodeId = ''
         _this.$message({
           type: 'success',
           message: '删除节点成功！'
@@ -1328,14 +1328,14 @@ export default {
         type: 'warning'
       }).then(() => {
         for (let i = 0; i < _this.graph.links.length; i++) {
-          if (_this.graph.links[i].id == _this.selectrelationid) {
+          if (_this.graph.links[i].id == _this.SelectedLinkId) {
             _this.graph.links.splice(i, 1)
             _this.save_graph.links.splice(i, 1)
             break
           }
         }
         _this.updateGraph()
-        _this.selectrelationid = ''
+        _this.SelectedLinkId = ''
         _this.isEditingLink = false
         _this.emptyLinkEntity()
         _this.EditLinkDialogVisible = false
@@ -1344,7 +1344,7 @@ export default {
           message: '删除成功！'
         })
       }).catch(() => {
-        _this.selectrelationid = ''
+        _this.SelectedLinkId = ''
         _this.isEditingLink = false
         _this.emptyLinkEntity()
         _this.EditLinkDialogVisible = false
@@ -1358,22 +1358,22 @@ export default {
     createLink() {
       let _this = this
       let newShip = {}
-      newShip.sourceId = _this.selectsourcenodeid
-      newShip.targetId = _this.selecttargetnodeid
+      newShip.sourceId = _this.SelectedSourceNodeId
+      newShip.targetId = _this.SelectedTargetNodeId
       newShip.id = _this.linkIdBuilder()
       newShip.name = '联系'
       _this.graph.links.push(newShip)
       _this.save_graph.links.push(newShip)
       _this.updateGraph()
-      _this.isAddinglink = false
-      _this.selectsourcenodeid = '';
-      _this.selecttargetnodeid = '';
+      _this.isAddingLink = false
+      _this.SelectedSourceNodeId = '';
+      _this.SelectedTargetNodeId = '';
     },
     // 更改节点信息
     updateNodeInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.nodes.length; i++) {
-        if (_this.selectnodeid == _this.graph.nodes[i].id) {
+        if (_this.SelectedNodeId == _this.graph.nodes[i].id) {
           _this.graph.nodes[i].name = _this.EditingNodeEntity.name
           _this.save_graph.nodes[i].name = _this.EditingNodeEntity.name
           _this.graph.nodes[i].color = _this.EditingNodeEntity.color
@@ -1388,7 +1388,7 @@ export default {
     updateLinkInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.links.length; i++) {
-        if (_this.selectrelationid == _this.graph.links[i].id) {
+        if (_this.SelectedLinkId == _this.graph.links[i].id) {
           _this.graph.links[i].name = _this.EditingLinkEntity.name
           _this.save_graph.links[i].name = _this.EditingLinkEntity.name
           _this.graph.links[i].color = _this.EditingLinkEntity.color

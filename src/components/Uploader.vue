@@ -32,11 +32,8 @@ export default {
       if (!this.getUpload) {
         this.getUpload = !this.getUpload
       }
-      window.Event.$emit('haveUpload', this.getUpload)
+      window.Event.$emit('UploadFile', this.getUpload)
     },
-    // showFile:function (response,file,fileList){
-    //   console.log(response.fileList)
-    // }
   }
 }
 
