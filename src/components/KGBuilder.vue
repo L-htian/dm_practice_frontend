@@ -415,7 +415,7 @@ export default {
             _this.graph.links = document.links
             _this.updateGraph()
           } catch (err) {
-            _this.showSnackbar(`Load JSON document from file error: ${err.message}`, 4000)
+            this.$message.error('Load JSON document from file error: ' + err.message)
           }
         }
       } else if (_this.wantNew) {

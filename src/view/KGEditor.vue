@@ -11,6 +11,7 @@
 <script>
 import KGBuilder from "@/components/KGBuilder";
 import Uploader from "@/components/Uploader";
+import {Loading} from 'element-ui';
 
 export default {
   name: "KGEditor",
@@ -28,26 +29,26 @@ export default {
     }
   },
   mounted() {
-    window.Event.$on('getNewGraph', val => {
-      if (val) {
-        // console.log(val)
-        this.getNew = val
+    let loadingInstance = Loading.service({fullscreen: true});
+    setTimeout(() => {
+      loadingInstance.close();
+      window.Event.$on('getNewGraph', val => {
+        if (val) {
+          // console.log(val)
+          this.getNew = val
+          this.showKGBuilder = true
+          this.showUploader = false
+        }
+      })
+      window.Event.$on('UploadFile', val => {
+        this.upLoaded = val
         this.showKGBuilder = true
         this.showUploader = false
-      }
-    })
-    window.Event.$on('UploadFile', val => {
-      this.upLoaded = val
-      this.showKGBuilder = true
-      this.showUploader = false
-    })
-    window.Event.$on('transferFileArray', val => {
-      this.uploadFileList = val
-    })
-    // if (this.showKGBuilder&&!this.showUploader){
-    //   window.Event.$emit('NewGraph',true)
-    //   console.log("send")
-    // }
+      })
+      window.Event.$on('transferFileArray', val => {
+        this.uploadFileList = val
+      })
+    }, 1000)
   }
 }
 </script>
