@@ -770,7 +770,7 @@ export default {
         // classed 是为对象增加class属性而不覆盖原有class属性
         _this.svg.selectAll(out_buttongroup_id).classed('notshow', false)
         // 如果正在添加联系
-        if (_this.isAddinglink) {
+        if (_this.isAddingLink) {
           _this.SelectedTargetNodeId = d.id
           if (_this.SelectedSourceNodeId == _this.SelectedTargetNodeId) {
             d3.select('.grid').style("cursor", "")
