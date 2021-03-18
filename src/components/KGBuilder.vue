@@ -170,7 +170,6 @@ import * as d3 from 'd3'
 import $ from 'jquery'
 import html2canvas from 'html2canvas'
 import '@/static/iconfont/iconfont.css'
-
 export default {
   name: "KGBuilder",
   props: {
@@ -1440,44 +1439,62 @@ export default {
     },
     // 导出为Json
     exportJson() {
-      // let content = JSON.stringify(this.save_graph)
-      // let eleLink = document.createElement('a');
-      // eleLink.download = `Kojima_Coin_${new Date().valueOf()}.json`;
-      // eleLink.style.display = 'none';
-      // // 字符内容转变成blob地址
-      // let blob = new Blob([content]);
-      // eleLink.href = URL.createObjectURL(blob);
-      // // 触发点击
-      // document.body.appendChild(eleLink);
-      // eleLink.click();
-      // // 然后移除
-      // document.body.removeChild(eleLink);
-      axios.get('http://localhost:8089/api/KG/saveAsJson', {
-        responseType: 'blob'
-      }).then((response) => {
-        const blob = new Blob([response.data], {type: 'application/json'});
-        const fileName = `Kojima_Coin_${new Date().valueOf()}.json`;
-        console.log(blob)
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      })
+      //Todo 前端导出json实现
+      let content = JSON.stringify(this.graph,null,2)
+      let eleLink = document.createElement('a');
+      eleLink.download = `Kojima_Coin_${new Date().valueOf()}.json`;
+      eleLink.style.display = 'none';
+      // 字符内容转变成blob地址
+      let blob = new Blob([content]);
+      eleLink.href = URL.createObjectURL(blob);
+      // 触发点击
+      document.body.appendChild(eleLink);
+      eleLink.click();
+      // 然后移除
+      document.body.removeChild(eleLink);
+      // Todo 后端导出json实现
+      // axios.get('http://localhost:8089/api/KG/saveAsJson', {
+      //   responseType: 'blob'
+      // }).then((response) => {
+      //   const blob = new Blob([response.data], {type: 'application/json'});
+      //   const fileName = `Kojima_Coin_${new Date().valueOf()}.json`;
+      //   console.log(blob)
+      //   const link = document.createElement('a');
+      //   link.href = window.URL.createObjectURL(blob);
+      //   link.download = fileName;
+      //   link.click();
+      //   window.URL.revokeObjectURL(link.href);
+      // })
     },
     // 导出为XML
     exportXML() {
-      axios.get('http://localhost:8089/api/KG/saveAsXml', {
-        responseType: 'blob'
-      }).then((response) => {
-        const blob = new Blob([response.data], {type: 'application/xml'});
-        const fileName = `Kojima_Coin_${new Date().valueOf()}.xml`;
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      })
+      //Todo 前端导出json实现
+      const xml2js = require('xml2js')
+      let builder = new xml2js.Builder()
+      let dataXml = builder.buildObject(this.graph)
+      let eleLink = document.createElement('a');
+      eleLink.download = `Kojima_Coin_${new Date().valueOf()}.xml`;
+      eleLink.style.display = 'none';
+      // 字符内容转变成blob地址
+      let blob = new Blob([dataXml]);
+      eleLink.href = URL.createObjectURL(blob);
+      // 触发点击
+      document.body.appendChild(eleLink);
+      eleLink.click();
+      // 然后移除
+      document.body.removeChild(eleLink);
+      //Todo 后端导出json实现
+      // axios.get('http://localhost:8089/api/KG/saveAsXml', {
+      //   responseType: 'blob'
+      // }).then((response) => {
+      //   const blob = new Blob([response.data], {type: 'application/xml'});
+      //   const fileName = `Kojima_Coin_${new Date().valueOf()}.xml`;
+      //   const link = document.createElement('a');
+      //   link.href = window.URL.createObjectURL(blob);
+      //   link.download = fileName;
+      //   link.click();
+      //   window.URL.revokeObjectURL(link.href);
+      // })
     }
   }
 }
