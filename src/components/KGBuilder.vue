@@ -277,14 +277,11 @@ export default {
     }
   },
   components: {},
-
   mounted() {
-    //todo
+    // todo
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
-    console.log(this.hasUploaded)
-    console.log(this.wantNew)
   },
   created() {
   },
@@ -294,9 +291,9 @@ export default {
   },
   watch: {},
   methods: {
-    testNode() {
+    // 初始化知识图谱
+    initGraph() {
       let _this = this
-
       if (!_this.hasUploaded && !_this.wantNew) {
         _this.graph.nodes = [
           {
@@ -415,20 +412,18 @@ export default {
         let reader = new FileReader()
         let document = ""
         reader.readAsText(file.raw)
-        reader.onload = async (e) => {
+        reader.onload = (e) => {
           try {
             document = JSON.parse(e.target.result)
-            console.log(document.nodes)
+            _this.graph.nodes = document.nodes
+            _this.graph.links = document.links
+            _this.updateGraph()
           } catch (err) {
-            console.log(`load JSON document from file error: ${err.message}`)
-            this.showSnackbar(`Load JSON document from file error: ${err.message}`, 4000)
+            _this.showSnackbar(`Load JSON document from file error: ${err.message}`, 4000)
           }
         }
-        _this.graph.nodes = document.nodes
-        _this.graph.links = document.links
-        // console.log(file.raw)
       } else if (_this.wantNew) {
-        console.log("newGraph")
+        _this.updateGraph()
       }
       // for (let j = 0; j < _this.graph.nodes.length; j++) {
       //   let save_node = {}
@@ -513,12 +508,6 @@ export default {
       this.svg.on('click', function () {
         d3.selectAll('use').classed('notshow', true)
       }, false)
-    },
-    // 初始化知识图谱
-    initGraph() {
-      let _this = this
-      _this.testNode()
-      _this.updateGraph()
     },
     // 制作箭头
     addArrowMaker() {

@@ -10,8 +10,8 @@
         :file-list="fileList">
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
       <div class="el-upload__tip" slot="tip">只能上传Json文件</div>
-      <div class="orText">或者您可以</div>
     </el-upload>
+    <div class="orText">或者您可以</div>
     <el-button class="newGraphButton" type="info" round @click="getNewGraph">创建新的图谱</el-button>
   </div>
 
@@ -73,13 +73,14 @@ export default {
 .orText {
   position: fixed;
   font-size: large;
-  top: 51%;
+  color: #606266;
+  top: 56%;
   left: 46.5%;
 }
 
 .newGraphButton {
   position: fixed;
-  top: 65%;
-  left: 45.5%;
+  top: 64%;
+  left: 45.3%;
 }
 </style>

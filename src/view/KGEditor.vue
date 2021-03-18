@@ -60,7 +60,7 @@ export default {
 
 #kg_container .uploader {
   position: fixed;
-  top: 16%;
+  top: 22%;
   left: 38%;
 }
 
