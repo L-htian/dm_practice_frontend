@@ -170,6 +170,7 @@ import * as d3 from 'd3'
 import $ from 'jquery'
 import html2canvas from 'html2canvas'
 import '@/static/iconfont/iconfont.css'
+
 export default {
   name: "KGBuilder",
   props: {
@@ -848,7 +849,6 @@ export default {
           relatedNodeIds.push(i.targetId)
         })
         // 显示相关节点
-
         _this.qaGraphNode
             .selectAll('circle')
             .style('fill-opacity', function (node) {
@@ -908,7 +908,7 @@ export default {
       node.attr('r', function (d) {
         if (d.r) return d.r
         else return _this.defaultR
-      })
+      }).attr('class', 'singleNode')
       node.attr('fill', function (d, i) {
         if (d.color) return d.color
         else return _this.DefaultNodeColor
@@ -959,9 +959,8 @@ export default {
     },
     drawButtonGroup(nodes) {
       let _this = this
-      d3.selectAll('.nodebutton >g').remove()
       let nodeButton = _this.nodebuttonGroup
-          .selectAll('.nodebutton')
+          .selectAll('use')
           .data(nodes, function (d) {
             return d.id
           })
@@ -969,6 +968,7 @@ export default {
       let nodeButtonEnter = nodeButton
           .enter()
           .append('g')
+          .attr('class', 'insideButtonG')
           .append('use') // 为每个节点组添加一个 use 子元素
           .attr('r', function (d) {
             if (!d.r) {
@@ -1058,7 +1058,6 @@ export default {
       })
 
       linkText
-          .attr('class', 'linetext')
           .style('fill', function (d) {
             if (d.lk.textColor) return d.lk.textColor
             else return _this.DefaultLinkTextColor
@@ -1094,11 +1093,12 @@ export default {
     },
     // 滚轮zoom事件
     zoomed() {
-      d3.selectAll('.node').attr('transform', d3.event.transform)
-      d3.selectAll('.nodetext text').attr('transform', d3.event.transform)
-      d3.selectAll('.line').attr('transform', d3.event.transform)
-      d3.selectAll('.linetext text').attr('transform', d3.event.transform)
-      d3.selectAll('.nodebutton').attr('transform', d3.event.transform)
+      let transform = d3.event.transform
+      d3.selectAll('.node').attr('transform', transform)
+      d3.selectAll('.nodetext').attr('transform', transform)
+      d3.selectAll('.line').attr('transform', transform)
+      d3.selectAll('.linetext').attr('transform', transform)
+      d3.selectAll('.nodebutton').attr('transform', transform)
     },
     // 点击zoom事件
     zoomClick(direction) {
@@ -1172,7 +1172,7 @@ export default {
         this.nextNodeId = id.toString()
         return this.nextNodeId
       }
-      this.nextNodeId = Number(this.nextNodeId + 1).toString()
+      this.nextNodeId = (Number(this.nextNodeId) + 1).toString()
       return this.nextNodeId
     },
     // 创建link的id
@@ -1193,7 +1193,7 @@ export default {
         this.nextLinkId = id.toString()
         return this.nextLinkId
       }
-      this.nextLinkId = Number(this.nextLinkId + 1).toString()
+      this.nextLinkId = (Number(this.nextLinkId) + 1).toString()
       return this.nextLinkId
     },
     // 清空记录关系
@@ -1301,15 +1301,22 @@ export default {
     createNode() {
       let _this = this
       let newNode = {}
-      let save_newNode = {}
       newNode.name = '节点'
-      save_newNode.name = newNode.name
       newNode.id = _this.nodeIdBuilder()
-      save_newNode.id = newNode.id
-      newNode.x = _this.txx
-      newNode.y = _this.tyy
-      newNode.fx = _this.txx
-      newNode.fy = _this.tyy
+      let transform = d3.select('.node').attr('transform')
+      if (transform) {
+        let XYK = []
+        XYK = transform.replace('translate', '').replaceAll('(', '').replaceAll(')', '').replace(' scale', ',').split(',')
+        newNode.x = (_this.txx - Number(XYK[0])) / Number(XYK[2])
+        newNode.y = (_this.tyy - Number(XYK[1])) / Number(XYK[2])
+        newNode.fx = (_this.txx - Number(XYK[0])) / Number(XYK[2])
+        newNode.fy = (_this.tyy - Number(XYK[1])) / Number(XYK[2])
+      } else {
+        newNode.x = _this.txx
+        newNode.y = _this.tyy
+        newNode.fx = _this.txx
+        newNode.fy = _this.tyy
+      }
       _this.graph.nodes.push(newNode)
       _this.updateGraph()
       _this.isCancelOperationShow = false
@@ -1404,7 +1411,7 @@ export default {
     // 导出为Json
     exportJson() {
       //Todo 前端导出json实现
-      let content = JSON.stringify(this.graph,null,2)
+      let content = JSON.stringify(this.graph, null, 2)
       let eleLink = document.createElement('a');
       eleLink.download = `Kojima_Coin_${new Date().valueOf()}.json`;
       eleLink.style.display = 'none';
