@@ -118,15 +118,18 @@
           <el-input :disabled="true" v-model="EditingLinkEntity.targetId" class="withoutColor"></el-input>
         </el-form-item>
         <el-form-item label="联系名" :label-width="formLabelWidth">
-          <el-input :disabled="false" v-model="EditingLinkEntity.name" class="withoutColor"></el-input>
+          <el-input v-model="EditingLinkEntity.name" class="withoutColor"></el-input>
         </el-form-item>
         <el-form-item label="联系线条颜色" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingLinkEntity.color" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingLinkEntity.color"></el-color-picker>
+          <el-color-picker v-model="EditingLinkEntity.color" class="colorPiker"></el-color-picker>
         </el-form-item>
         <el-form-item label="联系名颜色" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingLinkEntity.textColor" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingLinkEntity.textColor"></el-color-picker>
+          <el-color-picker v-model="EditingLinkEntity.textColor" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="联系名大小" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingLinkEntity.textSize" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -141,19 +144,25 @@
           <el-input :disabled="true" v-model="EditingNodeEntity.id" class="withoutColor"></el-input>
         </el-form-item>
         <el-form-item label="节点名" :label-width="formLabelWidth">
-          <el-input :disabled="false" v-model="EditingNodeEntity.name" class="withoutColor"></el-input>
+          <el-input v-model="EditingNodeEntity.name" class="withoutColor"></el-input>
         </el-form-item>
         <el-form-item label="节点填充颜色" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingNodeEntity.color" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingNodeEntity.color"></el-color-picker>
+          <el-color-picker v-model="EditingNodeEntity.color" class="colorPiker"></el-color-picker>
         </el-form-item>
         <el-form-item label="节点边框颜色" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingNodeEntity.strokeColor" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingNodeEntity.strokeColor"></el-color-picker>
+          <el-color-picker v-model="EditingNodeEntity.strokeColor" class="colorPiker"></el-color-picker>
         </el-form-item>
         <el-form-item label="节点名颜色" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingNodeEntity.textColor" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingNodeEntity.textColor"></el-color-picker>
+          <el-color-picker v-model="EditingNodeEntity.textColor" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点名大小" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingNodeEntity.textSize" class="withoutColor"></el-input-number>
+        </el-form-item>
+        <el-form-item label="节点半径" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingNodeEntity.r" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -170,6 +179,7 @@ import * as d3 from 'd3'
 import $ from 'jquery'
 import html2canvas from 'html2canvas'
 import '@/static/iconfont/iconfont.css'
+import _ from 'underscore'
 
 export default {
   name: "KGBuilder",
@@ -197,6 +207,9 @@ export default {
       DefaultLinkActiveColor: '#878585',
       DefaultLinkTextColor: '#33434b',
       DefaultArrowColor: 'rgba(158,152,152,0.98)',
+      // 默认字体大小
+      DefaultNodeTextSize: 14,
+      DefaultLinkTextSize: 14,
       // 默认节点半径
       defaultR: 30,
       // 组件的宽
@@ -205,24 +218,27 @@ export default {
       height: 800,
 
       // 动态量
-      nextNodeId: '',
-      nextLinkId: '',
+      nextNodeId: 0,
+      nextLinkId: 0,
       cancelOperationMessage: '',
       isCancelOperationShow: false,
       EditingLinkEntity: {
-        id: '',
+        id: 0,
         sourceId: '',
         targetId: '',
         name: '',
         color: '',
         textColor: '',
+        textSize: 0,
       },
       EditingNodeEntity: {
-        id: '',
+        id: 0,
         name: '',
+        r: 0,
         color: '',
         strokeColor: '',
         textColor: '',
+        textSize: 0,
       },
       EditLinkDialogVisible: false,
       EditNodeDialogVisible: false,
@@ -230,8 +246,8 @@ export default {
       isAddingLink: false,
       isEditingNode: false,
       isEditingLink: false,
-      txx: '',
-      tyy: '',
+      txx: 0,
+      tyy: 0,
 
       // 图容器
       graphContainer: {},
@@ -239,7 +255,7 @@ export default {
       svg: {},
       // 缩放设置
       zoom: null,
-      //
+      // 箭头
       arrowMarker: {},
       // d3力导布局设置
       simulation: {},
@@ -423,6 +439,7 @@ export default {
         _this.updateGraph()
       }
     },
+    // 取消添加节点/联系
     cancelOperation() {
       d3.select('.grid').style("cursor", "")
       if (this.isAddingNode) {
@@ -485,8 +502,6 @@ export default {
       this.qaGraphNodeText = this.svg.append('g').attr('class', 'nodetext')
       this.nodebuttonGroup = this.svg.append('g').attr('class', 'nodebutton')
       this.addArrowMaker()
-      // 定义按钮组引用的use元素
-      this.drawToolButton()
       // .buttongroup
       this.svg.on('click', function () {
         d3.selectAll('use').classed('notshow', true)
@@ -514,6 +529,43 @@ export default {
       let nodes = data.nodes
       let links = data.links
 
+      // 如果节点之间有多条连接
+      if (links.length > 0) {
+        _.each(links, function (link) {
+          let same = _.where(links, {
+            'source': link.source,
+            'target': link.target
+          });
+          let sameAlt = _.where(links, {
+            'source': link.target,
+            'target': link.source
+          });
+          let sameAll = same.concat(sameAlt);
+          _.each(sameAll, function (s, i) {
+            s.sameIndex = (i + 1);
+            s.sameTotal = sameAll.length;
+            s.sameTotalHalf = (s.sameTotal / 2);
+            s.sameUneven = ((s.sameTotal % 2) !== 0);
+            s.sameMiddleLink = ((s.sameUneven === true) && (Math.ceil(s.sameTotalHalf) === s.sameIndex));
+            s.sameLowerHalf = (s.sameIndex <= s.sameTotalHalf);
+            s.sameArcDirection = 1;
+            s.sameIndexCorrected = s.sameLowerHalf ? s.sameIndex : (s.sameIndex - Math.ceil(s.sameTotalHalf));
+          });
+        });
+        let maxSame = _.chain(links)
+            .sortBy(function (x) {
+              return x.sameTotal;
+            })
+            .last()
+            .value().sameTotal;
+
+        _.each(links, function (link) {
+          link.maxSameHalf = Math.round(maxSame / 2);
+        });
+      }
+
+      // 定义按钮组引用的use元素
+      _this.drawToolButton()
       // 更新节点
       let graphNode = _this.drawNode(nodes)
       // 更新节点文字
@@ -531,33 +583,51 @@ export default {
       _this.simulation.force('center', d3.forceCenter(_this.width / 2, _this.height / 2))
       _this.simulation.alpha(1).alphaTarget(0).alphaDecay(0.05).restart()
 
+      // 生成连线
+      function linkArc(d) {
+        let dx = (d.target.x - d.source.x),
+            dy = (d.target.y - d.source.y),
+            dr = Math.sqrt(dx * dx + dy * dy),
+            unevenCorrection = (d.sameUneven ? 0 : 0.5);
+        let curvature = 2,
+            arc = (1.0 / curvature) * ((dr * d.maxSameHalf) / (d.sameIndexCorrected - unevenCorrection));
+        if (d.sameMiddleLink) {
+          arc = 0;
+        }
+        let dd = "M" + d.source.x + "," + d.source.y + "A" + arc + "," + arc + " 0 0," + d.sameArcDirection + " " + d.target.x + "," + d.target.y;
+        return dd;
+      }
+
       function ticked() {
         // 更新连线坐标
-        graphLink
-            .attr('x1', function (d) {
-              return d.source.x
-            })
-            .attr('y1', function (d) {
-              return d.source.y
-            })
-            .attr('x2', function (d) {
-              return d.target.x
-            })
-            .attr('y2', function (d) {
-              return d.target.y
-            })
+        // graphLink
+        //     .attr('x1', function (d) {
+        //       return d.source.x
+        //     })
+        //     .attr('y1', function (d) {
+        //       return d.source.y
+        //     })
+        //     .attr('x2', function (d) {
+        //       return d.target.x
+        //     })
+        //     .attr('y2', function (d) {
+        //       return d.target.y
+        //     })
         // 刷新连接线上的文字位置
-        graphLinkText
-            .attr('x', function (d) {
-              if (!d.source.x || !d.target.x) return 0
-              let x = (parseFloat(d.source.x) + parseFloat(d.target.x)) / 2
-              return x
-            })
-            .attr('y', function (d) {
-              if (!d.source.y || !d.target.y) return 0
-              let y = (parseFloat(d.source.y) + parseFloat(d.target.y)) / 2
-              return y
-            })
+        // graphLinkText
+        //     .attr('x', function (d) {
+        //       if (!d.source.x || !d.target.x) return 0
+        //       let x = (parseFloat(d.source.x) + parseFloat(d.target.x)) / 2
+        //       return x
+        //     })
+        //     .attr('y', function (d) {
+        //       if (!d.source.y || !d.target.y) return 0
+        //       let y = (parseFloat(d.source.y) + parseFloat(d.target.y)) / 2
+        //       return y
+        //     })
+
+        graphLink.attr('d', linkArc)
+
         // 更新节点坐标
         graphNode
             .attr('cx', function (d) {
@@ -603,12 +673,14 @@ export default {
               _this.tyy = d.y;
               _this.SelectedNodeId = d.id;
               for (let j = 0; j < _this.graph.nodes.length; j++) {
-                if (_this.graph.nodes[j].id == _this.SelectedNodeId) {
+                if (_this.graph.nodes[j].id === _this.SelectedNodeId) {
                   _this.EditingNodeEntity.id = _this.SelectedNodeId;
                   _this.EditingNodeEntity.name = _this.graph.nodes[j].name;
                   _this.EditingNodeEntity.color = _this.graph.nodes[j].color;
                   _this.EditingNodeEntity.textColor = _this.graph.nodes[j].textColor;
                   _this.EditingNodeEntity.strokeColor = _this.graph.nodes[j].strokeColor;
+                  _this.EditingNodeEntity.textSize = _this.graph.nodes[j].textSize;
+                  _this.EditingNodeEntity.r = _this.graph.nodes[j].r;
                   _this.isEditingNode = true;
                   _this.EditNodeDialogVisible = true;
                   break;
@@ -669,6 +741,7 @@ export default {
       let links = _this.graph.links
       let nodes = _this.graph.nodes
       nodes.forEach(function (node) {
+        if (typeof (node.id) === 'string') node.id = parseInt(node.id)
         if (typeof (node.fx) === 'undefined' || node.fx === '') node.fx = null
         if (typeof (node.fy) === 'undefined' || node.fy === '') node.fy = null
         if (typeof (node.fx) === 'string') node.fx = parseFloat(node.fx)
@@ -676,19 +749,23 @@ export default {
         if (typeof (node.color) === 'undefined' || node.color === '') node.color = _this.DefaultNodeColor
         if (typeof (node.textColor) === 'undefined' || node.textColor === '') node.textColor = _this.DefaultNodeTextColor
         if (typeof (node.strokeColor) === 'undefined' || node.strokeColor === '') node.strokeColor = _this.DefaultNodeStrokeColor
+        if (typeof (node.textSize) === 'undefined' || node.textSize === '') node.textSize = _this.DefaultNodeTextSize
+        if (typeof (node.r) === 'undefined' || node.r === '') node.r = _this.defaultR
       })
       let resLinks = []
       links.forEach(function (link) {
+        if (typeof (link.id) === 'string') node.id = parseInt(link.id)
         let sourceNode = nodes.filter(function (node) {
-          return node.id == link.sourceId
+          return node.id === link.sourceId
         })[0]
         if (!sourceNode) return
         let targetNode = nodes.filter(function (node) {
-          return node.id == link.targetId
+          return node.id === link.targetId
         })[0]
         if (!targetNode) return
         if (typeof (link.color) === 'undefined' || link.color === '') link.color = _this.DefaultLinkColor
         if (typeof (link.textColor) === 'undefined' || link.textColor === '') link.textColor = _this.DefaultLinkTextColor
+        if (typeof (link.textSize) === 'undefined' || link.textSize === '') link.textSize = _this.DefaultLinkTextSize
         resLinks.push({source: sourceNode.id, target: targetNode.id, lk: link})
       })
       let data = {}
@@ -699,58 +776,72 @@ export default {
     // 制作节点工具栏
     drawToolButton() {
       let _this = this
-      let nodeButtonGroup = _this.svg.append('defs')
-      let nodebtg = nodeButtonGroup.append('g').attr("id", "out_circle")
-
+      let nodes = _this.graph.nodes
+      //先删除所有为节点自定义的按钮组
+      d3.selectAll('svg >defs').remove()
       // 制作饼型工具栏，这里的pie是一个函数
       let pie = d3.pie().value(function (d) {
-        return d.value
+        return d.value // value是每个按钮占的比例
       })
       let piedata = pie(_this.toolbarData)
+      // 添加defs标签，defs标签是用来引用的图形元，不会真正渲染
+      let nodeButtonGroup = _this.svg.append('defs')
+      // 节点半径数组
+      let nodeRList = []
+      nodes.forEach(function (node) {
+        if (!node.r) {
+          node.r = _this.defaultR
+        }
+        // 按半径分别定义每种按钮组的图标
+        if (nodeRList.indexOf(node.r) === -1) {
+          nodeRList.push(node.r)
+          let nodebtg = nodeButtonGroup.append('g').attr("id", "out_circle_" + node.r)
 
-      let buttonGroupEnter = nodebtg
-          .selectAll('.buttongroup')
-          .data(piedata)
-          .enter()
-          // 这里传入的参数实际上是它本身，下同
-          .append('g')
-          .attr('class', function (d) {
-            return 'action_' + d.data.code
-          })
-          .attr('cursor', 'pointer')
+          let buttonGroupEnter = nodebtg
+              .selectAll('.buttongroup')
+              .data(piedata)
+              .enter()
+              // 这里传入的参数实际上是它本身，下同
+              .append('g')
+              .attr('class', function (d) {
+                return 'action_' + d.data.code
+              })
+              .attr('cursor', 'pointer')
 
-      // 绘制同心圆
-      let arc = d3.arc().innerRadius(_this.defaultR).outerRadius(_this.defaultR + 30)
-      // 设置工具栏形状
-      buttonGroupEnter
-          .append('path')
-          .attr('class', function (d) {
-            return 'action_' + d.data.code + '_path'
-          })
-          // d属性代表路径，通过描述路径绘制出svg图像
-          .attr('d', function (d) {
-            return arc(d)
-          })
-          .attr('fill', _this.DefaultButtonGroupColor) // 填充
-          .style('opacity', 0.6)
-          .attr('stroke', _this.DefaultButtonGroupStrokeColor) // 轮廓
-          .attr('stroke-width', 2)
+          // 绘制同心圆
+          let arc = d3.arc().innerRadius(node.r).outerRadius(node.r + 30)
 
-      // 设置工具栏文字
-      buttonGroupEnter
-          .append('text')
-          // transform 代表变换
-          .attr('transform', function (d) {
-            return 'translate(' + arc.centroid(d) + ')'
+          // 设置工具栏形状
+          buttonGroupEnter
+              .append('path')
+              .attr('class', function (d) {
+                return 'action_' + d.data.code + '_path'
+              })
+              // d属性代表路径，通过描述路径绘制出svg图像
+              .attr('d', function (d) {
+                return arc(d)
+              })
+              .attr('fill', _this.DefaultButtonGroupColor) // 填充
+              .style('opacity', 0.6)
+              .attr('stroke', _this.DefaultButtonGroupStrokeColor) // 轮廓
+              .attr('stroke-width', 2)
+
+          // 设置工具栏文字
+          buttonGroupEnter
+              .append('text')
+              // transform 代表变换
+              .attr('transform', function (d) {
+                return 'translate(' + arc.centroid(d) + ')'
+              })
+              .attr('text-anchor', 'middle')
+              .text(function (d) {
+                return d.data.name
+              }).style('fill', function () {
+            return _this.DefaultButtonGroupTextColor
           })
-          .attr('text-anchor', 'middle')
-          .text(function (d) {
-            return d.data.name
-          }).style('fill', function () {
-        return _this.DefaultButtonGroupTextColor
+              .attr('font-size', 10)
+        }
       })
-          .attr('font-size', 10)
-
     },
     // 绘制节点
     drawNode(nodes) {
@@ -765,7 +856,6 @@ export default {
       nodeEnter.on('click', function (d) {
         console.log('单击节点，id：' + d.id)
         let out_buttongroup_id = '.out_buttongroup_' + d.id
-        let selectBtnGroup = d3.select(out_buttongroup_id)._groups[0][0]
         // 单击节点，改变节点工具栏显示状态
         _this.svg.selectAll('use').classed('notshow', true)
         // classed 是为对象增加class属性而不覆盖原有class属性
@@ -773,7 +863,7 @@ export default {
         // 如果正在添加联系
         if (_this.isAddingLink) {
           _this.SelectedTargetNodeId = d.id
-          if (_this.SelectedSourceNodeId == _this.SelectedTargetNodeId) {
+          if (_this.SelectedSourceNodeId === _this.SelectedTargetNodeId) {
             d3.select('.grid').style("cursor", "")
             _this.isAddingLink = false
             _this.isCancelOperationShow = false
@@ -785,30 +875,11 @@ export default {
             event.stopPropagation()
             return
           }
-          for (let i = 0; i < _this.graph.links.length; i++) {
-            if ((_this.graph.links[i].sourceId == _this.SelectedSourceNodeId &&
-                _this.graph.links[i].targetId == _this.SelectedTargetNodeId) ||
-                (_this.graph.links[i].sourceId == _this.SelectedTargetNodeId &&
-                    _this.graph.links[i].targetId == _this.SelectedSourceNodeId)) {
-              d3.select('.grid').style("cursor", "")
-              _this.isAddingLink = false
-              _this.isCancelOperationShow = false
-              _this.cancelOperationMessage = ''
-              _this.$message({
-                type: 'error',
-                message: '连接出错：两节点之间已经存在一条连接！'
-              })
-              event.stopPropagation()
-              return
-            }
-          }
           d3.select('.grid').style("cursor", "");
           _this.isAddingLink = false
           _this.isCancelOperationShow = false
           _this.cancelOperationMessage = ''
           _this.createLink()
-          d.fixed = false
-
         }
         // 阻止事件冒泡到父元素
         event.stopPropagation()
@@ -842,7 +913,7 @@ export default {
         let relatedNodeIds = []
         relatedNodeIds.push(d.id)
         let relatedNodes = _this.graph.links.filter(function (n) {
-          return n.sourceId == d.id || n.targetId == d.id
+          return n.sourceId === d.id || n.targetId === d.id
         })
         relatedNodes.forEach(function (i) {
           relatedNodeIds.push(i.sourceId)
@@ -872,7 +943,7 @@ export default {
         _this.qaGraphLink
             .selectAll('line')
             .style('stroke-opacity', function (link) {
-              if (link.lk.targetId == d.id || link.lk.sourceId == d.id) {
+              if (link.lk.targetId === d.id || link.lk.sourceId === d.id) {
                 return 1.0
               }
             })
@@ -882,7 +953,7 @@ export default {
         _this.qaGraphLinkText
             .selectAll('.linetext')
             .style('fill-opacity', function (link) {
-              if (link.lk.targetId == d.id || link.lk.sourceId == d.id) {
+              if (link.lk.targetId === d.id || link.lk.sourceId === d.id) {
                 return 1.0
               }
             })
@@ -946,7 +1017,10 @@ export default {
           })
           .attr('dy', '3.2em')
           .attr('font-family', 'Microsoft YaHei')
-          .attr('font-size', 14)
+          .attr('font-size', function (d) {
+            if (d.textSize) return d.textSize
+            else return _this.DefaultNodeTextSize
+          })
           .attr('text-anchor', 'middle')
           .text(function (d) {
             return d.name
@@ -967,9 +1041,11 @@ export default {
       nodeButton.exit().remove()
       let nodeButtonEnter = nodeButton
           .enter()
-          .append('g')
-          .attr('class', 'insideButtonG')
+          // .append('g')
+          // .attr('class', 'insideButtonG')
           .append('use') // 为每个节点组添加一个 use 子元素
+      nodeButton = nodeButtonEnter.merge(nodeButton)
+      nodeButton
           .attr('r', function (d) {
             if (!d.r) {
               return _this.defaultR
@@ -981,28 +1057,26 @@ export default {
           })
           // 指定use引用的内容
           .attr('xlink:href', function (d) {
-            // if (!d.r) {
-            //   return '#out_circle_' + _this.defaultR
-            // }
-            // return '#out_circle_' + d.r
-            return '#out_circle'
+            if (!d.r) {
+              return '#out_circle_' + _this.defaultR
+            }
+            return '#out_circle_' + d.r
           })
           .attr('class', function (d) {
             return 'buttongroup out_buttongroup_' + d.id
           })
           .classed('notshow', true)
-      nodeButton = nodeButtonEnter.merge(nodeButton)
       return nodeButton
     },
     // 绘制关系
     drawLink(links) {
       let _this = this
-      let link = this.qaGraphLink.selectAll('line').data(links, function (d) {
+      let link = this.qaGraphLink.selectAll('.line >path').data(links, function (d) {
         return d.id
       })
       link.exit().remove()
       // 设置关系样式
-      let linkEnter = link.enter().append('line')
+      let linkEnter = link.enter().append('path')
 
       linkEnter.on('mouseenter', function () {
         d3.select(this)
@@ -1019,23 +1093,16 @@ export default {
             })
             .attr('marker-end', 'url(#arrow)')
       })
-      linkEnter.on('dblclick', function (d) {
-        _this.SelectedLinkId = d.lk.id
-        _this.isEditingLink = true
-        _this.EditingLinkEntity.name = d.lk.name
-        _this.EditingLinkEntity.id = d.lk.id
-        _this.EditingLinkEntity.sourceId = d.lk.sourceId
-        _this.EditingLinkEntity.targetId = d.lk.targetId
-        _this.EditingLinkEntity.color = d.lk.color
-        _this.EditingLinkEntity.textColor = d.lk.textColor
-        _this.EditLinkDialogVisible = true
-      })
       link = linkEnter.merge(link)
       link.attr('class', 'link')
           .attr('stroke-width', '2')
           .attr('stroke', function (d) {
             if (d.lk.color) return d.lk.color
             else return _this.DefaultLinkColor
+          })
+          .attr('fill', 'none')
+          .attr('id', function (d) {
+            return "invis_" + d.lk.sourceId + "-" + d.lk.id + "-" + d.lk.targetId
           })
           .attr('marker-end', 'url(#arrow)') // 箭头
       return link
@@ -1052,6 +1119,19 @@ export default {
       // 设置关系文字样式
       let linkTextEnter = linkText.enter().append('text')
 
+      linkTextEnter.on('dblclick', function (d) {
+        _this.SelectedLinkId = d.lk.id
+        _this.isEditingLink = true
+        _this.EditingLinkEntity.name = d.lk.name
+        _this.EditingLinkEntity.id = d.lk.id
+        _this.EditingLinkEntity.sourceId = d.lk.sourceId
+        _this.EditingLinkEntity.targetId = d.lk.targetId
+        _this.EditingLinkEntity.color = d.lk.color
+        _this.EditingLinkEntity.textColor = d.lk.textColor
+        _this.EditingLinkEntity.textSize = d.lk.textSize
+        _this.EditLinkDialogVisible = true
+      })
+
       linkText = linkTextEnter.merge(linkText).text(function (d) {
         if (d.lk.name) return d.lk.name
         else return '联系'
@@ -1065,11 +1145,14 @@ export default {
           .append('textPath')
           .attr("startOffset", "50%")
           .attr("text-anchor", "middle")
-          // .attr("xlink:href", function (d) {
-          //   return "#invis_" + d.lk.sourceId + "-" + d.lk.name + "-" + d.lk.targetId;
-          // })
+          .attr("xlink:href", function (d) {
+            return "#invis_" + d.lk.sourceId + "-" + d.lk.id + "-" + d.lk.targetId;
+          })
           .style('font-family', 'Microsoft YaHei')
-          .style('font-size', 14)
+          .style('font-size', function (d) {
+            if (d.lk.textSize) return d.lk.textSize
+            else return _this.DefaultLinkTextSize
+          })
           .text(function (d) {
             if (d.lk.name) return d.lk.name
             else return '联系'
@@ -1080,7 +1163,6 @@ export default {
       if (!d3.event.active) this.simulation.alphaTarget(0.8).restart()
       d.fx = d.x
       d.fy = d.y
-      d.fixed = true
     },
     dragging(d) {
       d.fx = d3.event.x
@@ -1156,10 +1238,10 @@ export default {
     },
     // 创建node的id
     nodeIdBuilder() {
-      if (this.graph.nodes.length == 0) {
-        this.nextNodeId = '0'
-        return '0'
-      } else if (this.nextNodeId == '') {
+      if (this.graph.nodes.length === 0) {
+        this.nextNodeId = 0
+        return 0
+      } else if (this.nextNodeId === 0) {
         let id = 0
         let existedIds = []
         this.graph.nodes.forEach(function (node) {
@@ -1168,19 +1250,19 @@ export default {
         existedIds.sort((num1, num2) => {
           return num2 - num1
         })
-        id = Number(existedIds[0]) + 1
-        this.nextNodeId = id.toString()
+        id = existedIds[0] + 1
+        this.nextNodeId = id
         return this.nextNodeId
       }
-      this.nextNodeId = (Number(this.nextNodeId) + 1).toString()
+      this.nextNodeId = this.nextNodeId + 1
       return this.nextNodeId
     },
     // 创建link的id
     linkIdBuilder() {
-      if (this.graph.links.length == 0) {
-        this.nextLinkId = '0'
-        return '0'
-      } else if (this.nextLinkId == '') {
+      if (this.graph.links.length === 0) {
+        this.nextLinkId = 0
+        return 0
+      } else if (this.nextLinkId === 0) {
         let id = 0
         let existedIds = []
         this.graph.links.forEach(function (node) {
@@ -1189,50 +1271,53 @@ export default {
         existedIds.sort((num1, num2) => {
           return num2 - num1
         })
-        id = Number(existedIds[0]) + 1
-        this.nextLinkId = id.toString()
+        id = existedIds[0] + 1
+        this.nextLinkId = id
         return this.nextLinkId
       }
-      this.nextLinkId = (Number(this.nextLinkId) + 1).toString()
+      this.nextLinkId = this.nextLinkId + 1
       return this.nextLinkId
     },
     // 清空记录关系
     emptyLinkEntity() {
       this.EditingLinkEntity = {
-        id: '',
+        id: 0,
         sourceId: '',
         targetId: '',
         name: '',
+        r: 0,
         color: '',
         textColor: '',
+        textSize: 0,
       }
     },
     // 清空记录节点
     emptyNodeEntity() {
       this.EditingNodeEntity = {
-        id: '',
+        id: 0,
         name: '',
         color: '',
         strokeColor: '',
         textColor: '',
+        textSize: 0,
       }
     },
     cancelLinkEdit() {
       this.emptyLinkEntity()
-      this.SelectedLinkId = ''
+      this.SelectedLinkId = 0
       this.isEditingLink = false
       this.EditLinkDialogVisible = false
     },
     cancelNodeEdit() {
       this.emptyNodeEntity()
-      this.SelectedNodeId = ''
+      this.SelectedNodeId = 0
       this.isEditingNode = false
       this.EditNodeDialogVisible = false
     },
     saveLinkEdit() {
       this.updateLinkInfo()
       this.emptyLinkEntity()
-      this.SelectedLinkId = ''
+      this.SelectedLinkId = 0
       this.isEditingLink = false
       this.EditLinkDialogVisible = false
       this.$message({
@@ -1243,7 +1328,7 @@ export default {
     saveNodeEdit() {
       this.updateNodeInfo()
       this.emptyNodeEntity()
-      this.SelectedNodeId = ''
+      this.SelectedNodeId = 0
       this.isEditingNode = false
       this.EditNodeDialogVisible = false
       this.$message({
@@ -1263,21 +1348,21 @@ export default {
         _this.svg.selectAll(out_buttongroup_id).remove()
         // 移除与节点相关的关系
         for (let i = 0; i < _this.graph.links.length; i++) {
-          if (_this.graph.links[i].sourceId == _this.SelectedNodeId ||
-              _this.graph.links[i].targetId == _this.SelectedNodeId) {
+          if (_this.graph.links[i].sourceId === _this.SelectedNodeId ||
+              _this.graph.links[i].targetId === _this.SelectedNodeId) {
             _this.graph.links.splice(i, 1)
             i = i - 1
           }
         }
         // 移除节点
         for (let i = 0; i < _this.graph.nodes.length; i++) {
-          if (_this.graph.nodes[i].id == _this.SelectedNodeId) {
+          if (_this.graph.nodes[i].id === _this.SelectedNodeId) {
             _this.graph.nodes.splice(i, 1)
             break;
           }
         }
         _this.updateGraph()
-        _this.SelectedNodeId = ''
+        _this.SelectedNodeId = 0
         _this.$message({
           type: 'success',
           message: '删除节点成功！'
@@ -1320,7 +1405,7 @@ export default {
       _this.graph.nodes.push(newNode)
       _this.updateGraph()
       _this.isCancelOperationShow = false
-      _this.cancelOperationMessage = ''
+      _this.cancelOperationMessage = 0
       _this.isAddingNode = false
     },
     // 删除联系
@@ -1332,13 +1417,13 @@ export default {
         type: 'warning'
       }).then(() => {
         for (let i = 0; i < _this.graph.links.length; i++) {
-          if (_this.graph.links[i].id == _this.SelectedLinkId) {
+          if (_this.graph.links[i].id === _this.SelectedLinkId) {
             _this.graph.links.splice(i, 1)
             break
           }
         }
         _this.updateGraph()
-        _this.SelectedLinkId = ''
+        _this.SelectedLinkId = 0
         _this.isEditingLink = false
         _this.emptyLinkEntity()
         _this.EditLinkDialogVisible = false
@@ -1347,7 +1432,7 @@ export default {
           message: '删除成功！'
         })
       }).catch(() => {
-        _this.SelectedLinkId = ''
+        _this.SelectedLinkId = 0
         _this.isEditingLink = false
         _this.emptyLinkEntity()
         _this.EditLinkDialogVisible = false
@@ -1368,18 +1453,20 @@ export default {
       _this.graph.links.push(newShip)
       _this.updateGraph()
       _this.isAddingLink = false
-      _this.SelectedSourceNodeId = '';
-      _this.SelectedTargetNodeId = '';
+      _this.SelectedSourceNodeId = 0;
+      _this.SelectedTargetNodeId = 0;
     },
     // 更改节点信息
     updateNodeInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.nodes.length; i++) {
-        if (_this.SelectedNodeId == _this.graph.nodes[i].id) {
+        if (_this.SelectedNodeId === _this.graph.nodes[i].id) {
           _this.graph.nodes[i].name = _this.EditingNodeEntity.name
           _this.graph.nodes[i].color = _this.EditingNodeEntity.color
           _this.graph.nodes[i].textColor = _this.EditingNodeEntity.textColor
           _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor
+          _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize
+          _this.graph.nodes[i].r = _this.EditingNodeEntity.r
           break
         }
       }
@@ -1389,10 +1476,11 @@ export default {
     updateLinkInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.links.length; i++) {
-        if (_this.SelectedLinkId == _this.graph.links[i].id) {
+        if (_this.SelectedLinkId === _this.graph.links[i].id) {
           _this.graph.links[i].name = _this.EditingLinkEntity.name
           _this.graph.links[i].color = _this.EditingLinkEntity.color
           _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor
+          _this.graph.links[i].textSize = _this.EditingLinkEntity.textSize
           break
         }
       }
@@ -1539,7 +1627,12 @@ li {
 
 /*form-item样式*/
 .lineColor {
-  width: 80%;
+  width: 70%;
+  float: left;
+}
+
+.colorPiker{
+  width: 25%;
   float: left;
 }
 
