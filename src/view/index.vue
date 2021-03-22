@@ -22,16 +22,18 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style scoped lang="less">
 #index{
   font-family: Avenir, Helvetica, Arial, sans-serif;
   text-align: center;
   color: #303133;
   padding-top: 100px;
 }
+h1{
+  font-weight: 600;
+  font-size: 33px;
+}
 #logo{
   height: 320px;
 }
-
-
 </style>

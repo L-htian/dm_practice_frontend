@@ -549,7 +549,19 @@ export default {
             s.sameUneven = ((s.sameTotal % 2) !== 0);
             s.sameMiddleLink = ((s.sameUneven === true) && (Math.ceil(s.sameTotalHalf) === s.sameIndex));
             s.sameLowerHalf = (s.sameIndex <= s.sameTotalHalf);
-            s.sameArcDirection = 1;
+            if (s.sameLowerHalf) {
+              if (same.indexOf(s) !== -1) {
+                s.sameArcDirection = 1
+              } else {
+                s.sameArcDirection = 0
+              }
+            } else {
+              if (same.indexOf(s) !== -1) {
+                s.sameArcDirection = 0
+              } else {
+                s.sameArcDirection = 1
+              }
+            }
             s.sameIndexCorrected = s.sameLowerHalf ? s.sameIndex : (s.sameIndex - Math.ceil(s.sameTotalHalf));
           });
         });
@@ -590,13 +602,14 @@ export default {
             dy = (d.target.y - d.source.y),
             dr = Math.sqrt(dx * dx + dy * dy),
             unevenCorrection = (d.sameUneven ? 0 : 0.5);
-        let curvature = 2,
-            arc = (1.0 / curvature) * ((dr * d.maxSameHalf) / (d.sameIndexCorrected - unevenCorrection));
+        let arc = 0;
         if (d.sameMiddleLink) {
           arc = 0;
+        } else {
+          let curvature = 2
+          arc = (1.0 / curvature) * ((dr * d.maxSameHalf) / (d.sameIndexCorrected - unevenCorrection));
         }
-        let dd = "M" + d.source.x + "," + d.source.y + "A" + arc + "," + arc + " 0 0," + d.sameArcDirection + " " + d.target.x + "," + d.target.y;
-        return dd;
+        return "M" + d.source.x + "," + d.source.y + "A" + arc + "," + arc + " 0 0," + d.sameArcDirection + " " + d.target.x + "," + d.target.y;
       }
 
       function ticked() {
@@ -942,7 +955,7 @@ export default {
         d3.selectAll('.line').style('stroke-opacity', 0.1)
         // 显示相关连线
         _this.qaGraphLink
-            .selectAll('line')
+            .selectAll('path')
             .style('stroke-opacity', function (link) {
               if (link.lk.targetId === d.id || link.lk.sourceId === d.id) {
                 return 1.0
@@ -952,7 +965,7 @@ export default {
         d3.selectAll('.linetext').style('fill-opacity', 0.1)
         // 显示相关连线文字
         _this.qaGraphLinkText
-            .selectAll('.linetext')
+            .selectAll('textPath')
             .style('fill-opacity', function (link) {
               if (link.lk.targetId === d.id || link.lk.sourceId === d.id) {
                 return 1.0
@@ -1519,7 +1532,7 @@ export default {
       var context = canvas.getContext("2d");
       context.fillStyle = '#fff';//#fff设置保存后的PNG 是白色的
       context.fillRect(0, 0, 10000, 10000);
-      image.onload = function() {
+      image.onload = function () {
         context.drawImage(image, 0, 0);
         var a = document.createElement("a");
         a.download = "Atlas.png";
