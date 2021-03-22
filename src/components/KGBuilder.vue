@@ -1015,7 +1015,10 @@ export default {
             if (d.textColor) return d.textColor
             else return _this.DefaultNodeTextColor
           })
-          .attr('dy', '3.2em')
+          .attr('dy', function (d) {
+            if (d.r) return (d.r * 8 / 5) + 'px'
+            else return '3.2em'
+          })
           .attr('font-family', 'Microsoft YaHei')
           .attr('font-size', function (d) {
             if (d.textSize) return d.textSize
@@ -1631,7 +1634,7 @@ li {
   float: left;
 }
 
-.colorPiker{
+.colorPiker {
   width: 25%;
   float: left;
 }
