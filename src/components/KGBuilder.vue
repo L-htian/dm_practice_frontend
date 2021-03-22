@@ -179,6 +179,7 @@ import * as d3 from 'd3'
 import $ from 'jquery'
 import html2canvas from 'html2canvas'
 import '@/static/iconfont/iconfont.css'
+import '@/static/js/saveSvgAsPng.js'
 import _ from 'underscore'
 
 export default {
@@ -1489,15 +1490,43 @@ export default {
       }
       _this.updateGraph()
     },
-    // 保存为图片
+    // TODO 保存为图片
     exportImage() {
-      html2canvas(document.querySelector(".grid")).then(function (canvas) {
-        var a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png');  //将画布内的信息导出为png图片数据
-        var timestamp = Date.parse(new Date());
-        a.download = timestamp;  //设定下载名称
-        a.click(); //点击触发下载
-      });
+      // html2canvas(document.querySelector(".grid")).then(function (canvas) {
+      //   var a = document.createElement('a');
+      //   a.href = canvas.toDataURL('image/png');  //将画布内的信息导出为png图片数据
+      //   var timestamp = Date.parse(new Date());
+      //   a.download = timestamp;  //设定下载名称
+      //   a.click(); //点击触发下载
+      // });
+
+      // var svgLib = require('save-svg-as-png');
+      // svgLib.saveSvgAsPng(document.getElementById('svg_index'),"diagram.png")
+      d3.selectAll('.buttongroup').remove()
+      var serializer = new XMLSerializer();
+      var svg1 = document.getElementById('svg_index');
+      var toExport = svg1.cloneNode(true);
+      var bb = svg1.getBBox();
+      toExport.setAttribute('viewBox', bb.x + ' ' + bb.y + ' ' + bb.width + ' ' + bb.height);
+      toExport.setAttribute('width', bb.width);
+      toExport.setAttribute('height', bb.height);
+      var source = '<?xml version="1.0" standalone="no"?>\r\n' + serializer.serializeToString(toExport);
+      var image = new Image;
+      image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+      var canvas = document.createElement("canvas");
+      canvas.width = bb.width;
+      canvas.height = bb.height;
+      var context = canvas.getContext("2d");
+      context.fillStyle = '#fff';//#fff设置保存后的PNG 是白色的
+      context.fillRect(0, 0, 10000, 10000);
+      image.onload = function() {
+        context.drawImage(image, 0, 0);
+        var a = document.createElement("a");
+        a.download = "Atlas.png";
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+      }
+      this.updateGraph()
     },
     // 导出为Json
     exportJson() {
