@@ -1,0 +1,48 @@
+pipeline {
+   agent any
+   tools {
+		nodejs "nodejs"
+   }
+   stages {
+		stage('Prepare'){
+			steps{
+				echo 'Preparing'
+				checkout(
+                [
+                    $class: 'GitSCM', 
+                    branches: [[name: '*/master']], 
+                    doGenerateSubmoduleConfigurations: false, 
+                    extensions: [], 
+                    submoduleCfg: [], 
+                    userRemoteConfigs: [
+                        [
+                            credentialsId: '04edf1fa-fc58-49d8-bbdf-b05925e667a0',
+                            url: 'http://212.129.149.40/181250154_kojima-studio/frontend-kojima-coin.git'
+                        ]
+                    ]
+                ]
+            )
+				sh'''
+					npm install
+				'''
+			}
+		}
+		stage('Build'){
+			steps{
+				echo 'Building'
+				sh'''
+					npm run build
+				'''
+			}
+		}
+		stage('Deploy'){
+			steps{
+				echo 'Deploying'
+				sh'''
+					 rm -rf /Tomcat/tomcat9/webapps/dist
+					 mv -f /var/lib/jenkins/workspace/Kojima_Studio_frontend/dist /Tomcat/tomcat9/webapps
+				'''
+			}
+		}
+   }
+}
