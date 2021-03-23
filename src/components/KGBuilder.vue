@@ -551,15 +551,15 @@ export default {
             s.sameLowerHalf = (s.sameIndex <= s.sameTotalHalf);
             if (s.sameLowerHalf) {
               if (same.indexOf(s) !== -1) {
-                s.sameArcDirection = 1
+                s.sameArcDirection = 1;
               } else {
-                s.sameArcDirection = 0
+                s.sameArcDirection = 0;
               }
             } else {
               if (same.indexOf(s) !== -1) {
-                s.sameArcDirection = 0
+                s.sameArcDirection = 0;
               } else {
-                s.sameArcDirection = 1
+                s.sameArcDirection = 1;
               }
             }
             s.sameIndexCorrected = s.sameLowerHalf ? s.sameIndex : (s.sameIndex - Math.ceil(s.sameTotalHalf));
@@ -579,16 +579,16 @@ export default {
 
       // 定义按钮组引用的use元素
       _this.drawToolButton()
+      // 更新连线
+      let graphLink = _this.drawLink(links)
+      // 更新连线文字
+      let graphLinkText = _this.drawLinkText(links)
       // 更新节点
       let graphNode = _this.drawNode(nodes)
       // 更新节点文字
       let graphNodeText = _this.drawNodeText(nodes)
       // 更新按钮组
       let graphNodeButtonGroup = _this.drawButtonGroup(nodes)
-      // 更新连线
-      let graphLink = _this.drawLink(links)
-      // 更新连线文字
-      let graphLinkText = _this.drawLinkText(links)
 
       // tick 每到一个时刻都需要调用方法来更新节点的坐标
       _this.simulation.nodes(nodes).on('tick', ticked)
@@ -598,18 +598,27 @@ export default {
 
       // 生成连线
       function linkArc(d) {
-        let dx = (d.target.x - d.source.x),
-            dy = (d.target.y - d.source.y),
-            dr = Math.sqrt(dx * dx + dy * dy),
-            unevenCorrection = (d.sameUneven ? 0 : 0.5);
-        let arc = 0;
-        if (d.sameMiddleLink) {
-          arc = 0;
+        if (d.target.x === d.source.x && d.target.y === d.source.y) {
+          let drx = (d.sameIndexCorrected + 1) * 10,
+              dry = (d.sameIndexCorrected + 2) * 10,
+              xRotation = -45,
+              largeArc = 1,
+              sweep = 1;
+          return "M" + d.source.x + "," + d.source.y + "A" + drx + "," + dry + " " + xRotation + "," + largeArc + "," + sweep + " " + (d.target.x + 1) + "," + (d.target.y + 1);
         } else {
-          let curvature = 2
-          arc = (1.0 / curvature) * ((dr * d.maxSameHalf) / (d.sameIndexCorrected - unevenCorrection));
+          let dx = (d.target.x - d.source.x),
+              dy = (d.target.y - d.source.y),
+              dr = Math.sqrt(dx * dx + dy * dy),
+              unevenCorrection = (d.sameUneven ? 0 : 0.5);
+          let arc;
+          if (d.sameMiddleLink) {
+            arc = 0;
+          } else {
+            let curvature = 2
+            arc = (1.0 / curvature) * ((dr * d.maxSameHalf) / (d.sameIndexCorrected - unevenCorrection));
+          }
+          return "M" + d.source.x + "," + d.source.y + "A" + arc + "," + arc + " 0 0," + d.sameArcDirection + " " + d.target.x + "," + d.target.y;
         }
-        return "M" + d.source.x + "," + d.source.y + "A" + arc + "," + arc + " 0 0," + d.sameArcDirection + " " + d.target.x + "," + d.target.y;
       }
 
       function ticked() {
@@ -877,18 +886,18 @@ export default {
         // 如果正在添加联系
         if (_this.isAddingLink) {
           _this.SelectedTargetNodeId = d.id
-          if (_this.SelectedSourceNodeId === _this.SelectedTargetNodeId) {
-            d3.select('.grid').style("cursor", "")
-            _this.isAddingLink = false
-            _this.isCancelOperationShow = false
-            _this.cancelOperationMessage = ''
-            _this.$message({
-              type: 'error',
-              message: '连接出错：不支持节点自身连接自身！'
-            })
-            event.stopPropagation()
-            return
-          }
+          // if (_this.SelectedSourceNodeId === _this.SelectedTargetNodeId) {
+          //   d3.select('.grid').style("cursor", "")
+          //   _this.isAddingLink = false
+          //   _this.isCancelOperationShow = false
+          //   _this.cancelOperationMessage = ''
+          //   _this.$message({
+          //     type: 'error',
+          //     message: '连接出错：不支持节点自身连接自身！'
+          //   })
+          //   event.stopPropagation()
+          //   return
+          // }
           d3.select('.grid').style("cursor", "");
           _this.isAddingLink = false
           _this.isCancelOperationShow = false
