@@ -1,6 +1,28 @@
 <template>
   <div>
-    <div id="grid_container" style="float:left;">
+    <!-- todo 侧边栏-->
+    <div class="siderBar">
+      <!--      搜索栏-->
+      <el-autocomplete
+          class="my-autocomplete"
+          v-model="state"
+          :fetch-suggestions="querySearch"
+          placeholder="请输入内容"
+          @select="handleSelect">
+        <i
+            class="el-icon-search el-input__icon"
+            slot="prefix"
+        >
+        </i>
+      </el-autocomplete>
+
+
+      <!--      todo 动态添加搜索到的图片-->
+      <ul class="showResult">
+
+      </ul>
+    </div>
+    <div id="grid_container" style="">
       <div id="grid" class="grid"></div>
     </div>
     <div class="svg-set-box clearfix">
@@ -304,6 +326,7 @@ export default {
   beforeDestroy() {
   },
   watch: {},
+  //TODO methods
   methods: {
     // 初始化知识图谱
     initGraph() {
@@ -1608,12 +1631,28 @@ export default {
       //   link.click();
       //   window.URL.revokeObjectURL(link.href);
       // })
-    }
+    },
+    //TODO 自动填充搜索栏方法补充
+    querySearch(){
+
+    },
+    handleSelect(){}
   }
 }
 </script>
-
+<!-- todo css层-->
 <style>
+.siderBar{
+  float: left;
+  width: 30%;
+  top: 75px;
+  position: fixed;
+}
+.my-autocomplete{
+  left: 30px;
+  position: fixed;
+
+}
 circle {
   cursor: pointer;
 }
