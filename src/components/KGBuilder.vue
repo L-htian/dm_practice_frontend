@@ -186,6 +186,29 @@
         <el-form-item label="节点半径" :label-width="formLabelWidth">
           <el-input-number v-model="EditingNodeEntity.r" class="withoutColor"></el-input-number>
         </el-form-item>
+        <el-form-item label="节点类型标签" :label-width="formLabelWidth">
+          <el-tag
+              type="info"
+              effect="plain"
+              :key="tag"
+              v-for="tag in EditingNodeEntity.type"
+              closable
+              :disable-transitions="false"
+              @close="handleTagClose(tag)">
+            {{ tag }}
+          </el-tag>
+          <el-input
+              class="input-new-tag"
+              v-if="TagInputVisible"
+              v-model="tagInputValue"
+              ref="saveTagInput"
+              size="small"
+              @keyup.enter.native="handleTagInputConfirm"
+              @blur="handleTagInputConfirm"
+          >
+          </el-input>
+          <el-button v-else class="button-new-tag" size="small" @click="showTagInput">添加Tag</el-button>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancelNodeEdit">取消</el-button>
@@ -262,9 +285,12 @@ export default {
         strokeColor: '',
         textColor: '',
         textSize: 0,
+        type: []
       },
       EditLinkDialogVisible: false,
       EditNodeDialogVisible: false,
+      TagInputVisible: false,
+      tagInputValue: '',
       isAddingNode: false,
       isAddingLink: false,
       isEditingNode: false,
@@ -622,9 +648,10 @@ export default {
       // 生成连线
       function linkArc(d) {
         if (d.target.x === d.source.x && d.target.y === d.source.y) {
+          let randomNum = Math.random();
           let drx = (d.sameIndexCorrected + 1) * 10,
               dry = (d.sameIndexCorrected + 2) * 10,
-              xRotation = -45,
+              xRotation = randomNum * 360,
               largeArc = 1,
               sweep = 1;
           return "M" + d.source.x + "," + d.source.y + "A" + drx + "," + dry + " " + xRotation + "," + largeArc + "," + sweep + " " + (d.target.x + 1) + "," + (d.target.y + 1);
@@ -727,6 +754,7 @@ export default {
                   _this.EditingNodeEntity.strokeColor = _this.graph.nodes[j].strokeColor;
                   _this.EditingNodeEntity.textSize = _this.graph.nodes[j].textSize;
                   _this.EditingNodeEntity.r = _this.graph.nodes[j].r;
+                  _this.EditingNodeEntity.type = _this.graph.nodes[j].type;
                   _this.isEditingNode = true;
                   _this.EditNodeDialogVisible = true;
                   break;
@@ -797,6 +825,7 @@ export default {
         if (typeof (node.strokeColor) === 'undefined' || node.strokeColor === '') node.strokeColor = _this.DefaultNodeStrokeColor
         if (typeof (node.textSize) === 'undefined' || node.textSize === '') node.textSize = _this.DefaultNodeTextSize
         if (typeof (node.r) === 'undefined' || node.r === '') node.r = _this.defaultR
+        if (typeof (node.type) === 'undefined') node.type = []
       })
       let resLinks = []
       links.forEach(function (link) {
@@ -1349,6 +1378,7 @@ export default {
         strokeColor: '',
         textColor: '',
         textSize: 0,
+        type: [],
       }
     },
     cancelLinkEdit() {
@@ -1516,6 +1546,7 @@ export default {
           _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor
           _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize
           _this.graph.nodes[i].r = _this.EditingNodeEntity.r
+          _this.graph.nodes[i].type = _this.EditingNodeEntity.type
           break
         }
       }
@@ -1633,26 +1664,47 @@ export default {
       // })
     },
     //TODO 自动填充搜索栏方法补充
-    querySearch(){
+    querySearch() {
 
     },
-    handleSelect(){}
+    handleSelect() {
+    },
+    // tag添加相关
+    showTagInput() {
+      this.TagInputVisible = true
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+    handleTagInputConfirm() {
+      let inputValue = this.tagInputValue;
+      if (inputValue) {
+        this.EditingNodeEntity.type.push(inputValue);
+      }
+      this.TagInputVisible = false;
+      this.tagInputValue = '';
+    },
+    handleTagClose(tag) {
+      this.EditingNodeEntity.type.splice(this.EditingNodeEntity.type.indexOf(tag), 1)
+    },
   }
 }
 </script>
 <!-- todo css层-->
 <style>
-.siderBar{
+.siderBar {
   float: left;
   width: 30%;
   top: 75px;
   position: fixed;
 }
-.my-autocomplete{
+
+.my-autocomplete {
   left: 30px;
   position: fixed;
 
 }
+
 circle {
   cursor: pointer;
 }
@@ -1732,5 +1784,24 @@ li {
 .withoutColor {
   width: 97%;
   float: left;
+}
+
+/* tag添加器样式 */
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
 }
 </style>
