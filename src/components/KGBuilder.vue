@@ -191,7 +191,7 @@
               type="info"
               effect="plain"
               :key="tag"
-              v-for="tag in EditingNodeEntity.type"
+              v-for="tag in EditingNodeEntity.tag"
               closable
               :disable-transitions="false"
               @close="handleTagClose(tag)">
@@ -286,7 +286,7 @@ export default {
         strokeColor: '',
         textColor: '',
         textSize: 0,
-        type: []
+        tag: []
       },
       EditLinkDialogVisible: false,
       EditNodeDialogVisible: false,
@@ -756,7 +756,7 @@ export default {
                   _this.EditingNodeEntity.strokeColor = _this.graph.nodes[j].strokeColor;
                   _this.EditingNodeEntity.textSize = _this.graph.nodes[j].textSize;
                   _this.EditingNodeEntity.r = _this.graph.nodes[j].r;
-                  _this.EditingNodeEntity.type = _this.graph.nodes[j].type;
+                  _this.EditingNodeEntity.tag = _this.graph.nodes[j].tag;
                   _this.isEditingNode = true;
                   _this.EditNodeDialogVisible = true;
                   break;
@@ -827,7 +827,7 @@ export default {
         if (typeof (node.strokeColor) === 'undefined' || node.strokeColor === '') node.strokeColor = _this.DefaultNodeStrokeColor
         if (typeof (node.textSize) === 'undefined' || node.textSize === '') node.textSize = _this.DefaultNodeTextSize
         if (typeof (node.r) === 'undefined' || node.r === '') node.r = _this.defaultR
-        if (typeof (node.type) === 'undefined') node.type = []
+        if (typeof (node.tag) === 'undefined') node.tag = []
       })
       let resLinks = []
       links.forEach(function (link) {
@@ -1613,7 +1613,7 @@ export default {
           _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor
           _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize
           _this.graph.nodes[i].r = _this.EditingNodeEntity.r
-          _this.graph.nodes[i].type = _this.EditingNodeEntity.type
+          _this.graph.nodes[i].tag = _this.EditingNodeEntity.tag
           let nodeToUpdate = _this.graph.nodes[i]
           _this.updateNode(nodeToUpdate)
           break
@@ -1790,13 +1790,13 @@ export default {
     handleTagInputConfirm() {
       let inputValue = this.tagInputValue;
       if (inputValue) {
-        this.EditingNodeEntity.type.push(inputValue);
+        this.EditingNodeEntity.tag.push(inputValue);
       }
       this.TagInputVisible = false;
       this.tagInputValue = '';
     },
     handleTagClose(tag) {
-      this.EditingNodeEntity.type.splice(this.EditingNodeEntity.type.indexOf(tag), 1)
+      this.EditingNodeEntity.tag.splice(this.EditingNodeEntity.tag.indexOf(tag), 1)
     },
   }
 }

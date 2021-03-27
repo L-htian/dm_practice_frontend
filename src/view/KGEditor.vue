@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import {mapGetters, mapActions, mapMutations} from 'vuex'
 import KGBuilder from "@/components/KGBuilder";
 import Uploader from "@/components/Uploader";
 import {Loading} from 'element-ui';
@@ -29,30 +30,48 @@ export default {
       getGraphId: ''
     }
   },
+  computed: {
+    ...mapGetters([
+      'isGraphOpening',
+      'selectedKGId'
+    ])
+  },
   mounted() {
-    let loadingInstance = Loading.service({fullscreen: true});
-    setTimeout(() => {
-      loadingInstance.close();
-      window.Event.$on('getNewGraph', val => {
-        if (val) {
-          // console.log(val)
-          this.getNew = val
+    if (this.isGraphOpening) {
+      this.set_isGraphOpening(false)
+      this.showUploader = false
+      this.showKGBuilder = true
+    } else {
+      let loadingInstance = Loading.service({fullscreen: true});
+      setTimeout(() => {
+        loadingInstance.close();
+        window.Event.$on('getNewGraph', val => {
+          if (val) {
+            // console.log(val)
+            this.getNew = val
+            this.showKGBuilder = true
+            this.showUploader = false
+          }
+        })
+        window.Event.$on('UploadFile', val => {
+          this.upLoaded = val
           this.showKGBuilder = true
           this.showUploader = false
-        }
-      })
-      window.Event.$on('UploadFile', val => {
-        this.upLoaded = val
-        this.showKGBuilder = true
-        this.showUploader = false
-      })
-      window.Event.$on('transferFileArray', val => {
-        this.uploadFileList = val
-      })
-      window.Event.$on('getGraphNewId', val => {
-        this.getGraphId = val
-      })
-    }, 1000)
+        })
+        window.Event.$on('transferFileArray', val => {
+          this.uploadFileList = val
+        })
+        window.Event.$on('getGraphNewId', val => {
+          this.getGraphId = val
+        })
+      }, 1000)
+    }
+  },
+  methods:{
+    ...mapMutations([
+      'set_selectedKGId',
+      'set_isGraphOpening'
+    ]),
   }
 }
 </script>

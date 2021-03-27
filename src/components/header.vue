@@ -6,6 +6,7 @@
     </div>
     <el-menu
         :default-active="current"
+        :key="current"
         class="menu"
         mode="horizontal"
         text-color="#606266"
@@ -17,8 +18,14 @@
           <span>首页</span>
         </el-menu-item>
       </router-link>
-      <router-link to="/Kojima-Coin/KGEditor">
+      <router-link to="/Kojima-Coin/KGList">
         <el-menu-item index="2">
+          <i class="el-icon-s-order"></i>
+          <span>图谱列表</span>
+        </el-menu-item>
+      </router-link>
+      <router-link to="/Kojima-Coin/KGEditor">
+        <el-menu-item index="3">
           <i class="el-icon-paperclip"></i>
           <span>知识图谱编辑器</span>
         </el-menu-item>
@@ -28,18 +35,28 @@
 </template>
 
 <script>
+import {mapGetters, mapMutations} from "vuex";
+
 export default {
   name: "header",
   data() {
     return {
-      current: 1
     }
   },
+  computed:{
+    ...mapGetters([
+      'current'
+    ])
+  },
   mounted() {
-    if (this.$route.name == 'index') this.current = 1
-    else if (this.$route.name == 'KGEditor') this.current = 2
+    if (this.$route.name === 'index') this.set_current(1);
+    else if(this.$route.name === 'KGList') this.set_current(2);
+    else if (this.$route.name === 'KGEditor') this.set_current(3);
   },
   methods: {
+    ...mapMutations([
+      'set_current'
+    ]),
     jumpToHome() {
       this.$router.push('/Kojima-Coin/index')
     }
@@ -102,7 +119,7 @@ export default {
       float: left;
       font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
       &:hover {
-        background: #E4E7ED;
+        background: #e4e7ed;
       }
     }
 

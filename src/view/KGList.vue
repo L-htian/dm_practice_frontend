@@ -1,13 +1,252 @@
 <template>
-
+  <div class="list-container">
+    <ul class="kg-list" style="overflow:auto">
+      <li v-for="kg in KGs" class="kg-list-item">
+        <div class="kg-meta">
+          <div class="kg-meta-img">
+            <el-image class="kg-img"
+                      :src="kg.imgsrc"
+                      fit="cover"
+                      :preview-src-list="[kg.imgsrc]"
+            ></el-image>
+          </div>
+          <div class="kg-meta-content">
+            <h4 class="kg-name">{{ kg.name }}</h4>
+            <div class="kg-description">{{ kg.description }}</div>
+          </div>
+        </div>
+        <div class="kg-action">
+          <el-tooltip content="编辑图谱信息" placement="top-end">
+            <el-button type="text" @click="editKG(kg.id)"><i class="action-icon el-icon-edit"></i></el-button>
+          </el-tooltip>
+          <el-divider direction="vertical"></el-divider>
+          <el-tooltip content="删除图谱" placement="top">
+            <el-button type="text" @click="deleteKG(kg.id)"><i class="action-icon el-icon-delete"></i></el-button>
+          </el-tooltip>
+          <el-divider direction="vertical"></el-divider>
+          <el-tooltip content="打开图谱" placement="top-start">
+            <el-button type="text" @click="openKG(kg.id)"><i class="action-icon el-icon-view"></i></el-button>
+          </el-tooltip>
+        </div>
+      </li>
+    </ul>
+    <el-dialog title="编辑选项" :visible.sync="EditGraphDialogVisible" custom-class="customWidth">
+      <el-form>
+        <el-form-item label="图谱id" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingGraphEntry.id" class="withoutColor"></el-input>
+        </el-form-item>
+        <el-form-item label="图谱名称" :label-width="formLabelWidth">
+          <el-input v-model="EditingGraphEntry.name" class="withoutColor"></el-input>
+        </el-form-item>
+        <el-form-item label="图谱描述" :label-width="formLabelWidth">
+          <el-input v-model="EditingGraphEntry.description" type="textarea" class="withoutColor"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelGraphEdit">取消</el-button>
+        <el-button type="primary" @click="saveGraphEdit">保存修改</el-button>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
+import {mapGetters, mapActions, mapMutations} from 'vuex'
+
 export default {
-  name: "KGList"
+  name: "KGList",
+  data() {
+    return {
+      formLabelWidth: "120px",
+      EditingGraphEntry: {
+        name: '',
+        id: 0,
+        imgsrc: '',
+        description: '',
+      },
+      KGs: [
+        {
+          name: '李氏财团家族图谱',
+          id: 0,
+          imgsrc: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
+          description: '著名企业家李邦国的家族图谱，包含了李邦国家族上下114514代的家族人口关系图，能够帮助了解李氏家族的构成和历史'
+        },
+        {
+          name: '示范2',
+          id: 1,
+          imgsrc: 'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg',
+          description: '这是一个示例'
+        },
+      ],
+      EditGraphDialogVisible: false,
+    }
+  },
+  mounted() {
+    this.set_isGraphOpening(false)
+  },
+  methods: {
+    ...mapMutations([
+      'set_selectedKGId',
+      'set_isGraphOpening',
+      'set_current'
+    ]),
+    emptyEditingGraphEntry() {
+      this.EditingGraphEntry =
+          {
+            name: '',
+            id: 0,
+            imgsrc: '',
+            description: '',
+          }
+    },
+    cancelGraphEdit() {
+      this.EditGraphDialogVisible = false
+      this.emptyEditingGraphEntry()
+      this.$message({
+        type: 'info',
+        message: '已取消编辑图谱'
+      })
+    },
+    saveGraphEdit() {
+      this.EditGraphDialogVisible = false
+      this.emptyEditingGraphEntry()
+      this.$message({
+        type: 'success',
+        message: '编辑图谱成功'
+      })
+    },
+    deleteKG(graphId) {
+      let _this = this
+      _this.$confirm('该操作不可撤销', '将要删除该图谱，是否继续？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        for (let i = 0; i < _this.KGs.length; i++) {
+          if (_this.KGs[i].id === graphId) {
+            _this.KGs.splice(i, 1)
+            break
+          }
+        }
+        this.$message({
+          type: 'success',
+          message: '删除图谱成功'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '操作已取消'
+        })
+      })
+    },
+    editKG(graphId) {
+      let _this = this
+      for (let i = 0; i < _this.KGs.length; i++) {
+        if (_this.KGs[i].id === graphId) {
+          _this.EditingGraphEntry = _this.KGs[i]
+          break
+        }
+      }
+      _this.EditGraphDialogVisible = true
+    },
+    openKG(graphId) {
+      this.set_selectedKGId(graphId)
+      this.set_isGraphOpening(true)
+      this.set_current(3)
+      this.$router.push('/Kojima-Coin/KGEditor')
+    }
+  }
 }
 </script>
 
 <style scoped>
+.list-container {
+  padding-top: 60px;
+  margin-right: 10%;
+  margin-left: 10%;
+  width: 80%;
+}
 
+.kg-list {
+  width: 100%;
+}
+
+.kg-list-item {
+  width: 96%;
+  min-height: 20%;
+  height: auto;
+  background: none;
+  border: 1px solid #dcdfe6;
+  border-radius: 25px;
+  margin: 2%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.kg-list-item:hover {
+  background: rgba(0,0,0, 0.2);
+}
+
+.kg-meta {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  float: left;
+  width: 54%;
+  margin-left: 8%;
+}
+
+.kg-meta-img {
+  float: left;
+}
+
+.kg-img {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-right: 10px;
+  height: 100px;
+  width: 75px;
+}
+
+.kg-meta-content {
+  margin-left: 10px;
+  float: left;
+}
+
+.kg-name {
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  color: rgba(0, 0, 0, .65);
+  font-size: 22px;
+  line-height: 24px;
+}
+
+.kg-description {
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  color: rgba(0, 0, 0, .45);
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.kg-action {
+  width: 30%;
+  float: left;
+  flex: 0 0 auto;
+  margin-left: 8%;
+  padding: 0;
+}
+
+.action-icon {
+  font-size: 20px;
+}
+
+.withoutColor {
+  width: 97%;
+  float: left;
+}
 </style>
