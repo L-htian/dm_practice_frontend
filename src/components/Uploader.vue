@@ -27,6 +27,7 @@ export default {
       fileList: [],
       getUpload: false,
       getGraphNew: false,
+      newGraphId: ''
     }
   },
   provide() {
@@ -50,15 +51,32 @@ export default {
     getNewGraph() {
       this.getGraphNew = true
       window.Event.$emit('getNewGraph', this.getGraphNew)
+      this.newGraphId = this.getNewGraphId()
+      window.Event.$emit('getGraphNewId',this.newGraphId)
     },
-
+    // todo 创建空白图谱获得Id
+    getNewGraphId(){
+      let id;
+      $.ajax('https://localhost:8089/createGraph', {
+        type: 'GET',
+        dataType: 'text',
+        data: {},
+        contentType: 'application/json',
+        async: false,
+        success: function (data) {
+          id = data
+          console.log('getIdSuccess!')
+        }
+      })
+      return id
+    }
   }
 }
 
 </script>
 
 <style scoped>
-.Uploader{
+.Uploader {
   text-align: center;
   display: flex;
   align-items: center;

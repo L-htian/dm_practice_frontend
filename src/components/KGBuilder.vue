@@ -233,7 +233,8 @@ export default {
     pid: String,
     wantNew: Boolean,
     hasUploaded: Boolean,
-    fileList: Array
+    fileList: Array,
+    graphId: Number,
   },
   data() {
     return {
@@ -352,7 +353,7 @@ export default {
   beforeDestroy() {
   },
   watch: {},
-  //TODO methods
+  //todo methods
   methods: {
     // 初始化知识图谱
     initGraph() {
@@ -459,18 +460,19 @@ export default {
           }
         ]
       } else if (_this.hasUploaded && !_this.wantNew) {
-        // Todo 接收后端数据
-        // $.ajax("http://localhost:8090/api/KG/getUploadData", {
+        // todo 接收后端数据
+        // $.ajax("http://localhost:8090/api/KG/upload", {
         //   data: {},
-        //   dataType: 'json',
-        //   type: 'get',
-        //   async: 'false',
+        //   dataType: 'text',
+        //   contentType: 'application/json',
+        //   type: 'GET',
+        //   async: false,
         //   success: function (data) {
-        //     _this.graph.nodes = data.nodes
-        //     _this.graph.links = data.links
+        //     _this.graph.nodes = (JSON.parse(data)).nodes
+        //     _this.graph.links = (JSON.parse(data)).links
         //   }
         // })
-        //Todo 前端直接读取执行
+        //todo 前端直接读取执行
         let file = _this.fileList[0]
         let reader = new FileReader()
         let document = ""
@@ -1356,7 +1358,7 @@ export default {
       this.nextLinkId = this.nextLinkId + 1
       return this.nextLinkId
     },
-    // 清空记录关系
+    // todo 清空记录关系
     emptyLinkEntity() {
       this.EditingLinkEntity = {
         id: 0,
@@ -1415,7 +1417,7 @@ export default {
         message: '保存更改成功！'
       })
     },
-    // 删除节点及相关联系
+    // todo 删除节点及相关联系
     deleteNode(out_buttongroup_id) {
       let _this = this
       _this.$confirm('该操作不可撤销', '将要删除节点和所有以该节点为源或目标的关系，是否继续？', {
@@ -1453,6 +1455,19 @@ export default {
         })
       })
     },
+    nodeToDelete(nodeIdToDelete) {
+      $.ajax('https://localhost:8089/deleteNode', {
+        type: 'POST',
+        data: JSON.stringify({"nodeIdToDelete": nodeIdToDelete}),
+        dataType: 'application/json',
+        contentType: 'application/json',
+        // 后端异步删除
+        async: true,
+        success: function () {
+          console.log('deleteNodeSuccess!')
+        }
+      })
+    },
     // 当添加节点按钮被按下，鼠标样式改变为+
     // 当鼠标再次在界面中点击，创建节点，鼠标样式恢复
     addOneNode() {
@@ -1461,7 +1476,7 @@ export default {
       this.isCancelOperationShow = true
       d3.select('.grid').style("cursor", "crosshair")
     },
-    // 添加节点方法
+    // todo 添加节点方法
     createNode() {
       let _this = this
       let newNode = {}
@@ -1481,13 +1496,37 @@ export default {
         newNode.fx = _this.txx
         newNode.fy = _this.tyy
       }
+      // todo 节点id后端生成
+      // newNode.id=this.getNodeId(newNode)
       _this.graph.nodes.push(newNode)
       _this.updateGraph()
       _this.isCancelOperationShow = false
       _this.cancelOperationMessage = 0
       _this.isAddingNode = false
     },
-    // 删除联系
+    getNodeId(newNode) {
+      var newId;
+      $.ajax('http://localhost:8089/api/KG/createNode', {
+        data: JSON.stringify(newNode),
+        dataType: 'text',
+        contentType: "application/json",
+        type: 'POST',
+        async: false,
+        success: function (data) {
+          console.log(typeof data)
+          console.log(JSON.parse(data).content.id)
+          console.log(typeof JSON.parse(data))
+          newId = (JSON.parse(data)).content.id
+        },
+        error: function (data) {
+          console.log(data)
+          console.log(2)
+        }
+      })
+      return newId;
+    },
+
+    // todo 删除联系
     deleteLink() {
       let _this = this
       _this.$confirm('该操作不可撤销', '将要删除该联系，是否继续？', {
@@ -1501,6 +1540,7 @@ export default {
             break
           }
         }
+        _this.linkToDelete(_this.SelectedLinkId)
         _this.updateGraph()
         _this.SelectedLinkId = 0
         _this.isEditingLink = false
@@ -1521,7 +1561,20 @@ export default {
         })
       })
     },
-    // 添加联系
+    linkToDelete(linkIdToDelete) {
+      $.ajax('https://localhost:8089/deleteLink', {
+        type: 'POST',
+        data: JSON.stringify({"linkIdToDelete": linkIdToDelete}),
+        dataType: 'application/json',
+        contentType: 'application/json',
+        // 后端异步删除
+        async: true,
+        success: function () {
+          console.log('deleteLinkSuccess!')
+        }
+      })
+    },
+    // todo 添加联系
     createLink() {
       let _this = this
       let newShip = {}
@@ -1529,13 +1582,27 @@ export default {
       newShip.targetId = _this.SelectedTargetNodeId
       newShip.id = _this.linkIdBuilder()
       newShip.name = '联系'
+      _this.saveNewLink(newShip)
       _this.graph.links.push(newShip)
       _this.updateGraph()
       _this.isAddingLink = false
       _this.SelectedSourceNodeId = 0;
       _this.SelectedTargetNodeId = 0;
     },
-    // 更改节点信息
+    saveNewLink(linkToSave) {
+      $.ajax('https://localhost:8089/createLink', {
+        type: 'POST',
+        data: JSON.stringify(linkToSave),
+        dataType: 'application/json',
+        contentType: 'application/json',
+        // 同步
+        async: true,
+        success: function (data) {
+          console.log('saveLinkSuccess!')
+        }
+      })
+    },
+    // todo 更改节点信息
     updateNodeInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.nodes.length; i++) {
@@ -1547,12 +1614,27 @@ export default {
           _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize
           _this.graph.nodes[i].r = _this.EditingNodeEntity.r
           _this.graph.nodes[i].type = _this.EditingNodeEntity.type
+          let nodeToUpdate = _this.graph.nodes[i]
+          _this.updateNode(nodeToUpdate)
           break
         }
       }
       _this.updateGraph()
     },
-    // 更改关系信息
+    updateNode(nodeToUpdate) {
+      $.ajax('https://localhost:8089/updateNode', {
+        type: 'POST',
+        data: JSON.stringify(nodeToUpdate),
+        dataType: 'application/json',
+        contentType: 'application/json',
+        // 后端异步存储
+        async: true,
+        success: function (data) {
+          console.log('updateNodeSuccess!')
+        }
+      })
+    },
+    // todo 更改关系信息
     updateLinkInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.links.length; i++) {
@@ -1561,12 +1643,27 @@ export default {
           _this.graph.links[i].color = _this.EditingLinkEntity.color
           _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor
           _this.graph.links[i].textSize = _this.EditingLinkEntity.textSize
+          let linkToUpdate = _this.graph.links[i]
+          _this.updateLink(linkToUpdate)
           break
         }
       }
       _this.updateGraph()
     },
-    // TODO 保存为图片
+    updateLink(linkToUpdate) {
+      $.ajax('https://localhost:8089/updateLink', {
+        type: 'POST',
+        data: JSON.stringify(linkToUpdate),
+        dataType: 'application/json',
+        contentType: 'application/json',
+        // 后端异步存储
+        async: true,
+        success: function (data) {
+          console.log('updateLinkSuccess!')
+        }
+      })
+    },
+    // todo 保存为图片
     exportImage() {
       // html2canvas(document.querySelector(".grid")).then(function (canvas) {
       //   var a = document.createElement('a');
@@ -1578,6 +1675,7 @@ export default {
 
       // var svgLib = require('save-svg-as-png');
       // svgLib.saveSvgAsPng(document.getElementById('svg_index'),"diagram.png")
+
       d3.selectAll('.buttongroup').remove()
       var serializer = new XMLSerializer();
       var svg1 = document.getElementById('svg_index');
@@ -1606,7 +1704,7 @@ export default {
     },
     // 导出为Json
     exportJson() {
-      //Todo 前端导出json实现
+      // todo 前端导出json实现
       let content = JSON.stringify(this.graph, null, 2)
       let eleLink = document.createElement('a');
       eleLink.download = `Kojima_Coin_${new Date().valueOf()}.json`;
@@ -1619,7 +1717,7 @@ export default {
       eleLink.click();
       // 然后移除
       document.body.removeChild(eleLink);
-      // Todo 后端导出json实现
+      // todo 后端导出json实现
       // axios.get('http://localhost:8089/api/KG/saveAsJson', {
       //   responseType: 'blob'
       // }).then((response) => {
@@ -1635,41 +1733,54 @@ export default {
     },
     // 导出为XML
     exportXML() {
-      //Todo 前端导出json实现
-      const xml2js = require('xml2js')
-      let builder = new xml2js.Builder()
-      let dataXml = builder.buildObject(this.graph)
-      let eleLink = document.createElement('a');
-      eleLink.download = `Kojima_Coin_${new Date().valueOf()}.xml`;
-      eleLink.style.display = 'none';
-      // 字符内容转变成blob地址
-      let blob = new Blob([dataXml]);
-      eleLink.href = URL.createObjectURL(blob);
-      // 触发点击
-      document.body.appendChild(eleLink);
-      eleLink.click();
-      // 然后移除
-      document.body.removeChild(eleLink);
-      //Todo 后端导出json实现
-      // axios.get('http://localhost:8089/api/KG/saveAsXml', {
-      //   responseType: 'blob'
-      // }).then((response) => {
-      //   const blob = new Blob([response.data], {type: 'application/xml'});
-      //   const fileName = `Kojima_Coin_${new Date().valueOf()}.xml`;
-      //   const link = document.createElement('a');
-      //   link.href = window.URL.createObjectURL(blob);
-      //   link.download = fileName;
-      //   link.click();
-      //   window.URL.revokeObjectURL(link.href);
-      // })
+      // todo 前端导出json实现
+      // const xml2js = require('xml2js')
+      // let builder = new xml2js.Builder()
+      // let dataXml = builder.buildObject(this.graph)
+      // let eleLink = document.createElement('a');
+      // eleLink.download = `Kojima_Coin_${new Date().valueOf()}.xml`;
+      // eleLink.style.display = 'none';
+      // // 字符内容转变成blob地址
+      // let blob = new Blob([dataXml]);
+      // eleLink.href = URL.createObjectURL(blob);
+      // // 触发点击
+      // document.body.appendChild(eleLink);
+      // eleLink.click();
+      // // 然后移除
+      // document.body.removeChild(eleLink);
+      // todo 后端导出json实现
+      axios.get('http://localhost:8089/api/KG/saveAsXml', {
+        responseType: 'blob'
+      }).then((response) => {
+        const blob = new Blob([response.data], {type: 'application/xml'});
+        const fileName = `Kojima_Coin_${new Date().valueOf()}.xml`;
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+      })
     },
-    //TODO 自动填充搜索栏方法补充
+    //todo 自动填充搜索栏方法补充
     querySearch() {
 
     },
     handleSelect() {
+
     },
-    // tag添加相关
+    // todo 更新坐标等信息
+    updateGraphInfo() {
+      $.ajax('https://localhost:8089/update', {
+        type: 'POST',
+        dataType: 'application/json',
+        contentType: 'application/json',
+        async: true,
+        success: function () {
+          console.log('updateGraphInfoSuccess!')
+        }
+      })
+    },
+    // todo tag添加相关
     showTagInput() {
       this.TagInputVisible = true
       this.$nextTick(_ => {
