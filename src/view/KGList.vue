@@ -52,12 +52,18 @@
 
 <script>
 import {mapGetters, mapActions, mapMutations} from 'vuex'
+import {
+  deleteGraphAPI,
+  getAllGraphAPI,
+  updateGraphAPI,
+} from "@/api/KGList";
 
 export default {
   name: "KGList",
   data() {
     return {
       formLabelWidth: "120px",
+      EditingGraphId: 0,
       EditingGraphEntry: {
         name: '',
         id: 0,
@@ -83,6 +89,7 @@ export default {
   },
   mounted() {
     this.set_isGraphOpening(false)
+    this.KGs = getAllGraphAPI()
   },
   methods: {
     ...mapMutations([
@@ -101,6 +108,7 @@ export default {
     },
     cancelGraphEdit() {
       this.EditGraphDialogVisible = false
+      this.EditingGraphId = 0
       this.emptyEditingGraphEntry()
       this.$message({
         type: 'info',
@@ -108,7 +116,16 @@ export default {
       })
     },
     saveGraphEdit() {
+      let _this = this
       this.EditGraphDialogVisible = false
+      for (let i = 0; i < _this.KGs.length; i++) {
+        if (_this.KGs[i].id === _this.EditingGraphId) {
+          _this.EditingGraphEntry = _this.KGs[i]
+          break
+        }
+      }
+      updateGraphAPI(_this.EditingGraphEntry)
+      this.EditingGraphId = 0
       this.emptyEditingGraphEntry()
       this.$message({
         type: 'success',
@@ -128,6 +145,7 @@ export default {
             break
           }
         }
+        deleteGraphAPI(graphId)
         this.$message({
           type: 'success',
           message: '删除图谱成功'
@@ -141,12 +159,7 @@ export default {
     },
     editKG(graphId) {
       let _this = this
-      for (let i = 0; i < _this.KGs.length; i++) {
-        if (_this.KGs[i].id === graphId) {
-          _this.EditingGraphEntry = _this.KGs[i]
-          break
-        }
-      }
+      _this.EditingGraphId = graphId
       _this.EditGraphDialogVisible = true
     },
     openKG(graphId) {
@@ -186,7 +199,7 @@ export default {
 }
 
 .kg-list-item:hover {
-  background: rgba(0,0,0, 0.2);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .kg-meta {

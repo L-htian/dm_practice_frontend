@@ -363,102 +363,9 @@ export default {
           {
             "name": "田所浩二",
             "id": "0",
-          },
-          {
-            "name": "远野",
-            "id": "1",
-          },
-          {
-            "name": "KMR",
-            "id": "2",
-          },
-          {
-            "name": "UMR",
-            "id": "3",
-          },
-          {
-            "name": "秘鲁",
-            "id": "4"
-          },
-          {
-            "name": "李邦国",
-            "id": "5",
-            "color": "rgba(115,177,143,0.88)",
-            "strokeColor": "rgb(131,246,221, 0.6)",
-            "fx": "750",
-            "fy": "400"
-          },
-          {
-            "name": "棒球部部员",
-            "id": "6"
-          },
-          {
-            "name": "极道",
-            "id": "7"
-          },
-          {
-            "name": "球鞋",
-            "id": "8"
-          },
-          {
-            "name": "豪车",
-            "id": "9"
-          },
-          {
-            "name": "别野",
-            "id": "10"
           }
         ]
-        _this.graph.links = [
-          {
-            "sourceId": "0",
-            "targetId": "1",
-            "id": "0",
-            "name": "是先辈",
-          },
-          {
-            "sourceId": "0",
-            "targetId": "2",
-            "id": "1",
-            "name": "是先辈",
-          },
-          {
-            "sourceId": "3",
-            "targetId": "2",
-            "id": "2",
-            "name": "是先辈",
-          },
-          {
-            "sourceId": "0",
-            "targetId": "4",
-            "id": "3",
-            "name": "喝",
-          },
-          {
-            "sourceId": "5",
-            "targetId": "8",
-            "id": "4",
-            "name": "购买",
-          },
-          {
-            "sourceId": "5",
-            "targetId": "9",
-            "id": "5",
-            "name": "购买",
-          },
-          {
-            "sourceId": "5",
-            "targetId": "10",
-            "id": "6",
-            "name": "购买",
-          },
-          {
-            "sourceId": "7",
-            "targetId": "6",
-            "id": "7",
-            "name": "胁迫",
-          }
-        ]
+        _this.graph.links = []
       } else if (_this.hasUploaded && !_this.wantNew) {
         // todo 接收后端数据
         // $.ajax("http://localhost:8090/api/KG/upload", {
@@ -490,17 +397,6 @@ export default {
       } else if (_this.wantNew) {
         _this.updateGraph()
       }
-    },
-    // 取消添加节点/联系
-    cancelOperation() {
-      d3.select('.grid').style("cursor", "")
-      if (this.isAddingNode) {
-        this.isAddingNode = false
-      } else if (this.isAddingLink) {
-        this.isAddingLink = false
-      }
-      this.cancelOperationMessage = ''
-      this.isCancelOperationShow = false
     },
     initJQueryEvents() {
       let _this = this
@@ -1467,6 +1363,17 @@ export default {
           console.log('deleteNodeSuccess!')
         }
       })
+    },
+    // 取消添加节点/联系
+    cancelOperation() {
+      d3.select('.grid').style("cursor", "")
+      if (this.isAddingNode) {
+        this.isAddingNode = false
+      } else if (this.isAddingLink) {
+        this.isAddingLink = false
+      }
+      this.cancelOperationMessage = ''
+      this.isCancelOperationShow = false
     },
     // 当添加节点按钮被按下，鼠标样式改变为+
     // 当鼠标再次在界面中点击，创建节点，鼠标样式恢复
