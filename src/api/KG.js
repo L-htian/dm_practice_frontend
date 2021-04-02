@@ -1,4 +1,5 @@
 import $ from 'jquery'
+import axios from "axios";
 
 const api = {
     KGPre: 'http://localhost:8089/api/KG/'
@@ -94,11 +95,176 @@ export function updateLinkAPI(link) {
 export function updateAPI(data) {
     $.ajax(`${api.KGPre}/update`, {
         type: 'POST',
+        data: JSON.stringify(data),
         dataType: 'application/json',
         contentType: 'application/json',
         async: true,
         success: function () {
             console.log('update graphInfo success!')
+        }
+    })
+}
+
+export function searchNodeAPI(graphId, content) {
+    $.ajax(`${api.KGPre}/${graphId}/searchNode`, {
+        type: 'POST',
+        data: content,
+        dataType: 'text',
+        contentType: 'text',
+        async: false,
+        success: function (data) {
+            console.log('saveSearchHistory Success')
+            return JSON.parse(data).content
+        }
+    })
+}
+
+export function getSearchHistoryAPI() {
+    $.ajax(`${api.KGPre}/searchHistory`, {
+        type: 'GET',
+        data: {},
+        dataType: 'text',
+        // contentType:'application/json',
+        async: false,
+        success: function (data) {
+            console.log('getSearchHistory Success')
+            return JSON.parse(data).content
+        }
+    })
+}
+
+export function createNodePrimitiveAPI(data) {
+    $.ajax(`${api.KGPre}/createNodePrimitive`, {
+        type: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'text',
+        content: 'application/json',
+        async: true,
+        success: function () {
+            console.log('Save NodePrimitive Success')
+        }
+    })
+}
+
+export function createLinkPrimitiveAPI(data) {
+    $.ajax(`${api.KGPre}/createLinkPrimitive`, {
+        type: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'text',
+        contentType: 'application/json',
+        async: true,
+        success: function () {
+            console.log('Save LinkPrimitive Success')
+        }
+    })
+}
+
+export function getNodePrimitiveAPI() {
+    $.ajax(`${api.KGPre}/getNodePrimitive`, {
+        type: 'GET',
+        data: {},
+        dataType: 'application/json',
+        contentType: 'application/json',
+        async: false,
+        success: function (data) {
+            console.log('getNodePrimitive Success')
+            return JSON.parse(data).content
+        }
+    })
+}
+
+export function getLinkPrimitiveAPI() {
+    $.ajax(`${api.KGPre}/getLinkPrimitive`, {
+        type: 'GET',
+        data: {},
+        dataType: 'application/json',
+        contentType: 'application/json',
+        async: false,
+        success: function (data) {
+            console.log('getLinkPrimitive Success')
+            return JSON.parse(data).content
+        }
+    })
+}
+
+export function deleteNodePrimitiveAPI(id) {
+    $.ajax(`${api.KGPre}/${id}/deleteNodePrimitive`, {
+        type: 'POST',
+        contentType: 'application/json',
+        async: true,
+        success: function () {
+            console.log('deleteNodePrimitive Success')
+        }
+    })
+}
+
+export function deleteLinkPrimitiveAPI(id) {
+    $.ajax(`${api.KGPre}/${id}/deleteLinkPrimitive`, {
+        type: 'POST',
+        contentType: 'application/json',
+        async: true,
+        success: function () {
+            console.log('deleteLinkPrimitive Success')
+        }
+    })
+}
+
+//todo 上传API 需要再议
+
+
+export function saveAsJsonAPI(id) {
+    axios.get(`${api.KGPre}/${id}/saveAsJson`, {
+        responseType: 'blob'
+    }).then((response) => {
+        const blob = new Blob([response.data], {type: 'application/json'});
+        const fileName = `Kojima_Coin_${new Date().valueOf()}.json`;
+        console.log(blob)
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+    })
+}
+
+export function saveAsXmlAPI(id) {
+    $.ajax(`${api.KGPre}/saveAsXml`, {
+        type: 'GET',
+        data: {},
+        dataType: 'text',
+        async: false,
+        success: function (data) {
+            console.log('getXmlSourceData Success')
+            return JSON.parse(data).content
+        }
+    })
+}
+
+export function createGraphAPI() {
+    let id;
+    $.ajax(`${api.KGPre}/createGraph`, {
+        type: 'GET',
+        dataType: 'text',
+        data: {},
+        contentType: 'application/json',
+        async: false,
+        success: function (data) {
+            id = data.content
+            console.log('getIdSuccess!')
+        }
+    })
+    return id
+}
+
+export function getGraphAPI(id) {
+    $.ajax(`${api.KGPre}/${id}/getGraph`, {
+        type: 'GET',
+        dataType: 'text',
+        data: {},
+        async: false,
+        success: function (data) {
+            console.log('getGraph Success')
+            return JSON.parse(data).content
         }
     })
 }

@@ -5,19 +5,19 @@
       <!--      搜索栏-->
       <el-autocomplete
           class="my-autocomplete"
-          v-model="state"
+          v-model="searchString"
           :fetch-suggestions="querySearch"
           placeholder="请输入内容"
           @select="handleSelect">
         <i
             class="el-icon-search el-input__icon"
             slot="prefix"
+            @click=""
         >
         </i>
       </el-autocomplete>
 
-
-      <!--      todo 动态添加搜索到的图片-->
+      <!--      todo 动态添加搜索到的结果-->
       <ul class="showResult">
 
       </ul>
@@ -226,6 +226,18 @@ import html2canvas from 'html2canvas'
 import '@/static/iconfont/iconfont.css'
 import '@/static/js/saveSvgAsPng.js'
 import _ from 'underscore'
+//TODO API引用
+import {
+  createLinkAPI,
+  createNodeAPI,
+  deleteLinkAPI,
+  deleteNodeAPI,
+  updateLinkAPI,
+  updateNodeAPI,
+  updateAPI,
+  saveAsJsonAPI,
+  saveAsXmlAPI
+} from '../api/KG.js'
 
 export default {
   name: "KGBuilder",
@@ -236,10 +248,10 @@ export default {
     fileList: Array,
     graphId: Number,
   },
+  //todo 变量
   data() {
     return {
-      //是否跳转空
-
+      searchString: '',
       // 静态量
       formLabelWidth: "120px",
       // 默认颜色
@@ -1338,6 +1350,7 @@ export default {
             break;
           }
         }
+        deleteNodeAPI(_this.SelectedNodeId)
         _this.updateGraph()
         _this.SelectedNodeId = 0
         _this.$message({
@@ -1351,19 +1364,19 @@ export default {
         })
       })
     },
-    nodeToDelete(nodeIdToDelete) {
-      $.ajax('https://localhost:8089/deleteNode', {
-        type: 'POST',
-        data: JSON.stringify({"nodeIdToDelete": nodeIdToDelete}),
-        dataType: 'application/json',
-        contentType: 'application/json',
-        // 后端异步删除
-        async: true,
-        success: function () {
-          console.log('deleteNodeSuccess!')
-        }
-      })
-    },
+    // nodeToDelete(nodeIdToDelete) {
+    //   $.ajax('https://localhost:8089/deleteNode', {
+    //     type: 'POST',
+    //     data: JSON.stringify({"nodeIdToDelete": nodeIdToDelete}),
+    //     dataType: 'application/json',
+    //     contentType: 'application/json',
+    //     // 后端异步删除
+    //     async: true,
+    //     success: function () {
+    //       console.log('deleteNodeSuccess!')
+    //     }
+    //   })
+    // },
     // 取消添加节点/联系
     cancelOperation() {
       d3.select('.grid').style("cursor", "")
@@ -1404,34 +1417,34 @@ export default {
         newNode.fy = _this.tyy
       }
       // todo 节点id后端生成
-      // newNode.id=this.getNodeId(newNode)
+      newNode.id = createNodeAPI(newNode)
       _this.graph.nodes.push(newNode)
       _this.updateGraph()
       _this.isCancelOperationShow = false
       _this.cancelOperationMessage = 0
       _this.isAddingNode = false
     },
-    getNodeId(newNode) {
-      var newId;
-      $.ajax('http://localhost:8089/api/KG/createNode', {
-        data: JSON.stringify(newNode),
-        dataType: 'text',
-        contentType: "application/json",
-        type: 'POST',
-        async: false,
-        success: function (data) {
-          console.log(typeof data)
-          console.log(JSON.parse(data).content.id)
-          console.log(typeof JSON.parse(data))
-          newId = (JSON.parse(data)).content.id
-        },
-        error: function (data) {
-          console.log(data)
-          console.log(2)
-        }
-      })
-      return newId;
-    },
+    // getNodeId(newNode) {
+    //   var newId;
+    //   $.ajax('http://localhost:8089/api/KG/createNode', {
+    //     data: JSON.stringify(newNode),
+    //     dataType: 'text',
+    //     contentType: "application/json",
+    //     type: 'POST',
+    //     async: false,
+    //     success: function (data) {
+    //       console.log(typeof data)
+    //       console.log(JSON.parse(data).content.id)
+    //       console.log(typeof JSON.parse(data))
+    //       newId = (JSON.parse(data)).content.id
+    //     },
+    //     error: function (data) {
+    //       console.log(data)
+    //       console.log(2)
+    //     }
+    //   })
+    //   return newId;
+    // },
 
     // todo 删除联系
     deleteLink() {
@@ -1447,7 +1460,7 @@ export default {
             break
           }
         }
-        _this.linkToDelete(_this.SelectedLinkId)
+        deleteLinkAPI(_this.SelectedLinkId)
         _this.updateGraph()
         _this.SelectedLinkId = 0
         _this.isEditingLink = false
@@ -1468,19 +1481,19 @@ export default {
         })
       })
     },
-    linkToDelete(linkIdToDelete) {
-      $.ajax('https://localhost:8089/deleteLink', {
-        type: 'POST',
-        data: JSON.stringify({"linkIdToDelete": linkIdToDelete}),
-        dataType: 'application/json',
-        contentType: 'application/json',
-        // 后端异步删除
-        async: true,
-        success: function () {
-          console.log('deleteLinkSuccess!')
-        }
-      })
-    },
+    // linkToDelete(linkIdToDelete) {
+    //   $.ajax('https://localhost:8089/deleteLink', {
+    //     type: 'POST',
+    //     data: JSON.stringify({"linkIdToDelete": linkIdToDelete}),
+    //     dataType: 'application/json',
+    //     contentType: 'application/json',
+    //     // 后端异步删除
+    //     async: true,
+    //     success: function () {
+    //       console.log('deleteLinkSuccess!')
+    //     }
+    //   })
+    // },
     // todo 添加联系
     createLink() {
       let _this = this
@@ -1489,26 +1502,26 @@ export default {
       newShip.targetId = _this.SelectedTargetNodeId
       newShip.id = _this.linkIdBuilder()
       newShip.name = '联系'
-      _this.saveNewLink(newShip)
+      createLinkAPI(newShip)
       _this.graph.links.push(newShip)
       _this.updateGraph()
       _this.isAddingLink = false
       _this.SelectedSourceNodeId = 0;
       _this.SelectedTargetNodeId = 0;
     },
-    saveNewLink(linkToSave) {
-      $.ajax('https://localhost:8089/createLink', {
-        type: 'POST',
-        data: JSON.stringify(linkToSave),
-        dataType: 'application/json',
-        contentType: 'application/json',
-        // 同步
-        async: true,
-        success: function (data) {
-          console.log('saveLinkSuccess!')
-        }
-      })
-    },
+    // saveNewLink(linkToSave) {
+    //   $.ajax('https://localhost:8089/createLink', {
+    //     type: 'POST',
+    //     data: JSON.stringify(linkToSave),
+    //     dataType: 'application/json',
+    //     contentType: 'application/json',
+    //     // 同步
+    //     async: true,
+    //     success: function (data) {
+    //       console.log('saveLinkSuccess!')
+    //     }
+    //   })
+    // },
     // todo 更改节点信息
     updateNodeInfo() {
       let _this = this
@@ -1522,25 +1535,25 @@ export default {
           _this.graph.nodes[i].r = _this.EditingNodeEntity.r
           _this.graph.nodes[i].tag = _this.EditingNodeEntity.tag
           let nodeToUpdate = _this.graph.nodes[i]
-          _this.updateNode(nodeToUpdate)
+          updateNodeAPI(nodeToUpdate)
           break
         }
       }
       _this.updateGraph()
     },
-    updateNode(nodeToUpdate) {
-      $.ajax('https://localhost:8089/updateNode', {
-        type: 'POST',
-        data: JSON.stringify(nodeToUpdate),
-        dataType: 'application/json',
-        contentType: 'application/json',
-        // 后端异步存储
-        async: true,
-        success: function (data) {
-          console.log('updateNodeSuccess!')
-        }
-      })
-    },
+    // updateNode(nodeToUpdate) {
+    //   $.ajax('https://localhost:8089/updateNode', {
+    //     type: 'POST',
+    //     data: JSON.stringify(nodeToUpdate),
+    //     dataType: 'application/json',
+    //     contentType: 'application/json',
+    //     // 后端异步存储
+    //     async: true,
+    //     success: function (data) {
+    //       console.log('updateNodeSuccess!')
+    //     }
+    //   })
+    // },
     // todo 更改关系信息
     updateLinkInfo() {
       let _this = this
@@ -1551,38 +1564,27 @@ export default {
           _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor
           _this.graph.links[i].textSize = _this.EditingLinkEntity.textSize
           let linkToUpdate = _this.graph.links[i]
-          _this.updateLink(linkToUpdate)
+          updateLinkAPI(linkToUpdate)
           break
         }
       }
       _this.updateGraph()
     },
-    updateLink(linkToUpdate) {
-      $.ajax('https://localhost:8089/updateLink', {
-        type: 'POST',
-        data: JSON.stringify(linkToUpdate),
-        dataType: 'application/json',
-        contentType: 'application/json',
-        // 后端异步存储
-        async: true,
-        success: function (data) {
-          console.log('updateLinkSuccess!')
-        }
-      })
-    },
+    // updateLink(linkToUpdate) {
+    //   $.ajax('https://localhost:8089/updateLink', {
+    //     type: 'POST',
+    //     data: JSON.stringify(linkToUpdate),
+    //     dataType: 'application/json',
+    //     contentType: 'application/json',
+    //     // 后端异步存储
+    //     async: true,
+    //     success: function (data) {
+    //       console.log('updateLinkSuccess!')
+    //     }
+    //   })
+    // },
     // todo 保存为图片
     exportImage() {
-      // html2canvas(document.querySelector(".grid")).then(function (canvas) {
-      //   var a = document.createElement('a');
-      //   a.href = canvas.toDataURL('image/png');  //将画布内的信息导出为png图片数据
-      //   var timestamp = Date.parse(new Date());
-      //   a.download = timestamp;  //设定下载名称
-      //   a.click(); //点击触发下载
-      // });
-
-      // var svgLib = require('save-svg-as-png');
-      // svgLib.saveSvgAsPng(document.getElementById('svg_index'),"diagram.png")
-
       d3.selectAll('.buttongroup').remove()
       var serializer = new XMLSerializer();
       var svg1 = document.getElementById('svg_index');
@@ -1625,22 +1627,11 @@ export default {
       // 然后移除
       document.body.removeChild(eleLink);
       // todo 后端导出json实现
-      // axios.get('http://localhost:8089/api/KG/saveAsJson', {
-      //   responseType: 'blob'
-      // }).then((response) => {
-      //   const blob = new Blob([response.data], {type: 'application/json'});
-      //   const fileName = `Kojima_Coin_${new Date().valueOf()}.json`;
-      //   console.log(blob)
-      //   const link = document.createElement('a');
-      //   link.href = window.URL.createObjectURL(blob);
-      //   link.download = fileName;
-      //   link.click();
-      //   window.URL.revokeObjectURL(link.href);
-      // })
+      // saveAsJsonAPI()
     },
     // 导出为XML
     exportXML() {
-      // todo 前端导出json实现
+      // todo 前端导出xml实现
       // const xml2js = require('xml2js')
       // let builder = new xml2js.Builder()
       // let dataXml = builder.buildObject(this.graph)
@@ -1655,18 +1646,21 @@ export default {
       // eleLink.click();
       // // 然后移除
       // document.body.removeChild(eleLink);
-      // todo 后端导出json实现
-      axios.get('http://localhost:8089/api/KG/saveAsXml', {
-        responseType: 'blob'
-      }).then((response) => {
-        const blob = new Blob([response.data], {type: 'application/xml'});
-        const fileName = `Kojima_Coin_${new Date().valueOf()}.xml`;
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      })
+      // todo 后端导出xml实现
+      const xml2js = require('xml2js')
+      let builder = new xml2js.Builder()
+      let dataXml = builder.buildObject(saveAsXmlAPI(this.graphId))
+      let eleLink = document.createElement('a');
+      eleLink.download = `Kojima_Coin_${new Date().valueOf()}.xml`;
+      eleLink.style.display = 'none';
+      // 字符内容转变成blob地址
+      let blob = new Blob([dataXml]);
+      eleLink.href = URL.createObjectURL(blob);
+      // 触发点击
+      document.body.appendChild(eleLink);
+      eleLink.click();
+      // 然后移除
+      document.body.removeChild(eleLink);
     },
     //todo 自动填充搜索栏方法补充
     querySearch() {
@@ -1676,17 +1670,17 @@ export default {
 
     },
     // todo 更新坐标等信息
-    updateGraphInfo() {
-      $.ajax('https://localhost:8089/update', {
-        type: 'POST',
-        dataType: 'application/json',
-        contentType: 'application/json',
-        async: true,
-        success: function () {
-          console.log('updateGraphInfoSuccess!')
-        }
-      })
-    },
+    // updateGraphInfo() {
+    //   $.ajax('https://localhost:8089/update', {
+    //     type: 'POST',
+    //     dataType: 'application/json',
+    //     contentType: 'application/json',
+    //     async: true,
+    //     success: function () {
+    //       console.log('updateGraphInfoSuccess!')
+    //     }
+    //   })
+    // },
     // todo tag添加相关
     showTagInput() {
       this.TagInputVisible = true
