@@ -4,15 +4,16 @@
     <div class="siderBar">
       <!--      搜索栏-->
       <el-autocomplete
+
           class="my-autocomplete"
           v-model="searchString"
           :fetch-suggestions="querySearch"
           placeholder="请输入内容"
-          @select="handleSelect">
+          @select="handleSelect"
+          @keyup.enter.native="handleSelect">
         <i
             class="el-icon-search el-input__icon"
             slot="prefix"
-            @click=""
         >
         </i>
       </el-autocomplete>
@@ -236,7 +237,7 @@ import {
   updateNodeAPI,
   updateAPI,
   saveAsJsonAPI,
-  saveAsXmlAPI
+  saveAsXmlAPI, getSearchHistoryAPI, searchNodeAPI
 } from '../api/KG.js'
 
 export default {
@@ -1663,11 +1664,25 @@ export default {
       document.body.removeChild(eleLink);
     },
     //todo 自动填充搜索栏方法补充
-    querySearch() {
-
+    querySearch(queryString, cb) {
+      let results = getSearchHistoryAPI()
+      for (let i of results){
+         i.value = i
+      }
+      results = queryString
+          ? results.filter(this.createFilter(queryString))
+          : results
+      cb(results)
     },
-    handleSelect() {
+    createFilter(queryString) {
+      return (item) => {
+        return item.value.toUpperCase().match(queryString.toUpperCase());
+      };
+    },
 
+    handleSelect(item) {
+      this.searchString = item.value
+      searchNodeAPI(this.graphId)
     },
     // todo 更新坐标等信息
     // updateGraphInfo() {
