@@ -9,9 +9,11 @@ export function getAllGraphAPI() {
     $.ajax(`${api.KGListPre}/getAllGraph`, {
         type: 'GET',
         contentType: "application/json",
-        async: true,
+        dataType: 'text',
+        // 同步
+        async: false,
         success: function (data) {
-            graphs = (JSON.parse(data)).content.graph
+            graphs = (JSON.parse(data)).content
             console.log('get all graphs success!')
         }
     })
@@ -21,7 +23,7 @@ export function getAllGraphAPI() {
 export function deleteGraphAPI(graphId) {
     $.ajax(`${api.KGListPre}/${graphId}/deleteGraph`, {
         type: 'POST',
-        async: false,
+        async: true,
         success: function () {
             console.log('delete graph success!')
         }
@@ -34,7 +36,7 @@ export function updateGraphAPI(graph) {
         data: JSON.stringify(graph),
         dataType: 'application/json',
         contentType: 'application/json',
-        async: false,
+        async: true,
         success: function () {
             console.log('update graph success!')
         }

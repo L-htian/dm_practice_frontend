@@ -70,26 +70,13 @@ export default {
         imgsrc: '',
         description: '',
       },
-      KGs: [
-        {
-          name: '李氏财团家族图谱',
-          id: 0,
-          imgsrc: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
-          description: '著名企业家李邦国的家族图谱，包含了李邦国家族上下114514代的家族人口关系图，能够帮助了解李氏家族的构成和历史'
-        },
-        {
-          name: '示范2',
-          id: 1,
-          imgsrc: 'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg',
-          description: '这是一个示例'
-        },
-      ],
+      KGs: [],
       EditGraphDialogVisible: false,
     }
   },
-  mounted() {
+  async mounted() {
     this.set_isGraphOpening(false)
-    this.KGs = getAllGraphAPI()
+    this.KGs = await getAllGraphAPI()
   },
   methods: {
     ...mapMutations([
