@@ -53,17 +53,19 @@ export function updateNodeAPI(node) {
 }
 
 export function createLinkAPI(link) {
+    let newId
     $.ajax(`${api.KGPre}/createLink`, {
         type: 'POST',
         data: JSON.stringify(link),
-        dataType: 'application/json',
+        dataType: 'text',
         contentType: 'application/json',
-        // 同步
-        async: true,
+        async: false,
         success: function (data) {
+            newId = (JSON.parse(data)).content.id
             console.log('save link success!')
         }
     })
+    return newId
 }
 
 export function deleteLinkAPI(id) {

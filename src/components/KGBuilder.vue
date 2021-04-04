@@ -1503,7 +1503,7 @@ export default {
       newShip.targetId = _this.SelectedTargetNodeId
       newShip.id = _this.linkIdBuilder()
       newShip.name = '联系'
-      createLinkAPI(newShip)
+      newShip.id = createLinkAPI(newShip)
       _this.graph.links.push(newShip)
       _this.updateGraph()
       _this.isAddingLink = false
@@ -1666,8 +1666,8 @@ export default {
     //todo 自动填充搜索栏方法补充
     querySearch(queryString, cb) {
       let results = getSearchHistoryAPI()
-      for (let i of results){
-         i.value = i
+      for (let i of results) {
+        i.value = i
       }
       results = queryString
           ? results.filter(this.createFilter(queryString))
