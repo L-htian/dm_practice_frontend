@@ -1418,6 +1418,7 @@ export default {
         newNode.fy = _this.tyy
       }
       // todo 节点id后端生成
+      newNode.graphId = _this.graphId
       newNode.id = createNodeAPI(newNode)
       _this.graph.nodes.push(newNode)
       _this.updateGraph()
@@ -1504,6 +1505,7 @@ export default {
       newShip.id = _this.linkIdBuilder()
       newShip.name = '联系'
       newShip.id = createLinkAPI(newShip)
+      newShip.graphId = _this.graphId
       _this.graph.links.push(newShip)
       _this.updateGraph()
       _this.isAddingLink = false

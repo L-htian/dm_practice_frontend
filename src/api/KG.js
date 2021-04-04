@@ -122,6 +122,7 @@ export function searchNodeAPI(graphId, content) {
 }
 
 export function getSearchHistoryAPI() {
+    let results = {}
     $.ajax(`${api.KGPre}/searchHistory`, {
         type: 'GET',
         data: {},
@@ -130,9 +131,10 @@ export function getSearchHistoryAPI() {
         async: false,
         success: function (data) {
             console.log('getSearchHistory Success')
-            return JSON.parse(data).content
+            results = JSON.parse(data).content
         }
     })
+    return results
 }
 
 export function createNodePrimitiveAPI(data) {
@@ -227,6 +229,7 @@ export function saveAsJsonAPI(id) {
         link.click();
         window.URL.revokeObjectURL(link.href);
     })
+
 }
 
 export function saveAsXmlAPI(id) {
