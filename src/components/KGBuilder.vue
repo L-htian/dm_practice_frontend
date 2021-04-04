@@ -1667,9 +1667,10 @@ export default {
     },
     //todo 自动填充搜索栏方法补充
     querySearch(queryString, cb) {
-      let results = getSearchHistoryAPI()
-      for (let i of results) {
-        i.value = i
+      let resultsH = getSearchHistoryAPI()
+      let results = []
+      for (let i of resultsH) {
+        results.push({"value": i})
       }
       results = queryString
           ? results.filter(this.createFilter(queryString))
