@@ -76,6 +76,7 @@ export default {
   display: flex;
   position: fixed;
   border-bottom: 1px solid #dcdfe6;
+  z-index: 9999;
 
   .label {
     float: left;
