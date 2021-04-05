@@ -38,6 +38,9 @@
         <el-form-item label="图谱名称" :label-width="formLabelWidth">
           <el-input v-model="EditingGraphEntry.name" class="withoutColor"></el-input>
         </el-form-item>
+        <el-form-item label="图谱图片url" :label-width="formLabelWidth">
+          <el-input v-model="EditingGraphEntry.imgsrc" class="withoutColor"></el-input>
+        </el-form-item>
         <el-form-item label="图谱描述" :label-width="formLabelWidth">
           <el-input v-model="EditingGraphEntry.description" type="textarea" class="withoutColor"></el-input>
         </el-form-item>
@@ -148,6 +151,12 @@ export default {
       let _this = this
       _this.EditingGraphId = graphId
       _this.EditGraphDialogVisible = true
+      for (let i = 0; i < _this.KGs.length; i++) {
+        if (_this.KGs[i].id === graphId) {
+          _this.EditingGraphEntry = _this.KGs[i];
+          break
+        }
+      }
     },
     openKG(graphId) {
       this.set_selectedKGId(graphId)
