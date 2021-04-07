@@ -217,17 +217,15 @@ export function deleteLinkPrimitiveAPI(id) {
 
 
 export function saveAsJsonAPI(id) {
-    axios.get(`${api.KGPre}/${id}/saveAsJson`, {
-        responseType: 'blob'
-    }).then((response) => {
-        const blob = new Blob([response.data], {type: 'application/json'});
-        const fileName = `Kojima_Coin_${new Date().valueOf()}.json`;
-        console.log(blob)
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
+    $.ajax(`${api.KGPre}/saveAsJson`, {
+        type: 'GET',
+        data: {},
+        dataType: 'text',
+        async: false,
+        success: function (data) {
+            console.log('getJsonSourceData Success')
+            return JSON.parse(data).content
+        }
     })
 
 }
@@ -246,7 +244,6 @@ export function saveAsXmlAPI(id) {
 }
 
 export function createGraphAPI() {
-    let id;
     $.ajax(`${api.KGPre}/createGraph`, {
         type: 'GET',
         dataType: 'text',
@@ -254,11 +251,11 @@ export function createGraphAPI() {
         contentType: 'application/json',
         async: false,
         success: function (data) {
-            id = data.content
-            console.log('getIdSuccess!')
+            console.log('createGraphSuccess!')
+            return data.content
         }
     })
-    return id
+
 }
 
 export function getGraphAPI(id) {
@@ -270,6 +267,18 @@ export function getGraphAPI(id) {
         success: function (data) {
             console.log('getGraph Success')
             return JSON.parse(data).content
+        }
+    })
+}
+
+export function changeGraphNameAPI(graphId, graphName) {
+    $.ajax(`${api.KGPre}/${graphId}/changeGraphName`, {
+        type: 'POST',
+        data: graphName,
+        dataType: 'text',
+        contentType: 'text',
+        success: function (data) {
+            console.log("changeGraphName Success")
         }
     })
 }

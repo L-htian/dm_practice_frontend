@@ -20,9 +20,27 @@
 
       <!--      todo 动态添加搜索到的结果-->
       <ul class="showResult">
-
+        <li style="text-align: left">这是搜索结果</li>
       </ul>
     </div>
+
+    <div class="graph_name">
+<!--      <el-card id="name_card" :body-style="{padding:'0px'}" v-if="change_graph_name">-->
+<!--        <div class="graph_name_text">-->
+<!--          <span>{{ this.graph_name }}</span>-->
+<!--          <i class="el-icon-edit" @click=""></i>-->
+<!--        </div>-->
+<!--      </el-card>-->
+      <el-input class="input_graph_name"
+                v-model="graph_name"
+                placeholder="请命名"
+                v-if="show_input"
+                @keyup.enter.native="handleChange">
+        <i class="el-icon-edit el-input__icon" slot="suffix">
+        </i>
+      </el-input>
+    </div>
+
     <div id="grid_container" style="">
       <div id="grid" class="grid"></div>
     </div>
@@ -237,7 +255,7 @@ import {
   updateNodeAPI,
   updateAPI,
   saveAsJsonAPI,
-  saveAsXmlAPI, getSearchHistoryAPI, searchNodeAPI
+  saveAsXmlAPI, getSearchHistoryAPI, searchNodeAPI, createGraphAPI, changeGraphNameAPI
 } from '../api/KG.js'
 
 export default {
@@ -253,9 +271,11 @@ export default {
   data() {
     return {
       searchString: '',
+      graph_name: '未命名',
       // 静态量
       formLabelWidth: "120px",
       // 默认颜色
+      show_input:true,
       DefaultButtonGroupColor: '#d1d6d7',
       DefaultButtonGroupStrokeColor: '#fff',
       DefaultButtonGroupTextColor: '#0c0c0c',
@@ -408,6 +428,7 @@ export default {
           }
         }
       } else if (_this.wantNew) {
+        this.graph_name = createGraphAPI().name
         _this.updateGraph()
       }
     },
@@ -1717,24 +1738,47 @@ export default {
     handleTagClose(tag) {
       this.EditingNodeEntity.tag.splice(this.EditingNodeEntity.tag.indexOf(tag), 1)
     },
+    handleChange(){
+      changeGraphNameAPI(this.graphId,this.graph_name)
+    }
   }
 }
 </script>
 <!-- todo css层-->
 <style>
 .siderBar {
-  float: left;
-  width: 30%;
-  top: 75px;
+  left: 30px;
+  width: 18%;
+  top: 135px;
   position: fixed;
+  border: thick double #979a9a;
+  height: 65%;
 }
 
 .my-autocomplete {
-  left: 30px;
-  position: fixed;
-
+  padding-top: 10px;
 }
 
+.graph_name {
+  border: thick double #979a9a;
+  top: 78px;
+  position: fixed;
+  left: 30px;
+  width: 18%;
+}
+
+.graph_name #name_card {
+  height: 40px;
+}
+
+.graph_name_text {
+  padding-top: 9px;
+  padding-bottom: 5px;
+}
+
+.el-input__inner{
+  text-align: center;
+}
 circle {
   cursor: pointer;
 }
@@ -1833,5 +1877,12 @@ li {
   width: 90px;
   margin-left: 10px;
   vertical-align: bottom;
+}
+/*input文字居中显示*/
+input::-ms-input-placeholder{
+  text-align: center;
+}
+input::-webkit-input-placeholder {
+  text-align: center;
 }
 </style>

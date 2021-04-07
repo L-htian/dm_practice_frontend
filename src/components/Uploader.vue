@@ -57,7 +57,7 @@ export default {
     },
     // todo 创建空白图谱获得Id
     getNewGraphId() {
-      return createGraphAPI()
+      return createGraphAPI().id
     }
   }
 }
