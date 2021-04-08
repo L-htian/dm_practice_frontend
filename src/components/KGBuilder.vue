@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- todo 侧边栏-->
-    <div class="siderBar">
+    <div class="sidebar-left">
       <!--      搜索栏-->
       <el-autocomplete
 
@@ -25,12 +25,12 @@
     </div>
 
     <div class="graph_name">
-<!--      <el-card id="name_card" :body-style="{padding:'0px'}" v-if="change_graph_name">-->
-<!--        <div class="graph_name_text">-->
-<!--          <span>{{ this.graph_name }}</span>-->
-<!--          <i class="el-icon-edit" @click=""></i>-->
-<!--        </div>-->
-<!--      </el-card>-->
+      <!--      <el-card id="name_card" :body-style="{padding:'0px'}" v-if="change_graph_name">-->
+      <!--        <div class="graph_name_text">-->
+      <!--          <span>{{ this.graph_name }}</span>-->
+      <!--          <i class="el-icon-edit" @click=""></i>-->
+      <!--        </div>-->
+      <!--      </el-card>-->
       <el-input class="input_graph_name"
                 v-model="graph_name"
                 placeholder="请命名"
@@ -41,47 +41,81 @@
       </el-input>
     </div>
 
-    <div id="grid_container" style="">
+    <div class="sidebar-right">
+      <div class="sidebar-item">
+        <i class="iconfont icon-shujuku sidebar-icon"></i>
+        <span class="choose">同步图谱到数据库</span>
+      </div>
+      <div class="sidebar-item">
+        <i class="el-icon-edit choose sidebar-icon"></i>
+        <span class="choose">编辑图谱信息</span>
+      </div>
+      <div class="sidebar-item">
+        <i class="iconfont icon-paiban sidebar-icon"></i>
+        <span>排版模式</span>
+        <el-switch
+            v-model="isTypesettingModeOn"
+            active-color="#a0a5af"
+            inactive-color="#dcdfe6"
+            active-value=true
+            inactive-value=false>
+        </el-switch>
+      </div>
+      <div class="sidebar-item">
+        <i class="el-icon-help sidebar-icon"></i>
+        <span>图元</span>
+        <el-tooltip content="新建图元" placement="top">
+          <el-button type="text" @click=""><i class="el-icon-circle-plus-outline"></i></el-button>
+        </el-tooltip>
+      </div>
+    </div>
+
+    <div id="grid_container">
       <div id="grid" class="grid"></div>
     </div>
     <div class="svg-set-box clearfix">
       <div class="ctwh-dibmr leftBox" style="float: left;">
-        <el-tooltip effect="light"
-                    content="添加节点"
-                    placement="top"
-        >
-          <el-button icon="el-icon-plus" circle
-                     @click="addOneNode"
-                     class="tools"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="light"
-                    content="保存为图片"
-                    placement="top"
-        >
-          <el-button icon="el-icon-picture-outline" circle
-                     @click="exportImage"
-                     class="tools"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="light"
-                    content="保存为Json"
-                    placement="top"
-        >
-          <el-button icon="iconfont icon-json" circle
-                     @click="exportJson"
-                     class="tools"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="light"
-                    content="保存为XML"
-                    placement="top"
-        >
-          <el-button icon="iconfont icon-xml" circle
-                     @click="exportXML"
-                     class="tools"
-          ></el-button>
-        </el-tooltip>
+        <div class="tools">
+          <el-tooltip effect="light"
+                      content="添加节点"
+                      placement="top"
+
+          >
+            <el-button icon="el-icon-plus" circle
+                       @click="addOneNode"
+            ></el-button>
+          </el-tooltip>
+        </div>
+        <div class="tools">
+          <el-tooltip effect="light"
+                      content="保存为图片"
+                      placement="top"
+          >
+            <el-button icon="el-icon-picture-outline" circle
+                       @click="exportImage"
+            ></el-button>
+          </el-tooltip>
+        </div>
+        <div class="tools">
+          <el-tooltip effect="light"
+                      content="保存为Json"
+                      placement="top"
+          >
+            <el-button icon="iconfont icon-json" circle
+                       @click="exportJson"
+            ></el-button>
+          </el-tooltip>
+        </div>
+        <div class="tools">
+          <el-tooltip effect="light"
+                      content="保存为XML"
+                      placement="top"
+          >
+            <el-button icon="iconfont icon-xml" circle
+                       @click="exportXML"
+            ></el-button>
+          </el-tooltip>
+        </div>
       </div>
       <div class="ctwh-dibmr cancelBox">
         <el-tooltip v-if="isCancelOperationShow"
@@ -99,6 +133,7 @@
         <el-tooltip effect="light"
                     content="放大"
                     placement="top"
+                    class="tools"
         >
           <el-button icon="el-icon-zoom-in" circle
                      @click="zoomIn"
@@ -108,6 +143,7 @@
         <el-tooltip effect="light"
                     content="缩小"
                     placement="top"
+                    class="tools"
         >
           <el-button icon="el-icon-zoom-out" circle
                      @click="zoomOut"
@@ -117,6 +153,7 @@
         <el-tooltip effect="light"
                     content="还原"
                     placement="top"
+                    class="tools"
         >
           <el-button icon="el-icon-refresh-right" circle
                      @click="refresh"
@@ -127,6 +164,7 @@
                     content="全屏"
                     placement="top"
                     v-if="!isFullscreen"
+                    class="tools"
         >
           <el-button icon="el-icon-full-screen" circle
                      @click="showFull"
@@ -138,6 +176,7 @@
                     content="退出全屏"
                     placement="top"
                     v-if="isFullscreen"
+                    class="tools"
         >
           <el-button icon="el-icon-full-screen" circle
                      @click="exitFullScreen"
@@ -275,7 +314,7 @@ export default {
       // 静态量
       formLabelWidth: "120px",
       // 默认颜色
-      show_input:true,
+      show_input: true,
       DefaultButtonGroupColor: '#d1d6d7',
       DefaultButtonGroupStrokeColor: '#fff',
       DefaultButtonGroupTextColor: '#0c0c0c',
@@ -298,6 +337,7 @@ export default {
       height: 800,
 
       // 动态量
+      isTypesettingModeOn: false,
       nextNodeId: 0,
       nextLinkId: 0,
       cancelOperationMessage: '',
@@ -1738,15 +1778,15 @@ export default {
     handleTagClose(tag) {
       this.EditingNodeEntity.tag.splice(this.EditingNodeEntity.tag.indexOf(tag), 1)
     },
-    handleChange(){
-      changeGraphNameAPI(this.graphId,this.graph_name)
+    handleChange() {
+      changeGraphNameAPI(this.graphId, this.graph_name)
     }
   }
 }
 </script>
 <!-- todo css层-->
 <style>
-.siderBar {
+.sidebar-left {
   left: 30px;
   width: 18%;
   top: 135px;
@@ -1776,9 +1816,47 @@ export default {
   padding-bottom: 5px;
 }
 
-.el-input__inner{
+.el-input__inner {
   text-align: center;
 }
+
+.sidebar-right {
+  right: 30px;
+  width: 18%;
+  top: 100px;
+  position: fixed;
+  border: 1px solid #979a9a;
+  border-radius: 25px;
+  height: 70%;
+  user-select: none;
+}
+
+.sidebar-item {
+  width: 100%;
+  height: 10%;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  box-sizing: border-box;
+  background: none;
+  padding-left: 15px;
+  padding-top: 12px;
+  text-align: left;
+  font-size: 18px;
+}
+
+.sidebar-item:hover {
+  background: rgba(230, 233, 239, 0.5);
+}
+
+.choose {
+  cursor: pointer;
+}
+
+.sidebar-icon {
+  margin-right: 10px;
+}
+
 circle {
   cursor: pointer;
 }
@@ -1814,15 +1892,16 @@ text {
 }
 
 .leftBox {
-  margin-left: 15%;
+  margin-left: 8%;
 }
 
 .rightBox {
-  margin-right: 15%;
+  margin-right: 8%;
 }
 
 .tools {
   margin-left: 30px;
+  float: left;
 }
 
 ul,
@@ -1878,10 +1957,12 @@ li {
   margin-left: 10px;
   vertical-align: bottom;
 }
+
 /*input文字居中显示*/
-input::-ms-input-placeholder{
+input::-ms-input-placeholder {
   text-align: center;
 }
+
 input::-webkit-input-placeholder {
   text-align: center;
 }

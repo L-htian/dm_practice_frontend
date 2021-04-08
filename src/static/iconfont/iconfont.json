@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "13546372",
+      "name": "排版",
+      "font_class": "paiban",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
       "icon_id": "15214524",
       "name": "json",
       "font_class": "json",
@@ -18,6 +25,13 @@
       "font_class": "xml",
       "unicode": "e610",
       "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "18890523",
+      "name": "数据库",
+      "font_class": "shujuku",
+      "unicode": "e650",
+      "unicode_decimal": 58960
     }
   ]
 }
