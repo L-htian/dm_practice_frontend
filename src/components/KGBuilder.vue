@@ -634,10 +634,9 @@ export default {
       // 生成连线
       function linkArc(d) {
         if (d.target.x === d.source.x && d.target.y === d.source.y) {
-          let randomNum = Math.random();
           let drx = (d.sameIndexCorrected + 1) * 10,
               dry = (d.sameIndexCorrected + 2) * 10,
-              xRotation = randomNum * 360,
+              xRotation = -45,
               largeArc = 1,
               sweep = 1;
           return "M" + d.source.x + "," + d.source.y + "A" + drx + "," + dry + " " + xRotation + "," + largeArc + "," + sweep + " " + (d.target.x + 1) + "," + (d.target.y + 1);
