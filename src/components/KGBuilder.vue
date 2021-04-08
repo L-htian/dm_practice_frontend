@@ -1363,7 +1363,7 @@ export default {
         strokeColor: '',
         textColor: '',
         textSize: 0,
-        type: [],
+        tag: [],
       }
     },
     cancelLinkEdit() {
