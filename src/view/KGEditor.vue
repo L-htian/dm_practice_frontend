@@ -2,7 +2,7 @@
   <div>
     <div id="kg_container">
       <KGBuilder class="kgBuilder" pid="kg_container" v-if="showKGBuilder" :wantNew="getNew"
-                 :hasUploaded="upLoaded" :fileList="uploadFileList" :graphId="getGraphId"></KGBuilder>
+                 :hasUploaded="upLoaded" :fileList="uploadFileList" :graphInfo="getGraph"></KGBuilder>
       <Uploader class="uploader" v-show="showUploader"></Uploader>
     </div>
   </div>
@@ -27,7 +27,7 @@ export default {
       getNew: false,
       upLoaded: false,
       uploadFileList: [],
-      getGraphId: ''
+      getGraph: []
     }
   },
   computed: {
@@ -61,13 +61,13 @@ export default {
         window.Event.$on('transferFileArray', val => {
           this.uploadFileList = val
         })
-        window.Event.$on('getGraphNewId', val => {
-          this.getGraphId = val
+        window.Event.$on('getGraphInfo', val => {
+          this.getGraph = val
         })
       }, 1000)
     }
   },
-  methods:{
+  methods: {
     ...mapMutations([
       'set_selectedKGId',
       'set_isGraphOpening'

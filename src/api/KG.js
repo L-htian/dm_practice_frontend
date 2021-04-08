@@ -244,18 +244,19 @@ export function saveAsXmlAPI(id) {
 }
 
 export function createGraphAPI() {
+    let graph=[]
     $.ajax(`${api.KGPre}/createGraph`, {
         type: 'GET',
-        dataType: 'text',
+        dataType: 'application/json',
         data: {},
         contentType: 'application/json',
         async: false,
         success: function (data) {
             console.log('createGraphSuccess!')
-            return data.content
+            graph =  JSON.parse(data).content
         }
     })
-
+    return graph
 }
 
 export function getGraphAPI(id) {

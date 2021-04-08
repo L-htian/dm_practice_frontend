@@ -318,11 +318,12 @@ export default {
     wantNew: Boolean,
     hasUploaded: Boolean,
     fileList: Array,
-    graphId: Number,
+    graphInfo: Object,
   },
   //todo 变量
   data() {
     return {
+      graphId: '',
       searchString: '',
       graph_name: '未命名',
       // 静态量
@@ -429,6 +430,7 @@ export default {
   components: {},
   mounted() {
     // todo
+    this.getGraphId()
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
@@ -482,7 +484,6 @@ export default {
           }
         }
       } else if (_this.wantNew) {
-        this.graph_name = createGraphAPI().name
         _this.updateGraph()
       }
     },
@@ -1793,6 +1794,9 @@ export default {
     },
     handleChange() {
       changeGraphNameAPI(this.graphId, this.graph_name)
+    },
+    getGraphId() {
+      this.graphId = this.graphInfo.id
     }
   }
 }
