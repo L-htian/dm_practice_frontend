@@ -448,11 +448,12 @@ export default {
     wantNew: Boolean,
     hasUploaded: Boolean,
     fileList: Array,
-    graphId: Number,
+    graphInfo: Object,
   },
   //todo 变量
   data() {
     return {
+      graphId: '',
       searchString: '',
       graph_name: '未命名',
       // 静态量
@@ -616,6 +617,7 @@ export default {
   components: {},
   mounted() {
     // todo
+    this.getGraphId()
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
@@ -668,7 +670,6 @@ export default {
           }
         }
       } else if (_this.wantNew) {
-        this.graph_name = createGraphAPI().name
         _this.updateGraph()
       }
     },
@@ -1883,7 +1884,10 @@ export default {
       this.EditingNodeEntity.tag.splice(this.EditingNodeEntity.tag.indexOf(tag), 1);
     },
     handleChange() {
-      changeGraphNameAPI(this.graphId, this.graph_name);
+      changeGraphNameAPI(this.graphId, this.graph_name)
+    },
+    getGraphId() {
+      this.graphId = this.graphInfo.id
     },
     // 更新整个图谱到数据库
     updateAll(){

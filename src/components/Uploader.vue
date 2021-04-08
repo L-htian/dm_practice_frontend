@@ -28,7 +28,7 @@ export default {
       fileList: [],
       getUpload: false,
       getGraphNew: false,
-      newGraphId: ''
+      newGraph: []
     }
   },
   provide() {
@@ -52,12 +52,12 @@ export default {
     getNewGraph() {
       this.getGraphNew = true
       window.Event.$emit('getNewGraph', this.getGraphNew)
-      this.newGraphId = this.getNewGraphId()
-      window.Event.$emit('getGraphNewId', this.newGraphId)
+      this.newGraph =this.getNewGraphInfo()
+      window.Event.$emit('getGraphInfo', this.newGraph)
     },
     // todo 创建空白图谱获得Id
-    getNewGraphId() {
-      return createGraphAPI().id
+    getNewGraphInfo() {
+      return createGraphAPI()
     }
   }
 }
