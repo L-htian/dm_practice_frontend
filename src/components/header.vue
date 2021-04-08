@@ -11,6 +11,7 @@
         mode="horizontal"
         text-color="#606266"
         active-text-color="#303133"
+        style="border-bottom: 2px #dcdfe6"
     >
       <router-link to="/Kojima-Coin/index">
         <el-menu-item index="1">
@@ -75,8 +76,9 @@ export default {
   background-color: #fff;
   display: flex;
   position: fixed;
-  border-bottom: 1px solid #dcdfe6;
+  border-bottom: 2px solid #dcdfe6;
   z-index: 9999;
+  user-select: none;
 
   .label {
     float: left;
@@ -86,7 +88,7 @@ export default {
     min-width: 400px;
 
     .logo {
-      height: 57px;
+      height: 56px;
       vertical-align: top;
       margin-right: 20px;
       border-style: none;

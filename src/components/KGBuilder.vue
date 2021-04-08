@@ -1,29 +1,7 @@
 <template>
   <div>
-    <!-- todo 侧边栏-->
-    <div class="sidebar-left">
-      <!--      搜索栏-->
-      <el-autocomplete
-
-          class="my-autocomplete"
-          v-model="searchString"
-          :fetch-suggestions="querySearch"
-          placeholder="请输入内容"
-          @select="handleSelect"
-          @keyup.enter.native="handleSelect">
-        <i
-            class="el-icon-search el-input__icon"
-            slot="prefix"
-        >
-        </i>
-      </el-autocomplete>
-
-      <!--      todo 动态添加搜索到的结果-->
-      <ul class="showResult">
-        <li style="text-align: left">这是搜索结果</li>
-      </ul>
-    </div>
-
+    <!--todo 侧边栏-->
+    <!--左上侧边栏 图谱名-->
     <div class="graph_name">
       <!--      <el-card id="name_card" :body-style="{padding:'0px'}" v-if="change_graph_name">-->
       <!--        <div class="graph_name_text">-->
@@ -41,52 +19,83 @@
       </el-input>
     </div>
 
+    <!--左下侧边栏 搜索-->
+    <div class="sidebar-left">
+      <el-autocomplete
+
+          class="my-autocomplete"
+          v-model="searchString"
+          :fetch-suggestions="querySearch"
+          placeholder="请输入内容"
+          @select="handleSelect"
+          @keyup.enter.native="handleSelect">
+        <i
+            class="el-icon-search el-input__icon"
+            slot="prefix"
+        >
+        </i>
+      </el-autocomplete>
+
+      <!--todo 动态添加搜索到的结果-->
+      <ul class="showResult">
+        <li style="text-align: left">这是搜索结果</li>
+      </ul>
+    </div>
+
+    <!--右上侧边栏-->
     <div class="sidebar-right">
       <div class="sidebar-item">
         <i class="iconfont icon-shujuku sidebar-icon"></i>
-        <span class="choose">同步图谱到数据库</span>
-      </div>
-      <div class="sidebar-item">
-        <i class="el-icon-edit choose sidebar-icon"></i>
-        <span class="choose">编辑图谱信息</span>
+        <span class="choose sidebar-span">同步图谱到数据库</span>
       </div>
       <div class="sidebar-item">
         <i class="iconfont icon-paiban sidebar-icon"></i>
-        <span>排版模式</span>
+        <span class="sidebar-span">排版模式</span>
         <el-switch
             v-model="isTypesettingModeOn"
             active-color="#a0a5af"
             inactive-color="#dcdfe6"
             active-value=true
-            inactive-value=false>
+            inactive-value=false
+            style="float: right;margin-right: 15px;padding-top: 3px"
+        >
         </el-switch>
       </div>
       <div class="sidebar-item">
         <i class="el-icon-help sidebar-icon"></i>
-        <span>图元</span>
+        <span class="sidebar-span">图元</span>
         <el-tooltip content="新建图元" placement="top">
-          <el-button type="text" @click=""><i class="el-icon-circle-plus-outline"></i></el-button>
+          <el-button type="text" @click="" style="font-size: 18px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
+              class="el-icon-circle-plus-outline"></i></el-button>
         </el-tooltip>
       </div>
     </div>
 
+    <!--右下侧边栏-->
+    <div class="sidebar-right-bottom">
+
+    </div>
+
+    <!--图谱容器-->
     <div id="grid_container">
       <div id="grid" class="grid"></div>
     </div>
+
+    <!--下方工具栏-->
     <div class="svg-set-box clearfix">
+      <!--下方工具栏 左-->
       <div class="ctwh-dibmr leftBox" style="float: left;">
-        <div class="tools">
+        <div class="tools-left">
           <el-tooltip effect="light"
                       content="添加节点"
                       placement="top"
-
           >
             <el-button icon="el-icon-plus" circle
                        @click="addOneNode"
             ></el-button>
           </el-tooltip>
         </div>
-        <div class="tools">
+        <div class="tools-left">
           <el-tooltip effect="light"
                       content="保存为图片"
                       placement="top"
@@ -96,7 +105,7 @@
             ></el-button>
           </el-tooltip>
         </div>
-        <div class="tools">
+        <div class="tools-left">
           <el-tooltip effect="light"
                       content="保存为Json"
                       placement="top"
@@ -106,7 +115,7 @@
             ></el-button>
           </el-tooltip>
         </div>
-        <div class="tools">
+        <div class="tools-left">
           <el-tooltip effect="light"
                       content="保存为XML"
                       placement="top"
@@ -117,6 +126,7 @@
           </el-tooltip>
         </div>
       </div>
+      <!--下方工具栏 中-->
       <div class="ctwh-dibmr cancelBox">
         <el-tooltip v-if="isCancelOperationShow"
                     effect="light"
@@ -129,63 +139,66 @@
           ></el-button>
         </el-tooltip>
       </div>
+      <!--下方工具栏 右-->
       <div class="ctwh-dibmr rightBox" style="float: right;">
-        <el-tooltip effect="light"
-                    content="放大"
-                    placement="top"
-                    class="tools"
-        >
-          <el-button icon="el-icon-zoom-in" circle
-                     @click="zoomIn"
-                     class="tools"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="light"
-                    content="缩小"
-                    placement="top"
-                    class="tools"
-        >
-          <el-button icon="el-icon-zoom-out" circle
-                     @click="zoomOut"
-                     class="tools"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="light"
-                    content="还原"
-                    placement="top"
-                    class="tools"
-        >
-          <el-button icon="el-icon-refresh-right" circle
-                     @click="refresh"
-                     class="tools"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="light"
-                    content="全屏"
-                    placement="top"
-                    v-if="!isFullscreen"
-                    class="tools"
-        >
-          <el-button icon="el-icon-full-screen" circle
-                     @click="showFull"
-                     class="tools"
-                     v-if="!isFullscreen"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="light"
-                    content="退出全屏"
-                    placement="top"
-                    v-if="isFullscreen"
-                    class="tools"
-        >
-          <el-button icon="el-icon-full-screen" circle
-                     @click="exitFullScreen"
-                     class="tools"
-                     v-if="isFullscreen"
-          ></el-button>
-        </el-tooltip>
+        <div class="tools-right">
+          <el-tooltip effect="light"
+                      content="放大"
+                      placement="top"
+          >
+            <el-button icon="el-icon-zoom-in" circle
+                       @click="zoomIn"
+            ></el-button>
+          </el-tooltip>
+        </div>
+        <div class="tools-right">
+          <el-tooltip effect="light"
+                      content="缩小"
+                      placement="top"
+          >
+            <el-button icon="el-icon-zoom-out" circle
+                       @click="zoomOut"
+            ></el-button>
+          </el-tooltip>
+        </div>
+        <div class="tools-right">
+          <el-tooltip effect="light"
+                      content="还原"
+                      placement="top"
+          >
+            <el-button icon="el-icon-refresh-right" circle
+                       @click="refresh"
+            ></el-button>
+          </el-tooltip>
+        </div>
+        <div class="tools-right">
+          <el-tooltip effect="light"
+                      content="全屏"
+                      placement="top"
+                      v-if="!isFullscreen"
+          >
+            <el-button icon="el-icon-full-screen" circle
+                       @click="showFull"
+                       v-if="!isFullscreen"
+            ></el-button>
+          </el-tooltip>
+          <el-tooltip effect="light"
+                      content="退出全屏"
+                      placement="top"
+                      v-if="isFullscreen"
+                      class="tools"
+          >
+            <el-button icon="el-icon-full-screen" circle
+                       @click="exitFullScreen"
+                       class="tools"
+                       v-if="isFullscreen"
+            ></el-button>
+          </el-tooltip>
+        </div>
       </div>
     </div>
+
+    <!--link编辑-->
     <el-dialog title="联系选项" :visible.sync="EditLinkDialogVisible" custom-class="customWidth">
       <el-form>
         <el-form-item label="id" :label-width="formLabelWidth">
@@ -218,6 +231,7 @@
         <el-button type="primary" @click="saveLinkEdit">保存修改</el-button>
       </div>
     </el-dialog>
+    <!--node编辑-->
     <el-dialog title="节点选项" :visible.sync="EditNodeDialogVisible" custom-class="customWidth">
       <el-form>
         <el-form-item label="id" :label-width="formLabelWidth">
@@ -1791,7 +1805,7 @@ export default {
   width: 18%;
   top: 135px;
   position: fixed;
-  border: thick double #979a9a;
+  border: thick double #dcdfe6;
   height: 65%;
 }
 
@@ -1800,7 +1814,7 @@ export default {
 }
 
 .graph_name {
-  border: thick double #979a9a;
+  border: thick double #dcdfe6;
   top: 78px;
   position: fixed;
   left: 30px;
@@ -1823,38 +1837,57 @@ export default {
 .sidebar-right {
   right: 30px;
   width: 18%;
-  top: 100px;
+  top: 78px;
   position: fixed;
-  border: 1px solid #979a9a;
-  border-radius: 25px;
-  height: 70%;
+  border: thick double #dcdfe6;
+  height: 50%;
   user-select: none;
+  background: none;
 }
 
 .sidebar-item {
   width: 100%;
-  height: 10%;
+  height: 12%;
   left: 0;
   top: 0;
   display: inline-block;
   box-sizing: border-box;
   background: none;
   padding-left: 15px;
-  padding-top: 12px;
+  padding-top: 10px;
   text-align: left;
   font-size: 18px;
+  color: rgba(0, 0, 0, .65);;
 }
 
 .sidebar-item:hover {
   background: rgba(230, 233, 239, 0.5);
 }
 
-.choose {
-  cursor: pointer;
+.sidebar-span {
+  float: left;
 }
 
 .sidebar-icon {
   margin-right: 10px;
+  float: left;
+  font-size: 18px;
+  padding-top: 3px;
+}
+
+.choose {
+  cursor: pointer;
+}
+
+.sidebar-right-bottom {
+  right: 30px;
+  width: 18%;
+  top: 465px;
+  position: fixed;
+  border: thick double #dcdfe6;
+  height: 20%;
+  user-select: none;
+  background: none;
 }
 
 circle {
@@ -1899,9 +1932,14 @@ text {
   margin-right: 8%;
 }
 
-.tools {
+.tools-left {
   margin-left: 30px;
   float: left;
+}
+
+.tools-right {
+  margin-right: 30px;
+  float: right;
 }
 
 ul,
