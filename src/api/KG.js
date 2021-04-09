@@ -108,6 +108,7 @@ export function updateAPI(data) {
 }
 
 export function searchNodeAPI(graphId, content) {
+    let searchResult = []
     $.ajax(`${api.KGPre}/${graphId}/searchNode`, {
         type: 'POST',
         data: content,
@@ -116,9 +117,10 @@ export function searchNodeAPI(graphId, content) {
         async: false,
         success: function (data) {
             console.log('saveSearchHistory Success')
-            return JSON.parse(data).content
+            searchResult = JSON.parse(data).content
         }
     })
+    return searchResult
 }
 
 export function getSearchHistoryAPI() {
@@ -138,6 +140,7 @@ export function getSearchHistoryAPI() {
 }
 
 export function createNodePrimitiveAPI(data) {
+    let NodePrimitive = []
     $.ajax(`${api.KGPre}/createNodePrimitive`, {
         type: 'POST',
         data: JSON.stringify(data),
@@ -146,12 +149,14 @@ export function createNodePrimitiveAPI(data) {
         async: false,
         success: function (data) {
             console.log('Save NodePrimitive Success')
-            return JSON.parse(data).content;
+            NodePrimitive = (JSON.parse(data)).content;
         }
     })
+    return NodePrimitive
 }
 
 export function createLinkPrimitiveAPI(data) {
+    let LinkPrimitive = []
     $.ajax(`${api.KGPre}/createLinkPrimitive`, {
         type: 'POST',
         data: JSON.stringify(data),
@@ -160,12 +165,14 @@ export function createLinkPrimitiveAPI(data) {
         async: false,
         success: function (data) {
             console.log('Save LinkPrimitive Success')
-            return JSON.parse(data).content;
+            LinkPrimitive = (JSON.parse(data)).content;
         }
     })
+    return LinkPrimitive
 }
 
 export function getNodePrimitiveAPI() {
+    let NodePrimitive = []
     $.ajax(`${api.KGPre}/getNodePrimitive`, {
         type: 'GET',
         data: {},
@@ -174,12 +181,14 @@ export function getNodePrimitiveAPI() {
         async: false,
         success: function (data) {
             console.log('getNodePrimitive Success')
-            return JSON.parse(data).content
+            NodePrimitive = (JSON.parse(data)).content
         }
     })
+    return NodePrimitive
 }
 
 export function getLinkPrimitiveAPI() {
+    let LinkPrimitive = []
     $.ajax(`${api.KGPre}/getLinkPrimitive`, {
         type: 'GET',
         data: {},
@@ -188,9 +197,10 @@ export function getLinkPrimitiveAPI() {
         async: false,
         success: function (data) {
             console.log('getLinkPrimitive Success')
-            return JSON.parse(data).content
+            LinkPrimitive = (JSON.parse(data)).content
         }
     })
+    return LinkPrimitive
 }
 
 export function deleteNodePrimitiveAPI(id) {
@@ -219,6 +229,7 @@ export function deleteLinkPrimitiveAPI(id) {
 
 
 export function saveAsJsonAPI(id) {
+    let re = []
     $.ajax(`${api.KGPre}/saveAsJson`, {
         type: 'GET',
         data: {},
@@ -226,13 +237,14 @@ export function saveAsJsonAPI(id) {
         async: false,
         success: function (data) {
             console.log('getJsonSourceData Success')
-            return JSON.parse(data).content
+            re = (JSON.parse(data)).content
         }
     })
-
+    return re
 }
 
 export function saveAsXmlAPI(id) {
+    let re = []
     $.ajax(`${api.KGPre}/saveAsXml`, {
         type: 'GET',
         data: {},
@@ -240,13 +252,14 @@ export function saveAsXmlAPI(id) {
         async: false,
         success: function (data) {
             console.log('getXmlSourceData Success')
-            return JSON.parse(data).content
+            re = (JSON.parse(data)).content
         }
     })
+    return re
 }
 
 export function createGraphAPI() {
-    let graph=[]
+    let graph = []
     $.ajax(`${api.KGPre}/createGraph`, {
         type: 'GET',
         dataType: 'application/json',
@@ -255,13 +268,14 @@ export function createGraphAPI() {
         async: false,
         success: function (data) {
             console.log('createGraphSuccess!')
-            graph =  JSON.parse(data).content
+            graph = (JSON.parse(data)).content
         }
     })
     return graph
 }
 
 export function getGraphAPI(id) {
+    let graphInfo = []
     $.ajax(`${api.KGPre}/${id}/getGraph`, {
         type: 'GET',
         dataType: 'text',
@@ -269,9 +283,10 @@ export function getGraphAPI(id) {
         async: false,
         success: function (data) {
             console.log('getGraph Success')
-            return JSON.parse(data).content
+            graphInfo = (JSON.parse(data)).content
         }
     })
+    return graphInfo
 }
 
 export function changeGraphNameAPI(graphId, graphName) {
