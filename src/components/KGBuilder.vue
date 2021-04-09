@@ -46,7 +46,7 @@
     <div class="sidebar-right">
       <div class="sidebar-item">
         <i class="iconfont icon-shujuku sidebar-icon"></i>
-        <span class="choose sidebar-span">同步图谱到数据库</span>
+        <span class="choose sidebar-span" @click="updateAll">同步图谱到数据库</span>
       </div>
       <div class="sidebar-item">
         <i class="iconfont icon-paiban sidebar-icon"></i>
@@ -63,9 +63,81 @@
       </div>
       <div class="sidebar-item">
         <i class="el-icon-help sidebar-icon"></i>
-        <span class="sidebar-span">图元</span>
-        <el-tooltip content="新建图元" placement="top">
-          <el-button type="text" @click="" style="font-size: 18px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
+        <el-popover
+            placement="left"
+            width="400"
+            trigger="click"
+        >
+          <el-table
+              :data="NodePrimitives"
+              height="200"
+              border
+              style="width: 100%"
+              :row-class-name="tableNodeRowClassName"
+          >
+            <el-table-column label="图元名" width="100" property="name"></el-table-column>
+            <el-table-column label="节点颜色" width="120" property="color"></el-table-column>
+            <el-table-column label="节点边框颜色" width="120" property="strokeColor"></el-table-column>
+            <el-table-column label="节点字体颜色" width="120" property="textColor"></el-table-column>
+            <el-table-column label="节点字体大小" width="120" property="textSize"></el-table-column>
+            <el-table-column label="节点半径" width="80" property="r"></el-table-column>
+            <el-table-column label="操作" fixed="right" width="100">
+              <template slot-scope="scope">
+                <el-button @click="deleteNodePrimitive(scope.row.id)" type="text" size="small">删除</el-button>
+                <el-button @click="useNodePrimitive(scope.row.id)" type="text" size="small">应用</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <span class="sidebar-span choose" slot="reference" v-if="(!this.usingNodePrimitiveId)">节点图元</span>
+          <span class="sidebar-span choose" slot="reference" v-else style="color: rgba(68,111,142,0.65)">节点图元 应用中</span>
+        </el-popover>
+        <el-tooltip content="取消应用节点图元" placement="top">
+          <el-button type="text" @click="cancelUsingNodePrimitive"
+                     style="font-size: 16px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
+              class="el-icon-circle-close"></i></el-button>
+        </el-tooltip>
+        <el-tooltip content="新建节点图元" placement="top">
+          <el-button type="text" @click="showNodePrimitiveDialog"
+                     style="font-size: 16px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
+              class="el-icon-circle-plus-outline"></i></el-button>
+        </el-tooltip>
+      </div>
+      <div class="sidebar-item">
+        <i class="el-icon-sort sidebar-icon"></i>
+        <el-popover
+            placement="left"
+            width="400"
+            trigger="click"
+        >
+          <el-table
+              :data="LinkPrimitives"
+              height="200"
+              border
+              style="width: 100%"
+              :row-class-name="tableLinkRowClassName"
+          >
+            <el-table-column label="连接图元名" width="100" property="name"></el-table-column>
+            <el-table-column label="连接颜色" width="120" property="color"></el-table-column>
+            <el-table-column label="连接字体颜色" width="120" property="textColor"></el-table-column>
+            <el-table-column label="连接字体大小" width="120" property="textSize"></el-table-column>
+            <el-table-column label="操作" fixed="right" width="100">
+              <template slot-scope="scope">
+                <el-button @click="deleteLinkPrimitive(scope.row.id)" type="text" size="small">删除</el-button>
+                <el-button @click="useLinkPrimitive(scope.row.id)" type="text" size="small">应用</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <span class="sidebar-span choose" slot="reference" v-if="(!this.usingLinkPrimitiveId)">连接图元</span>
+          <span class="sidebar-span choose" slot="reference" v-else style="color: rgba(68,111,142,0.65)">连接图元 应用中</span>
+        </el-popover>
+        <el-tooltip content="取消应用连接图元" placement="top">
+          <el-button type="text" @click="cancelUsingLinkPrimitive"
+                     style="font-size: 16px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
+              class="el-icon-circle-close"></i></el-button>
+        </el-tooltip>
+        <el-tooltip content="新建连接图元" placement="top">
+          <el-button type="text" @click="showLinkPrimitiveDialog"
+                     style="font-size: 16px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
               class="el-icon-circle-plus-outline"></i></el-button>
         </el-tooltip>
       </div>
@@ -287,18 +359,69 @@
         <el-button type="primary" @click="saveNodeEdit">保存修改</el-button>
       </div>
     </el-dialog>
+
+    <!--node图元添加-->
+    <el-dialog title="添加节点图元" :visible.sync="AddNodePrimitiveVisible" custom-class="customWidth">
+      <el-form>
+        <el-form-item label="节点图元名" :label-width="formLabelWidth">
+          <el-input v-model="AddNodePrimitiveEntity.name" class="withoutColor"></el-input>
+        </el-form-item>
+        <el-form-item label="节点填充颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="AddNodePrimitiveEntity.color" class="lineColor"></el-input>
+          <el-color-picker v-model="AddNodePrimitiveEntity.color" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点边框颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="AddNodePrimitiveEntity.strokeColor" class="lineColor"></el-input>
+          <el-color-picker v-model="AddNodePrimitiveEntity.strokeColor" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点名颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="AddNodePrimitiveEntity.textColor" class="lineColor"></el-input>
+          <el-color-picker v-model="AddNodePrimitiveEntity.textColor" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点名大小" :label-width="formLabelWidth">
+          <el-input-number v-model="AddNodePrimitiveEntity.textSize" class="withoutColor"></el-input-number>
+        </el-form-item>
+        <el-form-item label="节点半径" :label-width="formLabelWidth">
+          <el-input-number v-model="AddNodePrimitiveEntity.r" class="withoutColor"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelAddNodePrimitive">取消</el-button>
+        <el-button type="primary" @click="createNodePrimitive">添加</el-button>
+      </div>
+    </el-dialog>
+    <!--link图元添加-->
+    <el-dialog title="添加联系图元" :visible.sync="AddLinkPrimitiveVisible" custom-class="customWidth">
+      <el-form>
+        <el-form-item label="联系图元名" :label-width="formLabelWidth">
+          <el-input v-model="AddLinkPrimitiveEntity.name" class="withoutColor"></el-input>
+        </el-form-item>
+        <el-form-item label="联系线条颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="AddLinkPrimitiveEntity.color" class="lineColor"></el-input>
+          <el-color-picker v-model="AddLinkPrimitiveEntity.color" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="联系名颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="AddLinkPrimitiveEntity.textColor" class="lineColor"></el-input>
+          <el-color-picker v-model="AddLinkPrimitiveEntity.textColor" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="联系名大小" :label-width="formLabelWidth">
+          <el-input-number v-model="AddLinkPrimitiveEntity.textSize" class="withoutColor"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelAddLinkPrimitive">取消</el-button>
+        <el-button type="primary" @click="createLinkPrimitive">添加</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
 import * as d3 from 'd3'
 import $ from 'jquery'
-import html2canvas from 'html2canvas'
 import '@/static/iconfont/iconfont.css'
 import '@/static/js/saveSvgAsPng.js'
 import _ from 'underscore'
-import { mapGetters, mapMutations, mapActions } from 'vuex'
 //TODO API引用
 import {
   createLinkAPI,
@@ -313,16 +436,13 @@ import {
   getSearchHistoryAPI,
   searchNodeAPI,
   createGraphAPI,
-  changeGraphNameAPI
+  changeGraphNameAPI,
+  deleteNodePrimitiveAPI,
+  deleteLinkPrimitiveAPI, createNodePrimitiveAPI, createLinkPrimitiveAPI,
 } from '../api/KG.js'
 
 export default {
   name: "KGBuilder",
-  computed: {
-    ...mapGetters([
-      'selectedKGId'
-    ])
-  },
   props: {
     pid: String,
     wantNew: Boolean,
@@ -338,8 +458,22 @@ export default {
       graph_name: '未命名',
       // 静态量
       formLabelWidth: "120px",
-      // 默认颜色
+
       show_input: true,
+      // 默认图元
+      DefaultNodePrimitive: {
+        color: 'rgb(94,95,95)',
+        strokeColor: '#d5dede',
+        textColor: '#33434b',
+        textSize: 14,
+        r: 30,
+      },
+      DefaultLinkPrimitive: {
+        color: 'rgba(132,137,132,0.45)',
+        textColor: '#33434b',
+        textSize: 14,
+      },
+      // 默认颜色
       DefaultButtonGroupColor: '#d1d6d7',
       DefaultButtonGroupStrokeColor: '#fff',
       DefaultButtonGroupTextColor: '#0c0c0c',
@@ -362,6 +496,49 @@ export default {
       height: 800,
 
       // 动态量
+      // 图元
+      AddNodePrimitiveVisible: false,
+      AddLinkPrimitiveVisible: false,
+      AddNodePrimitiveEntity: {
+        id: 0,
+        name: '',
+        color: '',
+        strokeColor: '',
+        textColor: '',
+        textSize: 14,
+        r: 30,
+      },
+      AddLinkPrimitiveEntity: {
+        id: 0,
+        name: '',
+        color: '',
+        textColor: '',
+        textSize: 14,
+      },
+      NodePrimitives: [
+        {
+          id: 114514,
+          name: 'libanguo',
+          color: '#ffffff',
+          strokeColor: '#ffffff',
+          textColor: '#ffffff',
+          textSize: 14,
+          r: 30,
+        }
+      ],
+      LinkPrimitives: [
+        {
+          id: 114514,
+          name: 'libanguo',
+          color: '#ffffff',
+          textColor: '#ffffff',
+          textSize: 14,
+        }
+      ],
+      // 正在使用的图元id
+      usingNodePrimitiveId: 114514,
+      usingLinkPrimitiveId: 114514,
+      // 排版模式
       isTypesettingModeOn: false,
       nextNodeId: 0,
       nextLinkId: 0,
@@ -440,7 +617,7 @@ export default {
   components: {},
   mounted() {
     // todo
-    this.graphId = this.selectedKGId
+    this.getGraphId()
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
@@ -452,7 +629,6 @@ export default {
   beforeDestroy() {
   },
   watch: {},
-  //todo methods
   methods: {
     // 初始化知识图谱
     initGraph() {
@@ -668,33 +844,6 @@ export default {
       }
 
       function ticked() {
-        // 更新连线坐标
-        // graphLink
-        //     .attr('x1', function (d) {
-        //       return d.source.x
-        //     })
-        //     .attr('y1', function (d) {
-        //       return d.source.y
-        //     })
-        //     .attr('x2', function (d) {
-        //       return d.target.x
-        //     })
-        //     .attr('y2', function (d) {
-        //       return d.target.y
-        //     })
-        // 刷新连接线上的文字位置
-        // graphLinkText
-        //     .attr('x', function (d) {
-        //       if (!d.source.x || !d.target.x) return 0
-        //       let x = (parseFloat(d.source.x) + parseFloat(d.target.x)) / 2
-        //       return x
-        //     })
-        //     .attr('y', function (d) {
-        //       if (!d.source.y || !d.target.y) return 0
-        //       let y = (parseFloat(d.source.y) + parseFloat(d.target.y)) / 2
-        //       return y
-        //     })
-
         graphLink.attr('d', linkArc)
 
         // 更新节点坐标
@@ -934,6 +1083,7 @@ export default {
         // 如果正在添加联系
         if (_this.isAddingLink) {
           _this.SelectedTargetNodeId = d.id
+          // 支不支持自联接再议
           // if (_this.SelectedSourceNodeId === _this.SelectedTargetNodeId) {
           //   d3.select('.grid').style("cursor", "")
           //   _this.isAddingLink = false
@@ -1115,8 +1265,6 @@ export default {
       nodeButton.exit().remove()
       let nodeButtonEnter = nodeButton
           .enter()
-          // .append('g')
-          // .attr('class', 'insideButtonG')
           .append('use') // 为每个节点组添加一个 use 子元素
       nodeButton = nodeButtonEnter.merge(nodeButton)
       nodeButton
@@ -1450,19 +1598,6 @@ export default {
         })
       })
     },
-    // nodeToDelete(nodeIdToDelete) {
-    //   $.ajax('https://localhost:8089/deleteNode', {
-    //     type: 'POST',
-    //     data: JSON.stringify({"nodeIdToDelete": nodeIdToDelete}),
-    //     dataType: 'application/json',
-    //     contentType: 'application/json',
-    //     // 后端异步删除
-    //     async: true,
-    //     success: function () {
-    //       console.log('deleteNodeSuccess!')
-    //     }
-    //   })
-    // },
     // 取消添加节点/联系
     cancelOperation() {
       d3.select('.grid').style("cursor", "")
@@ -1532,7 +1667,6 @@ export default {
     //   })
     //   return newId;
     // },
-
     // todo 删除联系
     deleteLink() {
       let _this = this
@@ -1568,19 +1702,6 @@ export default {
         })
       })
     },
-    // linkToDelete(linkIdToDelete) {
-    //   $.ajax('https://localhost:8089/deleteLink', {
-    //     type: 'POST',
-    //     data: JSON.stringify({"linkIdToDelete": linkIdToDelete}),
-    //     dataType: 'application/json',
-    //     contentType: 'application/json',
-    //     // 后端异步删除
-    //     async: true,
-    //     success: function () {
-    //       console.log('deleteLinkSuccess!')
-    //     }
-    //   })
-    // },
     // todo 添加联系
     createLink() {
       let _this = this
@@ -1597,19 +1718,6 @@ export default {
       _this.SelectedSourceNodeId = 0;
       _this.SelectedTargetNodeId = 0;
     },
-    // saveNewLink(linkToSave) {
-    //   $.ajax('https://localhost:8089/createLink', {
-    //     type: 'POST',
-    //     data: JSON.stringify(linkToSave),
-    //     dataType: 'application/json',
-    //     contentType: 'application/json',
-    //     // 同步
-    //     async: true,
-    //     success: function (data) {
-    //       console.log('saveLinkSuccess!')
-    //     }
-    //   })
-    // },
     // todo 更改节点信息
     updateNodeInfo() {
       let _this = this
@@ -1629,19 +1737,6 @@ export default {
       }
       _this.updateGraph()
     },
-    // updateNode(nodeToUpdate) {
-    //   $.ajax('https://localhost:8089/updateNode', {
-    //     type: 'POST',
-    //     data: JSON.stringify(nodeToUpdate),
-    //     dataType: 'application/json',
-    //     contentType: 'application/json',
-    //     // 后端异步存储
-    //     async: true,
-    //     success: function (data) {
-    //       console.log('updateNodeSuccess!')
-    //     }
-    //   })
-    // },
     // todo 更改关系信息
     updateLinkInfo() {
       let _this = this
@@ -1658,19 +1753,6 @@ export default {
       }
       _this.updateGraph()
     },
-    // updateLink(linkToUpdate) {
-    //   $.ajax('https://localhost:8089/updateLink', {
-    //     type: 'POST',
-    //     data: JSON.stringify(linkToUpdate),
-    //     dataType: 'application/json',
-    //     contentType: 'application/json',
-    //     // 后端异步存储
-    //     async: true,
-    //     success: function (data) {
-    //       console.log('updateLinkSuccess!')
-    //     }
-    //   })
-    // },
     // todo 保存为图片
     exportImage() {
       d3.selectAll('.buttongroup').remove()
@@ -1767,7 +1849,6 @@ export default {
         return item.value.toUpperCase().match(queryString.toUpperCase());
       };
     },
-
     handleSelect(item) {
       this.searchString = item.value
       searchNodeAPI(this.graphId)
@@ -1784,9 +1865,9 @@ export default {
     //     }
     //   })
     // },
-    // todo tag添加相关
+    // tag 相关
     showTagInput() {
-      this.TagInputVisible = true
+      this.TagInputVisible = true;
       this.$nextTick(_ => {
         this.$refs.saveTagInput.$refs.input.focus();
       });
@@ -1800,15 +1881,145 @@ export default {
       this.tagInputValue = '';
     },
     handleTagClose(tag) {
-      this.EditingNodeEntity.tag.splice(this.EditingNodeEntity.tag.indexOf(tag), 1)
+      this.EditingNodeEntity.tag.splice(this.EditingNodeEntity.tag.indexOf(tag), 1);
     },
     handleChange() {
       changeGraphNameAPI(this.graphId, this.graph_name)
-    }
+    },
+    getGraphId() {
+      this.graphId = this.graphInfo.id
+    },
+    // 更新整个图谱到数据库
+    updateAll(){
+      let updateVO = {
+        graphId: this.selectedKGId,
+        nodes: this.graph.nodes,
+        links: this.graph.links
+      };
+      updateAPI(updateVO);
+    },
+    // 图元相关
+    showNodePrimitiveDialog() {
+      this.AddNodePrimitiveVisible = true;
+    },
+    emptyAddNodePrimitiveEntity() {
+      this.AddNodePrimitiveEntity = {
+        id: 0,
+        name: '',
+        color: '',
+        strokeColor: '',
+        textColor: '',
+        textSize: 14,
+        r: 30,
+      };
+    },
+    async createNodePrimitive() {
+      // 因为不想写生成器，所以同步调用获取图元id
+      this.AddNodePrimitiveEntity.id = await createNodePrimitiveAPI(this.AddNodePrimitiveEntity);
+      this.NodePrimitives.push(this.AddNodePrimitiveEntity);
+      this.AddNodePrimitiveVisible = false;
+      this.emptyAddNodePrimitiveEntity();
+    },
+    cancelAddNodePrimitive() {
+      this.AddNodePrimitiveVisible = false;
+      this.emptyAddNodePrimitiveEntity();
+    },
+    showLinkPrimitiveDialog() {
+      this.AddLinkPrimitiveVisible = true;
+    },
+    emptyAddLinkPrimitiveEntity() {
+      this.AddLinkPrimitiveEntity = {
+        id: 0,
+        name: '',
+        color: '',
+        textColor: '',
+        textSize: 14,
+      };
+    },
+    async createLinkPrimitive() {
+      // 因为不想写生成器，所以同步调用获取图元id
+      this.AddLinkPrimitiveEntity.id = await createLinkPrimitiveAPI(this.AddLinkPrimitiveEntity);
+      this.LinkPrimitives.push(this.AddLinkPrimitiveEntity);
+      this.AddLinkPrimitiveVisible = false;
+      this.emptyAddLinkPrimitiveEntity();
+    },
+    cancelAddLinkPrimitive() {
+      this.AddLinkPrimitiveVisible = false;
+      this.emptyAddLinkPrimitiveEntity();
+    },
+    deleteNodePrimitive(id) {
+      let _this = this;
+      if (id === _this.usingNodePrimitiveId) _this.cancelUsingNodePrimitive();
+      for (let i = 0; i < _this.NodePrimitives.length; i++) {
+        if (_this.NodePrimitives[i].id === id) {
+          _this.NodePrimitives.slice(i, 1);
+          break;
+        }
+      }
+      deleteNodePrimitiveAPI(id);
+    },
+    deleteLinkPrimitive(id) {
+      let _this = this;
+      if (id === _this.usingLinkPrimitiveId) _this.cancelUsingLinkPrimitive();
+      for (let i = 0; i < _this.LinkPrimitives.length; i++) {
+        if (_this.LinkPrimitives[i].id === id) {
+          _this.LinkPrimitives.slice(i, 1);
+          break;
+        }
+      }
+      deleteLinkPrimitiveAPI(id);
+    },
+    useNodePrimitive(id) {
+      let _this = this;
+      _this.usingNodePrimitiveId = id;
+      for (let i = 0; i < _this.NodePrimitives.length; i++) {
+        if (_this.NodePrimitives[i].id === id) {
+          _this.DefaultNodeColor = _this.NodePrimitives[i].color;
+          _this.DefaultNodeStrokeColor = _this.NodePrimitives[i].strokeColor;
+          _this.DefaultNodeTextColor = _this.NodePrimitives[i].textColor;
+          _this.DefaultNodeTextSize = _this.NodePrimitives[i].textSize;
+          _this.defaultR = _this.NodePrimitives[i].r;
+          break;
+        }
+      }
+    },
+    useLinkPrimitive(id) {
+      let _this = this;
+      _this.usingLinkPrimitiveId = id;
+      for (let i = 0; i < _this.LinkPrimitives.length; i++) {
+        if (_this.LinkPrimitives[i].id === id) {
+          _this.DefaultLinkColor = _this.LinkPrimitives[i].color;
+          _this.DefaultLinkTextColor = _this.LinkPrimitives[i].textColor;
+          _this.DefaultLinkTextColor = _this.LinkPrimitives[i].textSize;
+        }
+      }
+    },
+    tableNodeRowClassName({row, rowIndex}) {
+      if (row.id === this.usingNodePrimitiveId) return 'success-row';
+      else return '';
+    },
+    tableLinkRowClassName({row, rowIndex}) {
+      if (row.id === this.usingLinkPrimitiveId) return 'success-row';
+      else return '';
+    },
+    cancelUsingNodePrimitive() {
+      this.usingNodePrimitiveId = null;
+      this.DefaultNodeColor = this.DefaultNodePrimitive.color;
+      this.DefaultNodeStrokeColor = this.DefaultNodePrimitive.strokeColor;
+      this.DefaultNodeTextColor = this.DefaultNodePrimitive.textColor;
+      this.DefaultNodeTextSize = this.DefaultNodePrimitive.textSize;
+      this.defaultR = this.DefaultNodePrimitive.r;
+    },
+    cancelUsingLinkPrimitive() {
+      this.usingLinkPrimitiveId = null;
+      this.DefaultLinkColor = this.DefaultLinkPrimitive.color;
+      this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textColor;
+      this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textSize;
+    },
   }
 }
 </script>
-<!-- todo css层-->
+<!--todo css层-->
 <style>
 .sidebar-left {
   left: 30px;
@@ -1866,7 +2077,7 @@ export default {
   padding-left: 15px;
   padding-top: 10px;
   text-align: left;
-  font-size: 18px;
+  font-size: 16px;
   color: rgba(0, 0, 0, .65);;
 }
 
@@ -1881,12 +2092,16 @@ export default {
 .sidebar-icon {
   margin-right: 10px;
   float: left;
-  font-size: 18px;
-  padding-top: 3px;
+  font-size: 16px;
+  padding-top: 2px;
 }
 
 .choose {
   cursor: pointer;
+}
+
+.el-table .success-row {
+  background: #ebf7f9;
 }
 
 .sidebar-right-bottom {

@@ -143,9 +143,10 @@ export function createNodePrimitiveAPI(data) {
         data: JSON.stringify(data),
         dataType: 'text',
         content: 'application/json',
-        async: true,
-        success: function () {
+        async: false,
+        success: function (data) {
             console.log('Save NodePrimitive Success')
+            return JSON.parse(data).content;
         }
     })
 }
@@ -156,9 +157,10 @@ export function createLinkPrimitiveAPI(data) {
         data: JSON.stringify(data),
         dataType: 'text',
         contentType: 'application/json',
-        async: true,
-        success: function () {
+        async: false,
+        success: function (data) {
             console.log('Save LinkPrimitive Success')
+            return JSON.parse(data).content;
         }
     })
 }
