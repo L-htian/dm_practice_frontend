@@ -422,6 +422,7 @@ import $ from 'jquery'
 import '@/static/iconfont/iconfont.css'
 import '@/static/js/saveSvgAsPng.js'
 import _ from 'underscore'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 //TODO API引用
 import {
   createLinkAPI,
@@ -449,6 +450,11 @@ export default {
     hasUploaded: Boolean,
     fileList: Array,
     graphInfo: Object,
+  },
+  computed: {
+    ...mapGetters([
+      'selectedKGId'
+    ])
   },
   //todo 变量
   data() {
@@ -617,7 +623,7 @@ export default {
   components: {},
   mounted() {
     // todo
-    this.getGraphId()
+    this.graphId=this.selectedKGId
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
