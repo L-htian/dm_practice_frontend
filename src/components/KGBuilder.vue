@@ -3,17 +3,12 @@
     <!--todo 侧边栏-->
     <!--左上侧边栏 图谱名-->
     <div class="graph_name">
-      <!--      <el-card id="name_card" :body-style="{padding:'0px'}" v-if="change_graph_name">-->
-      <!--        <div class="graph_name_text">-->
-      <!--          <span>{{ this.graph_name }}</span>-->
-      <!--          <i class="el-icon-edit" @click=""></i>-->
-      <!--        </div>-->
-      <!--      </el-card>-->
       <el-input class="input_graph_name"
                 v-model="graph_name"
                 placeholder="请命名"
                 v-if="show_input"
-                @keyup.enter.native="handleChange">
+                @keyup.enter.native="handleChange"
+                style="font-size: 16px">
         <i class="el-icon-edit el-input__icon" slot="suffix">
         </i>
       </el-input>
@@ -28,7 +23,8 @@
           :fetch-suggestions="querySearch"
           placeholder="请输入内容"
           @select="handleSelect"
-          @keyup.enter.native="handleSelect">
+          @keyup.enter.native="handleSelect"
+      >
         <i
             class="el-icon-search el-input__icon"
             slot="prefix"
@@ -37,8 +33,13 @@
       </el-autocomplete>
 
       <!--todo 动态添加搜索到的结果-->
-      <ul class="showResult">
-        <li style="text-align: left">这是搜索结果</li>
+      <ul class="showResult"
+          style="list-style:none;margin:0;padding-left: 0;padding-top:5px;height: 89%;overflow:auto">
+        <li v-for="re in searchResult" class="searchResultItem">
+          <div class="showResultItem">
+            <span @click="handleChoose(re)" style="cursor:pointer">{{ re }}</span>
+          </div>
+        </li>
       </ul>
     </div>
 
@@ -422,7 +423,7 @@ import $ from 'jquery'
 import '@/static/iconfont/iconfont.css'
 import '@/static/js/saveSvgAsPng.js'
 import _ from 'underscore'
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 //TODO API引用
 import {
   createLinkAPI,
@@ -459,12 +460,13 @@ export default {
   //todo 变量
   data() {
     return {
+      searchResult: ["lbg", "libanguo", "李邦国", "国国国", "牧羊少年", "牧羊少年", "牧羊少年"
+        , "牧羊少年", "牧羊少年", "牧羊少年", "牧羊少年", "牧羊少年", "牧羊少年"],
       graphId: '',
       searchString: '',
       graph_name: '未命名',
       // 静态量
       formLabelWidth: "120px",
-
       show_input: true,
       // 默认图元
       DefaultNodePrimitive: {
@@ -623,7 +625,7 @@ export default {
   components: {},
   mounted() {
     // todo
-    this.graphId=this.selectedKGId
+    this.graphId = this.selectedKGId
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
@@ -1652,27 +1654,6 @@ export default {
       _this.cancelOperationMessage = 0
       _this.isAddingNode = false
     },
-    // getNodeId(newNode) {
-    //   var newId;
-    //   $.ajax('http://localhost:8089/api/KG/createNode', {
-    //     data: JSON.stringify(newNode),
-    //     dataType: 'text',
-    //     contentType: "application/json",
-    //     type: 'POST',
-    //     async: false,
-    //     success: function (data) {
-    //       console.log(typeof data)
-    //       console.log(JSON.parse(data).content.id)
-    //       console.log(typeof JSON.parse(data))
-    //       newId = (JSON.parse(data)).content.id
-    //     },
-    //     error: function (data) {
-    //       console.log(data)
-    //       console.log(2)
-    //     }
-    //   })
-    //   return newId;
-    // },
     // todo 删除联系
     deleteLink() {
       let _this = this
@@ -1857,7 +1838,50 @@ export default {
     },
     handleSelect(item) {
       this.searchString = item.value
-      searchNodeAPI(this.graphId)
+      this.searchResult = searchNodeAPI(this.graphId, this.searchString)
+    },
+    // todo
+    //  暂时实现的是选择结果之后生成新的图谱
+    //  如果返回原来的图谱的话思路是添加一个按钮
+    //  然后点击按钮之后获得这个graphId的所有信息然后重新生成图
+    handleChoose(historySelect) {
+      let nodes = this.graph.nodes
+      let links = this.graph.links
+      let node = []
+      let searchGraph = {
+        nodes: [],
+        links: [],
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        if (nodes[i].name === historySelect) {
+          node = nodes[i]
+          searchGraph.nodes.push(node)
+        }
+      }
+      for (let i = 0; i < links.length; i++) {
+        if (links[i].targetId === node.id || links[i].sourceId === node.id) {
+          searchGraph.links.push(links[i])
+        }
+      }
+      let n = 0
+      for (let i = 0; i < searchGraph.links.length; i++) {
+        let Id;
+        Id = searchGraph.links[i].sourceId === node.id
+            ? searchGraph.links[i].targetId
+            : searchGraph.links[i].sourceId
+        n = this.pushOtherNodes(n,Id,searchGraph.nodes)
+      }
+      this.graph = searchGraph
+      this.updateGraph()
+      console.log(historySelect)
+    },
+    pushOtherNodes(n,Id,Nodes){
+      for (let i = n;i < this.graph.nodes.length;i++){
+        if (this.graph.nodes[i].id===Id){
+          Nodes.push(this.graph.nodes[i])
+          return i
+        }
+      }
     },
     // todo 更新坐标等信息
     // updateGraphInfo() {
@@ -1896,7 +1920,7 @@ export default {
       this.graphId = this.graphInfo.id
     },
     // 更新整个图谱到数据库
-    updateAll(){
+    updateAll() {
       let updateVO = {
         graphId: this.selectedKGId,
         nodes: this.graph.nodes,
@@ -2038,6 +2062,7 @@ export default {
 
 .my-autocomplete {
   padding-top: 10px;
+  font-size: 16px
 }
 
 .graph_name {
@@ -2061,6 +2086,11 @@ export default {
   text-align: center;
 }
 
+.showResult {
+  user-select: none;
+  background: none;
+}
+
 .sidebar-right {
   right: 30px;
   width: 18%;
@@ -2070,6 +2100,25 @@ export default {
   height: 50%;
   user-select: none;
   background: none;
+}
+
+.searchResultItem {
+  width: 100%;
+  height: 10%;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  box-sizing: border-box;
+  background: none;
+  padding-left: 0;
+  padding-top: 14px;
+  text-align: center;
+  font-size: 16px;
+  color: rgba(0, 0, 0, .65);;
+}
+
+.searchResultItem:hover {
+  background: rgba(230, 233, 239, 0.5);
 }
 
 .sidebar-item {
@@ -2234,5 +2283,6 @@ input::-ms-input-placeholder {
 
 input::-webkit-input-placeholder {
   text-align: center;
+  font-size: 16px;
 }
 </style>

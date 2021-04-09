@@ -108,7 +108,7 @@ export function updateAPI(data) {
 }
 
 export function searchNodeAPI(graphId, content) {
-    let searchResult = []
+    let searchResult = {}
     $.ajax(`${api.KGPre}/${graphId}/searchNode`, {
         type: 'POST',
         data: content,
@@ -124,7 +124,7 @@ export function searchNodeAPI(graphId, content) {
 }
 
 export function getSearchHistoryAPI() {
-    let results = {}
+    let results = []
     $.ajax(`${api.KGPre}/searchHistory`, {
         type: 'GET',
         data: {},
@@ -140,7 +140,7 @@ export function getSearchHistoryAPI() {
 }
 
 export function createNodePrimitiveAPI(data) {
-    let NodePrimitive = []
+    let NodePrimitive = {}
     $.ajax(`${api.KGPre}/createNodePrimitive`, {
         type: 'POST',
         data: JSON.stringify(data),
@@ -156,7 +156,7 @@ export function createNodePrimitiveAPI(data) {
 }
 
 export function createLinkPrimitiveAPI(data) {
-    let LinkPrimitive = []
+    let LinkPrimitive = {}
     $.ajax(`${api.KGPre}/createLinkPrimitive`, {
         type: 'POST',
         data: JSON.stringify(data),
@@ -172,7 +172,7 @@ export function createLinkPrimitiveAPI(data) {
 }
 
 export function getNodePrimitiveAPI() {
-    let NodePrimitive = []
+    let NodePrimitive = {}
     $.ajax(`${api.KGPre}/getNodePrimitive`, {
         type: 'GET',
         data: {},
@@ -188,7 +188,7 @@ export function getNodePrimitiveAPI() {
 }
 
 export function getLinkPrimitiveAPI() {
-    let LinkPrimitive = []
+    let LinkPrimitive = {}
     $.ajax(`${api.KGPre}/getLinkPrimitive`, {
         type: 'GET',
         data: {},
@@ -229,7 +229,7 @@ export function deleteLinkPrimitiveAPI(id) {
 
 
 export function saveAsJsonAPI(id) {
-    let re = []
+    let re = {}
     $.ajax(`${api.KGPre}/saveAsJson`, {
         type: 'GET',
         data: {},
@@ -244,7 +244,7 @@ export function saveAsJsonAPI(id) {
 }
 
 export function saveAsXmlAPI(id) {
-    let re = []
+    let re = {}
     $.ajax(`${api.KGPre}/saveAsXml`, {
         type: 'GET',
         data: {},
@@ -259,7 +259,7 @@ export function saveAsXmlAPI(id) {
 }
 
 export function createGraphAPI() {
-    let graph = []
+    let graph = {}
     $.ajax(`${api.KGPre}/createGraph`, {
         type: 'GET',
         dataType: 'application/json',
@@ -275,7 +275,7 @@ export function createGraphAPI() {
 }
 
 export function getGraphAPI(id) {
-    let graphInfo = []
+    let graphInfo = {}
     $.ajax(`${api.KGPre}/${id}/getGraph`, {
         type: 'GET',
         dataType: 'text',
