@@ -298,6 +298,7 @@ import html2canvas from 'html2canvas'
 import '@/static/iconfont/iconfont.css'
 import '@/static/js/saveSvgAsPng.js'
 import _ from 'underscore'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 //TODO API引用
 import {
   createLinkAPI,
@@ -308,11 +309,20 @@ import {
   updateNodeAPI,
   updateAPI,
   saveAsJsonAPI,
-  saveAsXmlAPI, getSearchHistoryAPI, searchNodeAPI, createGraphAPI, changeGraphNameAPI
+  saveAsXmlAPI,
+  getSearchHistoryAPI,
+  searchNodeAPI,
+  createGraphAPI,
+  changeGraphNameAPI
 } from '../api/KG.js'
 
 export default {
   name: "KGBuilder",
+  computed: {
+    ...mapGetters([
+      'selectedKGId'
+    ])
+  },
   props: {
     pid: String,
     wantNew: Boolean,
@@ -430,7 +440,7 @@ export default {
   components: {},
   mounted() {
     // todo
-    this.getGraphId()
+    this.graphId = this.selectedKGId
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
@@ -1794,9 +1804,6 @@ export default {
     },
     handleChange() {
       changeGraphNameAPI(this.graphId, this.graph_name)
-    },
-    getGraphId() {
-      this.graphId = this.graphInfo.id
     }
   }
 }

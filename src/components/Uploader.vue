@@ -20,6 +20,7 @@
 <script>
 import Vue from 'vue'
 import {createGraphAPI} from "../api/KG";
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 
 export default {
   name: "Uploader",
@@ -31,12 +32,20 @@ export default {
       newGraph: []
     }
   },
+  computed: {
+    ...mapGetters([
+      'selectedKGId'
+    ])
+  },
   provide() {
 
   },
   beforeDestroy() {
   },
   methods: {
+    ...mapMutations([
+      'set_selectedKGId'
+    ]),
     setUrl: function () {
       return "http://localhost:8089/api/KG/upload"
     },
@@ -52,7 +61,8 @@ export default {
     getNewGraph() {
       this.getGraphNew = true
       window.Event.$emit('getNewGraph', this.getGraphNew)
-      this.newGraph =this.getNewGraphInfo()
+      this.newGraph = this.getNewGraphInfo()
+      this.set_selectedKGId(this.newGraph.id)
       window.Event.$emit('getGraphInfo', this.newGraph)
     },
     // todo 创建空白图谱获得Id
