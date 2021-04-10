@@ -37,7 +37,7 @@
           style="list-style:none;margin:0;padding-left: 0;padding-top:5px;height: 89%;overflow:auto">
         <li v-for="re in searchResult" class="searchResultItem">
           <div class="showResultItem">
-            <span @click="handleChoose(re)" style="cursor:pointer">{{ re }}</span>
+            <span @click="handleChoose(re)" style="cursor:pointer">{{ re.name }}</span>
           </div>
         </li>
       </ul>
@@ -146,7 +146,7 @@
 
     <!--右下侧边栏-->
     <div class="sidebar-right-bottom">
-
+      <div id="pieCount" style="height: 170px;width: 274px"></div>
     </div>
 
     <!--图谱容器-->
@@ -418,6 +418,7 @@
 </template>
 
 <script>
+import echarts from "echarts";
 import * as d3 from 'd3'
 import $ from 'jquery'
 import '@/static/iconfont/iconfont.css'
@@ -440,7 +441,7 @@ import {
   createGraphAPI,
   changeGraphNameAPI,
   deleteNodePrimitiveAPI,
-  deleteLinkPrimitiveAPI, createNodePrimitiveAPI, createLinkPrimitiveAPI,
+  deleteLinkPrimitiveAPI, createNodePrimitiveAPI, createLinkPrimitiveAPI, getCountData, getCountDataAPI,
 } from '../api/KG.js'
 
 export default {
@@ -460,8 +461,11 @@ export default {
   //todo 变量
   data() {
     return {
-      searchResult: ["lbg", "libanguo", "李邦国", "国国国", "牧羊少年", "牧羊少年", "牧羊少年"
-        , "牧羊少年", "牧羊少年", "牧羊少年", "牧羊少年", "牧羊少年", "牧羊少年"],
+      charts: "",
+      tags: [],
+      countData: [],
+
+      searchResult: [],
       graphId: '',
       searchString: '',
       graph_name: '未命名',
@@ -626,6 +630,8 @@ export default {
   mounted() {
     // todo
     this.graphId = this.selectedKGId
+    this.drawCharts()
+    this.getData()
     this.initGraphContainer()
     this.initJQueryEvents()
     this.initGraph()
@@ -1717,6 +1723,11 @@ export default {
           _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize
           _this.graph.nodes[i].r = _this.EditingNodeEntity.r
           _this.graph.nodes[i].tag = _this.EditingNodeEntity.tag
+          for (let j = 0; j < this.graph.nodes[i].tags.length; j++) {
+            if (_this.tags.indexOf(this.graph.nodes[i].tags[i]) === -1) {
+              _this.tags.push(this.graph.nodes[i].tags[i])
+            }
+          }
           let nodeToUpdate = _this.graph.nodes[i]
           updateNodeAPI(nodeToUpdate)
           break
@@ -1847,17 +1858,12 @@ export default {
     handleChoose(historySelect) {
       let nodes = this.graph.nodes
       let links = this.graph.links
-      let node = []
+      let node = historySelect
       let searchGraph = {
         nodes: [],
         links: [],
       }
-      for (let i = 0; i < nodes.length; i++) {
-        if (nodes[i].name === historySelect) {
-          node = nodes[i]
-          searchGraph.nodes.push(node)
-        }
-      }
+      searchGraph.push(node)
       for (let i = 0; i < links.length; i++) {
         if (links[i].targetId === node.id || links[i].sourceId === node.id) {
           searchGraph.links.push(links[i])
@@ -1869,15 +1875,15 @@ export default {
         Id = searchGraph.links[i].sourceId === node.id
             ? searchGraph.links[i].targetId
             : searchGraph.links[i].sourceId
-        n = this.pushOtherNodes(n,Id,searchGraph.nodes)
+        n = this.pushOtherNodes(n, Id, searchGraph.nodes)
       }
       this.graph = searchGraph
       this.updateGraph()
       console.log(historySelect)
     },
-    pushOtherNodes(n,Id,Nodes){
-      for (let i = n;i < this.graph.nodes.length;i++){
-        if (this.graph.nodes[i].id===Id){
+    pushOtherNodes(n, Id, Nodes) {
+      for (let i = n; i < this.graph.nodes.length; i++) {
+        if (this.graph.nodes[i].id === Id) {
           Nodes.push(this.graph.nodes[i])
           return i
         }
@@ -2046,6 +2052,59 @@ export default {
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textColor;
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textSize;
     },
+    drawPieChart() {
+      const echarts = require('echarts');
+      this.charts = echarts.init(document.getElementById("pieCount"))
+      this.charts.clear()
+      this.charts.setOption({
+        title: {
+          text: '节点统计',
+          x: 'center',
+          textStyle: {
+            fontSize: 10
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        series: [
+          {
+            name: '节点数量',
+            type: 'pie',
+            data: [{name: "libanguo", value: 5}, {name: "lbg", value: 6}],
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      })
+    },
+    getData() {
+      // let co = getCountDataAPI(this.graphId)
+      let co = [{name: "libanguo", value: 5}, {name: "lbg", value: 6}, {
+        name: "李邦国",
+        value: 7
+      }, {name: "牧羊少年", value: 8}]
+      for (let i = 0; i < co.length; i++) {
+        let re = {}
+        re.name = i.tagName
+        re.value = i.count
+        this.countData.push(re)
+      }
+      this.charts.setOption({
+        series: [{
+          data: this.countData
+        }]
+      })
+    },
+    drawCharts() {
+      this.drawPieChart();
+    },
   }
 }
 </script>
@@ -2162,7 +2221,7 @@ export default {
 .sidebar-right-bottom {
   right: 30px;
   width: 18%;
-  top: 465px;
+  top: 500px;
   position: fixed;
   border: thick double #dcdfe6;
   height: 20%;
