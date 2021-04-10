@@ -23,7 +23,7 @@
           :fetch-suggestions="querySearch"
           placeholder="请输入内容"
           @select="handleSelect"
-          @keyup.enter.native="handleSelect"
+          @keyup.enter.native="handleSearch"
       >
         <i
             class="el-icon-search el-input__icon"
@@ -1832,15 +1832,19 @@ export default {
     },
     //todo 自动填充搜索栏方法补充
     querySearch(queryString, cb) {
-      let resultsH = getSearchHistoryAPI()
-      let results = []
-      for (let i of resultsH) {
-        results.push({"value": i})
+      if (!queryString) {
+        let resultsH = getSearchHistoryAPI()
+        let results = []
+        for (let i of resultsH) {
+          results.push({"value": i})
+        }
+        results = queryString
+            ? results.filter(this.createFilter(queryString))
+            : results
+        cb(results)
+      }else {
+        this.handleSearch()
       }
-      results = queryString
-          ? results.filter(this.createFilter(queryString))
-          : results
-      cb(results)
     },
     createFilter(queryString) {
       return (item) => {
@@ -1849,6 +1853,10 @@ export default {
     },
     handleSelect(item) {
       this.searchString = item.value
+      this.searchResult = searchNodeAPI(this.graphId, this.searchString)
+    },
+    handleSearch() {
+      console.log(this.searchString)
       this.searchResult = searchNodeAPI(this.graphId, this.searchString)
     },
     // todo
