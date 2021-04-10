@@ -111,7 +111,7 @@ export function searchNodeAPI(graphId, content) {
     let searchResult
     $.ajax(`${api.KGPre}/searchNode`, {
         type: 'POST',
-        data: {graphId: graphId, content: content},
+        data: {"graphId": graphId, "content": content},
         dataType: 'text',
         contentType: 'application/json',
         async: false,
@@ -293,10 +293,10 @@ export function changeGraphNameAPI(graphId, graphName) {
     $.ajax(`${api.KGPre}/changeGraphName`, {
         type: 'POST',
         data: {
-            name: graphName,
-            id: graphId,
-            imgsrc: '',
-            description: '',
+            "name": graphName,
+            "id": graphId,
+            "imgsrc": '',
+            "description": '',
         },
         dataType: 'text',
         contentType: 'application/json',
