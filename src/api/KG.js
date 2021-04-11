@@ -145,7 +145,7 @@ export function createNodePrimitiveAPI(data) {
         type: 'POST',
         data: JSON.stringify(data),
         dataType: 'text',
-        content: 'application/json',
+        contentType: 'application/json',
         async: false,
         success: function (data) {
             console.log('Save NodePrimitive Success')
@@ -176,7 +176,7 @@ export function getNodePrimitiveAPI() {
     $.ajax(`${api.KGPre}/getNodePrimitive`, {
         type: 'GET',
         data: {},
-        dataType: 'application/json',
+        dataType: 'text',
         contentType: 'application/json',
         async: false,
         success: function (data) {
@@ -192,7 +192,7 @@ export function getLinkPrimitiveAPI() {
     $.ajax(`${api.KGPre}/getLinkPrimitive`, {
         type: 'GET',
         data: {},
-        dataType: 'application/json',
+        dataType: 'text',
         contentType: 'application/json',
         async: false,
         success: function (data) {
