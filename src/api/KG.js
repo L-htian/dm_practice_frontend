@@ -100,7 +100,7 @@ export function updateAPI(data) {
         data: JSON.stringify(data),
         dataType: 'application/json',
         contentType: 'application/json',
-        async: true,
+        async: false,
         success: function () {
             console.log('update graphInfo success!')
         }
@@ -298,7 +298,9 @@ export function getGraphAPI(id) {
         async: false,
         success: function (data) {
             console.log('getGraph Success')
-            graphInfo = (JSON.parse(data)).content
+            graphInfo = (JSON.parse(data)).content;
+            console.log(graphInfo);
+            return graphInfo;
         }
     })
     return graphInfo

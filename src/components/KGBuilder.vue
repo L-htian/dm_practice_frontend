@@ -422,6 +422,7 @@
 </template>
 
 <script>
+import {Loading} from 'element-ui';
 import * as d3 from 'd3'
 import $ from 'jquery'
 import '@/static/iconfont/iconfont.css'
@@ -653,10 +654,11 @@ export default {
       'set_isGraphOpening'
     ]),
     // 初始化知识图谱
-    initGraph() {
+    async initGraph() {
       let _this = this
       if (_this.isGraphOpening) {
-        let updateVO = getGraphAPI(_this.selectedKGId);
+        let updateVO = await getGraphAPI(_this.selectedKGId);
+        console.log(updateVO);
         _this.graph.nodes = updateVO.nodes;
         _this.graph.links = updateVO.links;
         _this.updateGraph();
@@ -1861,21 +1863,23 @@ export default {
         location.reload();
       })
     },
-    updateAllClick(){
-      this.updateAll();
+    async updateAllClick(){
+      await this.updateAll();
       this.$message({
         type: 'success',
         message: '已同步到数据库'
       })
     },
     // 更新整个图谱到数据库
-    updateAll() {
+    async updateAll() {
       let updateVO = {
         graphId: this.selectedKGId,
         nodes: this.graph.nodes,
         links: this.graph.links
       };
-      updateAPI(updateVO);
+      let loadingInstance = Loading.service({fullscreen: true});
+      await updateAPI(updateVO);
+      await loadingInstance.close();
     },
     // 图元相关
     showNodePrimitiveDialog() {
