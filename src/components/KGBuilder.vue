@@ -1725,7 +1725,7 @@ export default {
           _this.graph.nodes[i].tag = _this.EditingNodeEntity.tag
           let nodeToUpdate = _this.graph.nodes[i]
           updateNodeAPI(nodeToUpdate)
-          this.getData()
+          // this.getData()
           break
         }
       }
@@ -2101,7 +2101,8 @@ export default {
       }
       this.charts.setOption({
         series: [{
-          data: this.countData
+          // data: this.countData
+          data:co
         }]
       })
     },
