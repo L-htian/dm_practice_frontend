@@ -2095,6 +2095,7 @@ export default {
       }, {name: "牧羊少年", value: 8}]
       for (let i = 0; i < co.length; i++) {
         let re = {}
+
         re.name = i.tagName
         re.value = i.count
         this.countData.push(re)
