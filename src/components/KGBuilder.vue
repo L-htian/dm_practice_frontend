@@ -150,7 +150,7 @@
 
     <!--右下侧边栏-->
     <div class="sidebar-right-bottom">
-      <div id="pieCount" style="height: 170px;width: 274px"></div>
+      <div id="pieCount" style="height: 100%;width: 100%"></div>
     </div>
 
     <!--图谱容器-->
@@ -2220,10 +2220,10 @@ export default {
 .sidebar-right-bottom {
   right: 30px;
   width: 18%;
-  top: 500px;
+  top: 455px;
   position: fixed;
   border: thick double #dcdfe6;
-  height: 20%;
+  height: 25%;
   user-select: none;
   background: none;
 }
