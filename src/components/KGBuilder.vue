@@ -2073,7 +2073,7 @@ export default {
         },
         series: [
           {
-            name: '节点数量',
+            name: 'Tag对应节点数量',
             type: 'pie',
             data: [{name: "libanguo", value: 5}, {name: "lbg", value: 6}],
             itemStyle: {
