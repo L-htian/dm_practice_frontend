@@ -38,7 +38,6 @@ export default {
   },
   mounted() {
     if (this.isGraphOpening) {
-      this.set_isGraphOpening(false)
       this.showUploader = false
       this.showKGBuilder = true
     } else {

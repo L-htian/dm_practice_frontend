@@ -46,8 +46,12 @@
     <!--右上侧边栏-->
     <div class="sidebar-right">
       <div class="sidebar-item">
+        <i class="el-icon-close sidebar-icon"></i>
+        <span class="choose sidebar-span" @click="closeGraph">关闭图谱</span>
+      </div>
+      <div class="sidebar-item">
         <i class="iconfont icon-shujuku sidebar-icon"></i>
-        <span class="choose sidebar-span" @click="updateAll">同步图谱到数据库</span>
+        <span class="choose sidebar-span" @click="updateAllClick">同步图谱到数据库</span>
       </div>
       <div class="sidebar-item">
         <i class="iconfont icon-paiban sidebar-icon"></i>
@@ -89,8 +93,8 @@
               </template>
             </el-table-column>
           </el-table>
-          <span class="sidebar-span choose" slot="reference" v-if="(!this.usingNodePrimitiveId)">节点图元</span>
-          <span class="sidebar-span choose" slot="reference" v-else style="color: rgba(68,111,142,0.65)">节点图元 应用中</span>
+          <span class="sidebar-span choose" slot="reference" v-if="this.usingNodePrimitiveId === -1">节点图元</span>
+          <span class="sidebar-span choose" slot="reference" v-else style="color: #409eff">节点图元 应用中</span>
         </el-popover>
         <el-tooltip content="取消应用节点图元" placement="top">
           <el-button type="text" @click="cancelUsingNodePrimitive"
@@ -128,8 +132,8 @@
               </template>
             </el-table-column>
           </el-table>
-          <span class="sidebar-span choose" slot="reference" v-if="(!this.usingLinkPrimitiveId)">连接图元</span>
-          <span class="sidebar-span choose" slot="reference" v-else style="color: rgba(68,111,142,0.65)">连接图元 应用中</span>
+          <span class="sidebar-span choose" slot="reference" v-if="this.usingLinkPrimitiveId === -1">连接图元</span>
+          <span class="sidebar-span choose" slot="reference" v-else style="color: #409eff">连接图元 应用中</span>
         </el-popover>
         <el-tooltip content="取消应用连接图元" placement="top">
           <el-button type="text" @click="cancelUsingLinkPrimitive"
@@ -336,7 +340,7 @@
               type="info"
               effect="plain"
               :key="tag"
-              v-for="tag in EditingNodeEntity.tag"
+              v-for="tag in EditingNodeEntity.tags"
               closable
               :disable-transitions="false"
               @close="handleTagClose(tag)">
@@ -440,7 +444,7 @@ import {
   createGraphAPI,
   changeGraphNameAPI,
   deleteNodePrimitiveAPI,
-  deleteLinkPrimitiveAPI, createNodePrimitiveAPI, createLinkPrimitiveAPI, getCountData, getCountDataAPI,
+  deleteLinkPrimitiveAPI, createNodePrimitiveAPI, createLinkPrimitiveAPI, getCountData, getCountDataAPI, getGraphAPI,
 } from '../api/KG.js'
 
 export default {
@@ -455,7 +459,8 @@ export default {
   computed: {
     ...mapGetters([
       'selectedKGId',
-      'uploadedData'
+      'uploadedData',
+      'isGraphOpening'
     ])
   },
   //todo 变量
@@ -478,6 +483,7 @@ export default {
         textSize: 14,
       },
       // 默认颜色
+      DefaultActiveNodeColor: '#c5d065',
       DefaultButtonGroupColor: '#d1d6d7',
       DefaultButtonGroupStrokeColor: '#fff',
       DefaultButtonGroupTextColor: '#0c0c0c',
@@ -530,9 +536,9 @@ export default {
         {
           id: 114514,
           name: 'libanguo',
-          color: '#ffffff',
-          strokeColor: '#ffffff',
-          textColor: '#ffffff',
+          color: '#d97171',
+          strokeColor: '#eccc8a',
+          textColor: '#7d8046',
           textSize: 14,
           r: 30,
         }
@@ -541,14 +547,14 @@ export default {
         {
           id: 114514,
           name: 'libanguo',
-          color: '#ffffff',
-          textColor: '#ffffff',
+          color: '#c17373',
+          textColor: '#81dc8f',
           textSize: 14,
         }
       ],
       // 正在使用的图元id
-      usingNodePrimitiveId: 114514,
-      usingLinkPrimitiveId: 114514,
+      usingNodePrimitiveId: -1,
+      usingLinkPrimitiveId: -1,
       // 排版模式
       isTypesettingModeOn: false,
       nextNodeId: 0,
@@ -572,7 +578,7 @@ export default {
         strokeColor: '',
         textColor: '',
         textSize: 0,
-        tag: []
+        tags: []
       },
       EditLinkDialogVisible: false,
       EditNodeDialogVisible: false,
@@ -642,17 +648,18 @@ export default {
   },
   watch: {},
   methods: {
+    ...mapMutations([
+      'set_selectedKGId',
+      'set_isGraphOpening'
+    ]),
     // 初始化知识图谱
     initGraph() {
       let _this = this
-      if (!_this.hasUploaded && !_this.wantNew) {
-        _this.graph.nodes = [
-          {
-            "name": "田所浩二",
-            "id": "0",
-          }
-        ]
-        _this.graph.links = []
+      if (_this.isGraphOpening) {
+        let updateVO = getGraphAPI(_this.selectedKGId);
+        _this.graph.nodes = updateVO.nodes;
+        _this.graph.links = updateVO.links;
+        _this.updateGraph();
       } else if (_this.hasUploaded && !_this.wantNew) {
         // todo 接收后端数据
         // _this.graph.nodes = _this.uploadedData.nodes;
@@ -674,7 +681,7 @@ export default {
           }
         }
       } else if (_this.wantNew) {
-        _this.updateGraph()
+        _this.updateGraph();
       }
     },
     initJQueryEvents() {
@@ -903,7 +910,7 @@ export default {
                   _this.EditingNodeEntity.strokeColor = _this.graph.nodes[j].strokeColor;
                   _this.EditingNodeEntity.textSize = _this.graph.nodes[j].textSize;
                   _this.EditingNodeEntity.r = _this.graph.nodes[j].r;
-                  _this.EditingNodeEntity.tag = _this.graph.nodes[j].tag;
+                  _this.EditingNodeEntity.tags = _this.graph.nodes[j].tags;
                   _this.isEditingNode = true;
                   _this.EditNodeDialogVisible = true;
                   break;
@@ -974,7 +981,7 @@ export default {
         if (typeof (node.strokeColor) === 'undefined' || node.strokeColor === '') node.strokeColor = _this.DefaultNodeStrokeColor
         if (typeof (node.textSize) === 'undefined' || node.textSize === '') node.textSize = _this.DefaultNodeTextSize
         if (typeof (node.r) === 'undefined' || node.r === '') node.r = _this.defaultR
-        if (typeof (node.tag) === 'undefined') node.tag = []
+        if (typeof (node.tags) === 'undefined') node.tags = []
       })
       let resLinks = []
       links.forEach(function (link) {
@@ -1466,48 +1473,6 @@ export default {
         element.msRequestFullscreen()
       }
     },
-    // 创建node的id
-    nodeIdBuilder() {
-      if (this.graph.nodes.length === 0) {
-        this.nextNodeId = 0
-        return 0
-      } else if (this.nextNodeId === 0) {
-        let id = 0
-        let existedIds = []
-        this.graph.nodes.forEach(function (node) {
-          existedIds.push(node.id)
-        })
-        existedIds.sort((num1, num2) => {
-          return num2 - num1
-        })
-        id = existedIds[0] + 1
-        this.nextNodeId = id
-        return this.nextNodeId
-      }
-      this.nextNodeId = this.nextNodeId + 1
-      return this.nextNodeId
-    },
-    // 创建link的id
-    linkIdBuilder() {
-      if (this.graph.links.length === 0) {
-        this.nextLinkId = 0
-        return 0
-      } else if (this.nextLinkId === 0) {
-        let id = 0
-        let existedIds = []
-        this.graph.links.forEach(function (node) {
-          existedIds.push(node.id)
-        })
-        existedIds.sort((num1, num2) => {
-          return num2 - num1
-        })
-        id = existedIds[0] + 1
-        this.nextLinkId = id
-        return this.nextLinkId
-      }
-      this.nextLinkId = this.nextLinkId + 1
-      return this.nextLinkId
-    },
     // todo 清空记录关系
     emptyLinkEntity() {
       this.EditingLinkEntity = {
@@ -1530,7 +1495,7 @@ export default {
         strokeColor: '',
         textColor: '',
         textSize: 0,
-        tag: [],
+        tags: [],
       }
     },
     cancelLinkEdit() {
@@ -1630,7 +1595,6 @@ export default {
       let _this = this
       let newNode = {}
       newNode.name = '节点'
-      newNode.id = _this.nodeIdBuilder()
       let transform = d3.select('.node').attr('transform')
       if (transform) {
         let XYK = []
@@ -1653,6 +1617,7 @@ export default {
       _this.isCancelOperationShow = false
       _this.cancelOperationMessage = 0
       _this.isAddingNode = false
+      _this.getEchartsData()
     },
     // todo 删除联系
     deleteLink() {
@@ -1695,7 +1660,6 @@ export default {
       let newShip = {}
       newShip.sourceId = _this.SelectedSourceNodeId
       newShip.targetId = _this.SelectedTargetNodeId
-      newShip.id = _this.linkIdBuilder()
       newShip.name = '联系'
       newShip.id = createLinkAPI(newShip)
       newShip.graphId = _this.selectedKGId
@@ -1716,10 +1680,10 @@ export default {
           _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor
           _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize
           _this.graph.nodes[i].r = _this.EditingNodeEntity.r
-          _this.graph.nodes[i].tag = _this.EditingNodeEntity.tag
+          _this.graph.nodes[i].tags = _this.EditingNodeEntity.tags
           let nodeToUpdate = _this.graph.nodes[i]
           updateNodeAPI(nodeToUpdate)
-          // this.getEchartsData()
+          this.getEchartsData()
           break
         }
       }
@@ -1820,7 +1784,7 @@ export default {
       // 然后移除
       document.body.removeChild(eleLink);
     },
-    //todo 自动填充搜索栏方法补充
+    // todo 自动填充搜索栏方法补充
     querySearch(queryString, cb) {
       if (!queryString) {
         let resultsH = getSearchHistoryAPI()
@@ -1851,66 +1815,15 @@ export default {
       // this.updateAll();
       this.searchResult = searchNodeAPI(this.selectedKGId, this.searchString)
     },
-    // todo
+    // todo 高亮？
     // 使节点在屏幕中央
     handleChoose(node) {
-      // 中心坐标
-      let centerX = this.width / 2;
-      let centerY = this.height / 2;
       // 节点坐标
       let nodeElement = d3.select('#node' + node.id);
-      let X = Number(nodeElement.attr('x'));
-      let Y = Number(nodeElement.attr('y'));
-      // 画布平移、缩放
-      let transform = d3.select('.node').attr('transform');
-      // 应该施加的transform
-      let transX, transY;
-      if (transform) {
-        let transXYK = transform.replace('translate', '').replaceAll('(', '').replaceAll(')', '').replace(' scale', ',').split(',');
-        transX = (centerX - X) * Number(transXYK[2]);
-        transY = (centerY - Y) * Number(transXYK[2]);
-        this.zoom.translateBy(this.svg, Number(transXYK[0]) + transX, Number(transXYK[1]) + transY);
-      } else {
-        transX = centerX - X;
-        transY = centerY - Y;
-        this.zoom.translateBy(this.svg, transX, transY);
-      }
-
-      //  暂时实现的是选择结果之后生成新的图谱
-      //  如果返回原来的图谱的话思路是添加一个按钮
-      //  然后点击按钮之后获得这个graphId的所有信息然后重新生成图
-      // let links = this.graph.links
-      // let node = historySelect
-      // let searchGraph = {
-      //   nodes: [],
-      //   links: [],
-      // }
-      // searchGraph.push(node)
-      // for (let i = 0; i < links.length; i++) {
-      //   if (links[i].targetId === node.id || links[i].sourceId === node.id) {
-      //     searchGraph.links.push(links[i])
-      //   }
-      // }
-      // let n = 0
-      // for (let i = 0; i < searchGraph.links.length; i++) {
-      //   let Id;
-      //   Id = searchGraph.links[i].sourceId === node.id
-      //       ? searchGraph.links[i].targetId
-      //       : searchGraph.links[i].sourceId
-      //   n = this.pushOtherNodes(n, Id, searchGraph.nodes)
-      // }
-      // this.graph = searchGraph
-      // this.updateGraph()
-      // console.log(historySelect)
+      let X = Number(nodeElement.attr('cx'));
+      let Y = Number(nodeElement.attr('cy'));
+      this.zoom.translateTo(this.svg, X, Y);
     },
-    // pushOtherNodes(n, Id, Nodes) {
-    //   for (let i = n; i < this.graph.nodes.length; i++) {
-    //     if (this.graph.nodes[i].id === Id) {
-    //       Nodes.push(this.graph.nodes[i])
-    //       return i
-    //     }
-    //   }
-    // },
     // tag 相关
     showTagInput() {
       this.TagInputVisible = true;
@@ -1921,16 +1834,39 @@ export default {
     handleTagInputConfirm() {
       let inputValue = this.tagInputValue;
       if (inputValue) {
-        this.EditingNodeEntity.tag.push(inputValue);
+        this.EditingNodeEntity.tags.push(inputValue);
       }
       this.TagInputVisible = false;
       this.tagInputValue = '';
     },
     handleTagClose(tag) {
-      this.EditingNodeEntity.tag.splice(this.EditingNodeEntity.tag.indexOf(tag), 1);
+      this.EditingNodeEntity.tags.splice(this.EditingNodeEntity.tags.indexOf(tag), 1);
     },
     handleChange() {
       changeGraphNameAPI(this.selectedKGId, this.graph_name)
+    },
+    closeGraph(){
+      this.$confirm('提示', '将要关闭图谱，是否保存到数据库？', {
+        confirmButtonText: '保存并关闭',
+        cancelButtonText: '不保存',
+        type: 'warning'
+      }).then(()=>{
+        this.set_isGraphOpening(false);
+        this.set_selectedKGId(-1);
+        this.updateAllClick();
+        location.reload();
+      }).catch(()=>{
+        this.set_isGraphOpening(false);
+        this.set_selectedKGId(-1);
+        location.reload();
+      })
+    },
+    updateAllClick(){
+      this.updateAll();
+      this.$message({
+        type: 'success',
+        message: '已同步到数据库'
+      })
     },
     // 更新整个图谱到数据库
     updateAll() {
@@ -1992,25 +1928,55 @@ export default {
     },
     deleteNodePrimitive(id) {
       let _this = this;
-      if (id === _this.usingNodePrimitiveId) _this.cancelUsingNodePrimitive();
-      for (let i = 0; i < _this.NodePrimitives.length; i++) {
-        if (_this.NodePrimitives[i].id === id) {
-          _this.NodePrimitives.slice(i, 1);
-          break;
+      _this.$confirm('该操作不可撤销', '将要删除节点图元，是否继续？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        if (id === _this.usingNodePrimitiveId) _this.cancelUsingNodePrimitive();
+        for (let i = 0; i < _this.NodePrimitives.length; i++) {
+          if (_this.NodePrimitives[i].id === id) {
+            _this.NodePrimitives.splice(i, 1);
+            break;
+          }
         }
-      }
-      deleteNodePrimitiveAPI(id);
+        deleteNodePrimitiveAPI(id);
+        _this.$message({
+          type: 'success',
+          message: '删除节点图元成功！'
+        })
+      }).catch(() => {
+        _this.$message({
+          type: 'info',
+          message: '取消删除节点图元'
+        })
+      })
     },
     deleteLinkPrimitive(id) {
       let _this = this;
-      if (id === _this.usingLinkPrimitiveId) _this.cancelUsingLinkPrimitive();
-      for (let i = 0; i < _this.LinkPrimitives.length; i++) {
-        if (_this.LinkPrimitives[i].id === id) {
-          _this.LinkPrimitives.slice(i, 1);
-          break;
+      _this.$confirm('该操作不可撤销', '将要删除节点图元，是否继续？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        if (id === _this.usingLinkPrimitiveId) _this.cancelUsingLinkPrimitive();
+        for (let i = 0; i < _this.LinkPrimitives.length; i++) {
+          if (_this.LinkPrimitives[i].id === id) {
+            _this.LinkPrimitives.splice(i, 1);
+            break;
+          }
+          _this.$message({
+            type: 'success',
+            message: '删除连接图元成功！'
+          })
         }
-      }
-      deleteLinkPrimitiveAPI(id);
+        deleteLinkPrimitiveAPI(id);
+      }).catch(() => {
+        _this.$message({
+          type: 'info',
+          message: '取消删除连接图元'
+        })
+      })
     },
     useNodePrimitive(id) {
       let _this = this;
@@ -2046,7 +2012,7 @@ export default {
       else return '';
     },
     cancelUsingNodePrimitive() {
-      this.usingNodePrimitiveId = null;
+      this.usingNodePrimitiveId = -1;
       this.DefaultNodeColor = this.DefaultNodePrimitive.color;
       this.DefaultNodeStrokeColor = this.DefaultNodePrimitive.strokeColor;
       this.DefaultNodeTextColor = this.DefaultNodePrimitive.textColor;
@@ -2054,7 +2020,7 @@ export default {
       this.defaultR = this.DefaultNodePrimitive.r;
     },
     cancelUsingLinkPrimitive() {
-      this.usingLinkPrimitiveId = null;
+      this.usingLinkPrimitiveId = -1;
       this.DefaultLinkColor = this.DefaultLinkPrimitive.color;
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textColor;
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textSize;
@@ -2224,8 +2190,9 @@ export default {
   cursor: pointer;
 }
 
+/* todo 正在应用的颜色 */
 .el-table .success-row {
-  background: #ebf7f9;
+  background: rgb(148, 201, 156);
 }
 
 .sidebar-right-bottom {

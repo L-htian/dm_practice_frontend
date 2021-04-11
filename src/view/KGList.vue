@@ -78,7 +78,7 @@ export default {
     }
   },
   async mounted() {
-    this.set_isGraphOpening(false)
+    // this.set_isGraphOpening(false)
     this.KGs = await getAllGraphAPI()
   },
   methods: {

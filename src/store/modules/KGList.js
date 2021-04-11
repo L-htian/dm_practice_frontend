@@ -1,6 +1,6 @@
 const KGList = {
     state:{
-        selectedKGId: null,
+        selectedKGId: -1,
         isGraphOpening: false,
     },
     mutations: {
