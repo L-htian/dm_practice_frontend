@@ -1838,7 +1838,7 @@ export default {
             ? results.filter(this.createFilter(queryString))
             : results
         cb(results)
-      }else {
+      } else {
         this.handleSearch()
       }
     },
@@ -2092,7 +2092,7 @@ export default {
       let co = [{name: "libanguo", value: 5}, {name: "lbg", value: 6}, {
         name: "李邦国",
         value: 7
-      }, {name: "牧羊少年", value: 8}]
+      }, {name: "牧羊少年", value: 9}]
       for (let i = 0; i < co.length; i++) {
         let re = {}
 
@@ -2103,7 +2103,7 @@ export default {
       this.charts.setOption({
         series: [{
           // data: this.countData
-          data:co
+          data: co
         }]
       })
     },
