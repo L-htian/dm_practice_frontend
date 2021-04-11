@@ -445,7 +445,13 @@ import {
   createGraphAPI,
   changeGraphNameAPI,
   deleteNodePrimitiveAPI,
-  deleteLinkPrimitiveAPI, createNodePrimitiveAPI, createLinkPrimitiveAPI, getCountData, getCountDataAPI, getGraphAPI,
+  deleteLinkPrimitiveAPI,
+  createNodePrimitiveAPI,
+  createLinkPrimitiveAPI,
+  getCountData,
+  getCountDataAPI,
+  getGraphAPI,
+  getNodePrimitiveAPI, getLinkPrimitiveAPI,
 } from '../api/KG.js'
 
 export default {
@@ -460,6 +466,7 @@ export default {
   computed: {
     ...mapGetters([
       'selectedKGId',
+      'selectedKGName',
       'uploadedData',
       'isGraphOpening'
     ])
@@ -633,13 +640,15 @@ export default {
     }
   },
   components: {},
-  mounted() {
+  async mounted() {
     // todo
     this.drawPieChart();
     this.getEchartsData();
     this.initGraphContainer();
     this.initJQueryEvents();
-    this.initGraph();
+    this.NodePrimitives = await getNodePrimitiveAPI();
+    this.LinkPrimitives = await getLinkPrimitiveAPI();
+    await this.initGraph();
   },
   created() {
   },
@@ -657,8 +666,8 @@ export default {
     async initGraph() {
       let _this = this
       if (_this.isGraphOpening) {
+        _this.graph_name = _this.selectedKGName;
         let updateVO = await getGraphAPI(_this.selectedKGId);
-        console.log(updateVO);
         _this.graph.nodes = updateVO.nodes;
         _this.graph.links = updateVO.links;
         _this.updateGraph();
@@ -1847,39 +1856,48 @@ export default {
     handleChange() {
       changeGraphNameAPI(this.selectedKGId, this.graph_name)
     },
-    closeGraph(){
-      this.$confirm('提示', '将要关闭图谱，是否保存到数据库？', {
+    closeGraph() {
+      let _this = this;
+      this.$confirm('将要关闭图谱，是否保存到数据库？', '提示', {
         confirmButtonText: '保存并关闭',
         cancelButtonText: '不保存',
         type: 'warning'
-      }).then(()=>{
+      }).then(() => {
         this.set_isGraphOpening(false);
         this.set_selectedKGId(-1);
-        this.updateAllClick();
-        location.reload();
-      }).catch(()=>{
+        new Promise(function (resolve, reject) {
+          _this.updateAllClick();
+          resolve();
+        }).then(() => {
+          location.reload();
+        })
+      }).catch(() => {
         this.set_isGraphOpening(false);
         this.set_selectedKGId(-1);
         location.reload();
       })
     },
-    async updateAllClick(){
-      await this.updateAll();
+    updateAllClick() {
+      this.updateAll();
       this.$message({
         type: 'success',
         message: '已同步到数据库'
       })
     },
     // 更新整个图谱到数据库
-    async updateAll() {
+    updateAll() {
       let updateVO = {
         graphId: this.selectedKGId,
         nodes: this.graph.nodes,
         links: this.graph.links
       };
       let loadingInstance = Loading.service({fullscreen: true});
-      await updateAPI(updateVO);
-      await loadingInstance.close();
+      new Promise(function (resolve, reject) {
+        updateAPI(updateVO);
+        resolve()
+      }).then(() => {
+        loadingInstance.close();
+      })
     },
     // 图元相关
     showNodePrimitiveDialog() {
@@ -1896,10 +1914,10 @@ export default {
         r: 30,
       };
     },
-    async createNodePrimitive() {
+    createNodePrimitive() {
       // 因为不想写生成器，所以同步调用获取图元id
-      this.AddNodePrimitiveEntity.id = await createNodePrimitiveAPI(this.AddNodePrimitiveEntity);
-      this.NodePrimitives.push(this.AddNodePrimitiveEntity);
+      this.AddNodePrimitiveEntity.id = createNodePrimitiveAPI(this.AddNodePrimitiveEntity);
+      this.NodePrimitives.push($.extend({}, this.AddNodePrimitiveEntity));
       this.AddNodePrimitiveVisible = false;
       this.emptyAddNodePrimitiveEntity();
     },
@@ -1919,10 +1937,10 @@ export default {
         textSize: 14,
       };
     },
-    async createLinkPrimitive() {
+    createLinkPrimitive() {
       // 因为不想写生成器，所以同步调用获取图元id
-      this.AddLinkPrimitiveEntity.id = await createLinkPrimitiveAPI(this.AddLinkPrimitiveEntity);
-      this.LinkPrimitives.push(this.AddLinkPrimitiveEntity);
+      this.AddLinkPrimitiveEntity.id = createLinkPrimitiveAPI(this.AddLinkPrimitiveEntity);
+      this.LinkPrimitives.push($.extend({}, this.AddLinkPrimitiveEntity));
       this.AddLinkPrimitiveVisible = false;
       this.emptyAddLinkPrimitiveEntity();
     },

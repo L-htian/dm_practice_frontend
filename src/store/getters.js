@@ -1,6 +1,7 @@
 const getters = {
     // KGList
     selectedKGId: state => state.KGList.selectedKGId,
+    selectedKGName: state => state.KGList.selectedKGName,
     isGraphOpening: state => state.KGList.isGraphOpening,
     // header
     current: state => state.Header.current,

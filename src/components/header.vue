@@ -77,7 +77,7 @@ export default {
   display: flex;
   position: fixed;
   border-bottom: 2px solid #dcdfe6;
-  z-index: 9998;
+  z-index: 2000;
   user-select: none;
 
   .label {

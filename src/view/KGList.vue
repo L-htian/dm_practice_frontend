@@ -25,7 +25,7 @@
           </el-tooltip>
           <el-divider direction="vertical"></el-divider>
           <el-tooltip content="打开图谱" placement="top-start">
-            <el-button type="text" @click="openKG(kg.id)"><i class="action-icon el-icon-view"></i></el-button>
+            <el-button type="text" @click="openKG(kg.id, kg.name)"><i class="action-icon el-icon-view"></i></el-button>
           </el-tooltip>
         </div>
       </li>
@@ -59,7 +59,7 @@ import {
   deleteGraphAPI,
   getAllGraphAPI,
   updateGraphAPI,
-} from "@/api/KGList";
+} from "../api/KGList";
 
 export default {
   name: "KGList",
@@ -77,13 +77,13 @@ export default {
       EditGraphDialogVisible: false,
     }
   },
-  async mounted() {
-    // this.set_isGraphOpening(false)
-    this.KGs = await getAllGraphAPI()
+  mounted() {
+    this.KGs = getAllGraphAPI();
   },
   methods: {
     ...mapMutations([
       'set_selectedKGId',
+      'set_selectedKGName',
       'set_isGraphOpening',
       'set_current'
     ]),
@@ -106,17 +106,20 @@ export default {
       })
     },
     saveGraphEdit() {
-      let _this = this
-      this.EditGraphDialogVisible = false
+      let _this = this;
+      this.EditGraphDialogVisible = false;
       for (let i = 0; i < _this.KGs.length; i++) {
         if (_this.KGs[i].id === _this.EditingGraphId) {
-          _this.EditingGraphEntry = _this.KGs[i]
-          break
+          _this.KGs[i].id = _this.EditingGraphEntry.id;
+          _this.KGs[i].name = _this.EditingGraphEntry.name;
+          _this.KGs[i].description = _this.EditingGraphEntry.description;
+          _this.KGs[i].imgsrc = _this.EditingGraphEntry.imgsrc;
+          break;
         }
       }
-      updateGraphAPI(_this.EditingGraphEntry)
-      this.EditingGraphId = 0
-      this.emptyEditingGraphEntry()
+      updateGraphAPI(_this.EditingGraphEntry);
+      this.EditingGraphId = 0;
+      this.emptyEditingGraphEntry();
       this.$message({
         type: 'success',
         message: '编辑图谱成功'
@@ -153,16 +156,20 @@ export default {
       _this.EditGraphDialogVisible = true
       for (let i = 0; i < _this.KGs.length; i++) {
         if (_this.KGs[i].id === graphId) {
-          _this.EditingGraphEntry = _this.KGs[i];
-          break
+          _this.EditingGraphEntry.id = _this.KGs[i].id;
+          _this.EditingGraphEntry.name = _this.KGs[i].name;
+          _this.EditingGraphEntry.description = _this.KGs[i].description;
+          _this.EditingGraphEntry.imgsrc = _this.KGs[i].imgsrc;
+          break;
         }
       }
     },
-    openKG(graphId) {
-      this.set_selectedKGId(graphId)
-      this.set_isGraphOpening(true)
-      this.set_current(3)
-      this.$router.push('/Kojima-Coin/KGEditor')
+    openKG(graphId, graphName) {
+      this.set_selectedKGId(graphId);
+      this.set_selectedKGName(graphName);
+      this.set_isGraphOpening(true);
+      this.set_current(3);
+      this.$router.push('/Kojima-Coin/KGEditor');
     }
   }
 }
