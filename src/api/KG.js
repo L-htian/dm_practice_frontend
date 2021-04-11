@@ -107,6 +107,21 @@ export function updateAPI(data) {
     })
 }
 
+// todo upload
+export function uploadAPI(data) {
+    $.ajax(`${api.KGPre}/upload`, {
+        type: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'application/json',
+        contentType: 'application/json',
+        async: true,
+        success: function (content) {
+            console.log('upload success!')
+            return JSON.parse(content).content
+        }
+    })
+}
+
 export function searchNodeAPI(graphId, content) {
     let searchResult
     $.ajax(`${api.KGPre}/searchNode`, {

@@ -15,4 +15,4 @@ const KGList = {
 
     }
 }
-export default KGList
+export default KGList;

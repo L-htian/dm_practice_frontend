@@ -19,7 +19,7 @@
 
 <script>
 import Vue from 'vue'
-import {createGraphAPI} from "../api/KG";
+import {createGraphAPI, uploadAPI} from "../api/KG";
 import {mapGetters, mapMutations, mapActions} from 'vuex'
 
 export default {
@@ -34,7 +34,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'selectedKGId'
+      'selectedKGId',
+      'uploadedData'
     ])
   },
   provide() {
@@ -44,7 +45,8 @@ export default {
   },
   methods: {
     ...mapMutations([
-      'set_selectedKGId'
+      'set_selectedKGId',
+      'set_uploadedData'
     ]),
     setUrl: function () {
       return "http://localhost:8089/api/KG/upload"
@@ -53,7 +55,10 @@ export default {
       // this.$router.push({name: '/Kojima-Coin/KGEditor'})
       this.fileList = fileList
       if (!this.getUpload) {
-        this.getUpload = !this.getUpload
+        this.getUpload = !this.getUpload;
+        // todo upload
+        // this.set_uploadedData(uploadAPI(fileList));
+        // this.set_selectedKGId(this.uploadedData.graphId);
       }
       window.Event.$emit('UploadFile', this.getUpload)
       window.Event.$emit('transferFileArray', this.fileList)

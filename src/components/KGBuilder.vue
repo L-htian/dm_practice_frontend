@@ -418,7 +418,6 @@
 </template>
 
 <script>
-import echarts from "echarts";
 import * as d3 from 'd3'
 import $ from 'jquery'
 import '@/static/iconfont/iconfont.css'
@@ -455,20 +454,13 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'selectedKGId'
+      'selectedKGId',
+      'uploadedData'
     ])
   },
   //todo 变量
   data() {
     return {
-      charts: "",
-      tags: [],
-      countData: [],
-
-      searchResult: [],
-      graphId: '',
-      searchString: '',
-      graph_name: '未命名',
       // 静态量
       formLabelWidth: "120px",
       show_input: true,
@@ -508,6 +500,13 @@ export default {
       height: 800,
 
       // 动态量
+      charts: {},
+      tags: [],
+      countData: [],
+
+      searchResult: [],
+      searchString: '',
+      graph_name: '未命名',
       // 图元
       AddNodePrimitiveVisible: false,
       AddLinkPrimitiveVisible: false,
@@ -629,12 +628,11 @@ export default {
   components: {},
   mounted() {
     // todo
-    this.graphId = this.selectedKGId
-    this.drawCharts()
-    this.getData()
-    this.initGraphContainer()
-    this.initJQueryEvents()
-    this.initGraph()
+    this.drawPieChart();
+    this.getEchartsData();
+    this.initGraphContainer();
+    this.initJQueryEvents();
+    this.initGraph();
   },
   created() {
   },
@@ -657,18 +655,10 @@ export default {
         _this.graph.links = []
       } else if (_this.hasUploaded && !_this.wantNew) {
         // todo 接收后端数据
-        // $.ajax("http://localhost:8090/api/KG/upload", {
-        //   data: {},
-        //   dataType: 'text',
-        //   contentType: 'application/json',
-        //   type: 'GET',
-        //   async: false,
-        //   success: function (data) {
-        //     _this.graph.nodes = (JSON.parse(data)).nodes
-        //     _this.graph.links = (JSON.parse(data)).links
-        //   }
-        // })
-        //todo 前端直接读取执行
+        // _this.graph.nodes = _this.uploadedData.nodes;
+        // _this.graph.links = _this.uploadedData.links;
+
+        // todo 前端直接读取执行
         let file = _this.fileList[0]
         let reader = new FileReader()
         let document = ""
@@ -1214,7 +1204,11 @@ export default {
       node.attr('r', function (d) {
         if (d.r) return d.r
         else return _this.defaultR
-      }).attr('class', 'singleNode')
+      })
+          .attr('class', 'singleNode')
+          .attr('id', function (d) {
+            return 'node' + d.id
+          })
       node.attr('fill', function (d, i) {
         if (d.color) return d.color
         else return _this.DefaultNodeColor
@@ -1652,7 +1646,7 @@ export default {
         newNode.fy = _this.tyy
       }
       // todo 节点id后端生成
-      newNode.graphId = _this.graphId
+      newNode.graphId = _this.selectedKGId
       newNode.id = createNodeAPI(newNode)
       _this.graph.nodes.push(newNode)
       _this.updateGraph()
@@ -1704,7 +1698,7 @@ export default {
       newShip.id = _this.linkIdBuilder()
       newShip.name = '联系'
       newShip.id = createLinkAPI(newShip)
-      newShip.graphId = _this.graphId
+      newShip.graphId = _this.selectedKGId
       _this.graph.links.push(newShip)
       _this.updateGraph()
       _this.isAddingLink = false
@@ -1725,7 +1719,7 @@ export default {
           _this.graph.nodes[i].tag = _this.EditingNodeEntity.tag
           let nodeToUpdate = _this.graph.nodes[i]
           updateNodeAPI(nodeToUpdate)
-          // this.getData()
+          // this.getEchartsData()
           break
         }
       }
@@ -1813,7 +1807,7 @@ export default {
       // todo 后端导出xml实现
       const xml2js = require('xml2js')
       let builder = new xml2js.Builder()
-      let dataXml = builder.buildObject(saveAsXmlAPI(this.graphId))
+      let dataXml = builder.buildObject(saveAsXmlAPI(this.selectedKGId))
       let eleLink = document.createElement('a');
       eleLink.download = `Kojima_Coin_${new Date().valueOf()}.xml`;
       eleLink.style.display = 'none';
@@ -1849,60 +1843,73 @@ export default {
     },
     handleSelect(item) {
       this.searchString = item.value
-      this.searchResult = searchNodeAPI(this.graphId, this.searchString)
+      this.searchResult = searchNodeAPI(this.selectedKGId, this.searchString)
     },
     handleSearch() {
       console.log(this.searchString)
-      this.searchResult = searchNodeAPI(this.graphId, this.searchString)
+      // todo 在search之前要update
+      // this.updateAll();
+      this.searchResult = searchNodeAPI(this.selectedKGId, this.searchString)
     },
     // todo
-    //  暂时实现的是选择结果之后生成新的图谱
-    //  如果返回原来的图谱的话思路是添加一个按钮
-    //  然后点击按钮之后获得这个graphId的所有信息然后重新生成图
-    handleChoose(historySelect) {
-      let links = this.graph.links
-      let node = historySelect
-      let searchGraph = {
-        nodes: [],
-        links: [],
+    // 使节点在屏幕中央
+    handleChoose(node) {
+      // 中心坐标
+      let centerX = this.width / 2;
+      let centerY = this.height / 2;
+      // 节点坐标
+      let nodeElement = d3.select('#node' + node.id);
+      let X = Number(nodeElement.attr('x'));
+      let Y = Number(nodeElement.attr('y'));
+      // 画布平移、缩放
+      let transform = d3.select('.node').attr('transform');
+      // 应该施加的transform
+      let transX, transY;
+      if (transform) {
+        let transXYK = transform.replace('translate', '').replaceAll('(', '').replaceAll(')', '').replace(' scale', ',').split(',');
+        transX = (centerX - X) * Number(transXYK[2]);
+        transY = (centerY - Y) * Number(transXYK[2]);
+        this.zoom.translateBy(this.svg, Number(transXYK[0]) + transX, Number(transXYK[1]) + transY);
+      } else {
+        transX = centerX - X;
+        transY = centerY - Y;
+        this.zoom.translateBy(this.svg, transX, transY);
       }
-      searchGraph.push(node)
-      for (let i = 0; i < links.length; i++) {
-        if (links[i].targetId === node.id || links[i].sourceId === node.id) {
-          searchGraph.links.push(links[i])
-        }
-      }
-      let n = 0
-      for (let i = 0; i < searchGraph.links.length; i++) {
-        let Id;
-        Id = searchGraph.links[i].sourceId === node.id
-            ? searchGraph.links[i].targetId
-            : searchGraph.links[i].sourceId
-        n = this.pushOtherNodes(n, Id, searchGraph.nodes)
-      }
-      this.graph = searchGraph
-      this.updateGraph()
-      console.log(historySelect)
+
+      //  暂时实现的是选择结果之后生成新的图谱
+      //  如果返回原来的图谱的话思路是添加一个按钮
+      //  然后点击按钮之后获得这个graphId的所有信息然后重新生成图
+      // let links = this.graph.links
+      // let node = historySelect
+      // let searchGraph = {
+      //   nodes: [],
+      //   links: [],
+      // }
+      // searchGraph.push(node)
+      // for (let i = 0; i < links.length; i++) {
+      //   if (links[i].targetId === node.id || links[i].sourceId === node.id) {
+      //     searchGraph.links.push(links[i])
+      //   }
+      // }
+      // let n = 0
+      // for (let i = 0; i < searchGraph.links.length; i++) {
+      //   let Id;
+      //   Id = searchGraph.links[i].sourceId === node.id
+      //       ? searchGraph.links[i].targetId
+      //       : searchGraph.links[i].sourceId
+      //   n = this.pushOtherNodes(n, Id, searchGraph.nodes)
+      // }
+      // this.graph = searchGraph
+      // this.updateGraph()
+      // console.log(historySelect)
     },
-    pushOtherNodes(n, Id, Nodes) {
-      for (let i = n; i < this.graph.nodes.length; i++) {
-        if (this.graph.nodes[i].id === Id) {
-          Nodes.push(this.graph.nodes[i])
-          return i
-        }
-      }
-    },
-    // todo 更新坐标等信息
-    // updateGraphInfo() {
-    //   $.ajax('https://localhost:8089/update', {
-    //     type: 'POST',
-    //     dataType: 'application/json',
-    //     contentType: 'application/json',
-    //     async: true,
-    //     success: function () {
-    //       console.log('updateGraphInfoSuccess!')
+    // pushOtherNodes(n, Id, Nodes) {
+    //   for (let i = n; i < this.graph.nodes.length; i++) {
+    //     if (this.graph.nodes[i].id === Id) {
+    //       Nodes.push(this.graph.nodes[i])
+    //       return i
     //     }
-    //   })
+    //   }
     // },
     // tag 相关
     showTagInput() {
@@ -1923,10 +1930,7 @@ export default {
       this.EditingNodeEntity.tag.splice(this.EditingNodeEntity.tag.indexOf(tag), 1);
     },
     handleChange() {
-      changeGraphNameAPI(this.graphId, this.graph_name)
-    },
-    getGraphId() {
-      this.graphId = this.graphInfo.id
+      changeGraphNameAPI(this.selectedKGId, this.graph_name)
     },
     // 更新整个图谱到数据库
     updateAll() {
@@ -2075,7 +2079,10 @@ export default {
           {
             name: 'Tag对应节点数量',
             type: 'pie',
-            data: [{name: "libanguo", value: 5}, {name: "lbg", value: 6}],
+            data: [
+              {name: "libanguo", value: 5},
+              {name: "lbg", value: 6}
+            ],
             itemStyle: {
               emphasis: {
                 shadowBlur: 10,
@@ -2087,12 +2094,13 @@ export default {
         ]
       })
     },
-    getData() {
+    getEchartsData() {
       // let co = getCountDataAPI(this.graphId)
-      let co = [{name: "libanguo", value: 5}, {name: "lbg", value: 6}, {
-        name: "李邦国",
-        value: 7
-      }, {name: "牧羊少年", value: 9}]
+      let co = [
+        {name: "libanguo", value: 5},
+        {name: "lbg", value: 6},
+        {name: "李邦国", value: 7},
+        {name: "牧羊少年", value: 9}]
       for (let i = 0; i < co.length; i++) {
         let re = {}
 
@@ -2106,9 +2114,6 @@ export default {
           data: co
         }]
       })
-    },
-    drawCharts() {
-      this.drawPieChart();
     },
   }
 }

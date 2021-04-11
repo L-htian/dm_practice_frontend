@@ -3,6 +3,8 @@ const getters = {
     selectedKGId: state => state.KGList.selectedKGId,
     isGraphOpening: state => state.KGList.isGraphOpening,
     // header
-    current: state => state => state.Header.current,
+    current: state => state.Header.current,
+    // uploader
+    uploadedData: state => state.Uploader.uploadedData,
 }
 export default getters
