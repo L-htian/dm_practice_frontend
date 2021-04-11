@@ -1723,13 +1723,9 @@ export default {
           _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize
           _this.graph.nodes[i].r = _this.EditingNodeEntity.r
           _this.graph.nodes[i].tag = _this.EditingNodeEntity.tag
-          for (let j = 0; j < this.graph.nodes[i].tags.length; j++) {
-            if (_this.tags.indexOf(this.graph.nodes[i].tags[i]) === -1) {
-              _this.tags.push(this.graph.nodes[i].tags[i])
-            }
-          }
           let nodeToUpdate = _this.graph.nodes[i]
           updateNodeAPI(nodeToUpdate)
+          this.getData()
           break
         }
       }
@@ -1864,7 +1860,6 @@ export default {
     //  如果返回原来的图谱的话思路是添加一个按钮
     //  然后点击按钮之后获得这个graphId的所有信息然后重新生成图
     handleChoose(historySelect) {
-      let nodes = this.graph.nodes
       let links = this.graph.links
       let node = historySelect
       let searchGraph = {
