@@ -3,7 +3,7 @@
     <el-upload
         class="uploadFile"
         drag
-        action="#"
+        :action="setUrl"
         :limit="1"
         :on-change="jumpToEditor"
         accept="application/json"
@@ -52,7 +52,6 @@ export default {
       return "http://localhost:8089/api/KG/upload"
     },
     jumpToEditor(file, fileList) {
-      // this.$router.push({name: '/Kojima-Coin/KGEditor'})
       this.fileList = fileList
       if (!this.getUpload) {
         this.getUpload = !this.getUpload;

@@ -27,10 +27,14 @@
           placeholder="请输入内容"
           @select="handleSelect"
           @keyup.enter.native="handleSearch"
+          @input="changeStyle('block', '.el-autocomplete-suggestion')"
+          @keyup="changeStyle('block', '.el-autocomplete-suggestion')"
       >
         <i
             class="el-icon-search el-input__icon"
             slot="prefix"
+            @click="handleSearch"
+            style="cursor: pointer"
         >
         </i>
       </el-autocomplete>
@@ -1756,7 +1760,8 @@ export default {
     // 导出为Json
     exportJson() {
       // todo 前端导出json实现
-      let content = JSON.stringify(this.graph, null, 2)
+      let jsonData = saveAsJsonAPI(this.graphId)
+      let content = JSON.stringify(jsonData, null, 2)
       let eleLink = document.createElement('a');
       eleLink.download = `Kojima_Coin_${new Date().valueOf()}.json`;
       eleLink.style.display = 'none';
@@ -1806,19 +1811,16 @@ export default {
     },
     // todo 自动填充搜索栏方法补充
     querySearch(queryString, cb) {
-      if (!queryString) {
-        let resultsH = getSearchHistoryAPI()
-        let results = []
-        for (let i of resultsH) {
-          results.push({"value": i})
-        }
-        results = queryString
-            ? results.filter(this.createFilter(queryString))
-            : results
-        cb(results)
-      } else {
-        this.handleSearch()
+      let resultsH = getSearchHistoryAPI()
+      // let resultsH = ["sadas","dasda","dasdas"]
+      let results = []
+      for (let i of resultsH) {
+        results.push({"value": i})
       }
+      results = queryString
+          ? results.filter(this.createFilter(queryString))
+          : results
+      cb(results)
     },
     createFilter(queryString) {
       return (item) => {
@@ -1827,14 +1829,23 @@ export default {
     },
     handleSelect(item) {
       this.searchString = item.value
+      console.log(this.searchString)
+      // this.updateAll()
       this.searchResult = searchNodeAPI(this.selectedKGId, this.searchString)
+      this.changeStyle("none", ".el-autocomplete-suggestion");
     },
     handleSearch() {
       console.log(this.searchString)
       // todo 在search之前要update
       // this.updateAll();
       this.searchResult = searchNodeAPI(this.selectedKGId, this.searchString)
+      this.changeStyle("none", ".el-autocomplete-suggestion");
     },
+    changeStyle(status, className) {
+      let dom = document.querySelectorAll(className);
+      dom[0].style.display = status;
+    },
+
     // todo 高亮？
     // 使节点在屏幕中央
     handleChoose(node) {
@@ -2056,6 +2067,7 @@ export default {
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textColor;
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textSize;
     },
+    // todo 统计饼图
     drawPieChart() {
       const echarts = require('echarts');
       this.charts = echarts.init(document.getElementById("pieCount"))
@@ -2091,6 +2103,7 @@ export default {
         ]
       })
     },
+
     getEchartsData() {
       // let co = getCountDataAPI(this.graphId);
       let co = [

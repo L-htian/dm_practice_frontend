@@ -109,17 +109,19 @@ export function updateAPI(data) {
 
 // todo upload
 export function uploadAPI(data) {
+    let re
     $.ajax(`${api.KGPre}/upload`, {
         type: 'POST',
         data: JSON.stringify(data),
-        dataType: 'application/json',
+        dataType: 'text',
         contentType: 'application/json',
         async: true,
         success: function (content) {
             console.log('upload success!')
-            return JSON.parse(content).content
+            re = JSON.parse(content).content
         }
     })
+    return re
 }
 
 export function searchNodeAPI(graphId, content) {
@@ -240,12 +242,11 @@ export function deleteLinkPrimitiveAPI(id) {
     })
 }
 
-//todo 上传API 需要再议
 
 
 export function saveAsJsonAPI(id) {
     let re
-    $.ajax(`${api.KGPre}/saveAsJson`, {
+    $.ajax(`${api.KGPre}/${id}/saveAsJson`, {
         type: 'GET',
         data: {},
         dataType: 'text',
@@ -260,7 +261,7 @@ export function saveAsJsonAPI(id) {
 
 export function saveAsXmlAPI(id) {
     let re
-    $.ajax(`${api.KGPre}/saveAsXml`, {
+    $.ajax(`${api.KGPre}/${id}/saveAsXml`, {
         type: 'GET',
         data: {},
         dataType: 'text',
@@ -324,9 +325,10 @@ export function changeGraphNameAPI(graphId, graphName) {
 
 export function getCountDataAPI(graphId) {
     let countData
-    $.ajax(`${api.KGPre}/${graphId}/getCountData`, {
+    $.ajax(`${api.KGPre}/${graphId}/getTagCountData`, {
         type: 'GET',
         dataType: 'text',
+        data:{},
         async: false,
         success: function (data) {
             countData = (JSON.parse(data)).content
