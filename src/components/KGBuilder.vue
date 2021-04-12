@@ -8,7 +8,10 @@
                 placeholder="请命名"
                 v-if="show_input"
                 @keyup.enter.native="handleChange"
-                style="font-size: 16px">
+                style="font-size: 16px"
+                maxlength="15"
+                show-word-limit
+      >
         <i class="el-icon-edit el-input__icon" slot="suffix">
         </i>
       </el-input>
@@ -2083,23 +2086,23 @@ export default {
       })
     },
     getEchartsData() {
-      // let co = getCountDataAPI(this.graphId)
+      // let co = getCountDataAPI(this.graphId);
       let co = [
-        {name: "libanguo", value: 5},
-        {name: "lbg", value: 6},
-        {name: "李邦国", value: 7},
-        {name: "牧羊少年", value: 9}]
+        {
+          tagName: 'lbg',
+          count: 25,
+        }
+      ]
+      this.countData = [];
       for (let i = 0; i < co.length; i++) {
-        let re = {}
-
-        re.name = i.tagName
-        re.value = i.count
-        this.countData.push(re)
+        let re = {};
+        re.name = co[i].tagName;
+        re.value = co[i].count;
+        this.countData.push(re);
       }
       this.charts.setOption({
         series: [{
-          // data: this.countData
-          data: co
+          data: this.countData
         }]
       })
     },
@@ -2214,7 +2217,7 @@ export default {
 
 /* todo 正在应用的颜色 */
 .el-table .success-row {
-  background: rgb(148, 201, 156);
+  background: #f0f9eb;
 }
 
 .sidebar-right-bottom {
@@ -2252,10 +2255,12 @@ text {
   position: absolute;
   bottom: 10px;
   text-align: center;
+  user-select: none;
 }
 
 .ctwh-dibmr {
   display: inline-block;
+  user-select: none;
 }
 
 .cancelBox {

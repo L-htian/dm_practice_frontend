@@ -327,6 +327,7 @@ export function getCountDataAPI(graphId) {
     $.ajax(`${api.KGPre}/${graphId}/getCountData`, {
         type: 'GET',
         dataType: 'text',
+        async: false,
         success: function (data) {
             countData = (JSON.parse(data)).content
         }

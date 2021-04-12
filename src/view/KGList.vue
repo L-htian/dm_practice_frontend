@@ -36,13 +36,29 @@
           <el-input :disabled="true" v-model="EditingGraphEntry.id" class="withoutColor"></el-input>
         </el-form-item>
         <el-form-item label="图谱名称" :label-width="formLabelWidth">
-          <el-input v-model="EditingGraphEntry.name" class="withoutColor"></el-input>
+          <el-input
+              v-model="EditingGraphEntry.name"
+              class="withoutColor"
+              maxlength="15"
+              show-word-limit
+          ></el-input>
         </el-form-item>
         <el-form-item label="图谱图片url" :label-width="formLabelWidth">
-          <el-input v-model="EditingGraphEntry.imgsrc" class="withoutColor"></el-input>
+          <el-input
+              v-model="EditingGraphEntry.imgsrc"
+              class="withoutColor"
+              maxlength="255"
+              show-word-limit
+          ></el-input>
         </el-form-item>
         <el-form-item label="图谱描述" :label-width="formLabelWidth">
-          <el-input v-model="EditingGraphEntry.description" type="textarea" class="withoutColor"></el-input>
+          <el-input
+              v-model="EditingGraphEntry.description"
+              type="textarea"
+              class="withoutColor"
+              maxlength="255"
+              show-word-limit
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

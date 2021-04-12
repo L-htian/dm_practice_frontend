@@ -90,6 +90,7 @@ export default {
     .logo {
       height: 56px;
       vertical-align: top;
+      margin-top: 2px;
       margin-right: 20px;
       border-style: none;
       cursor: pointer;
