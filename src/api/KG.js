@@ -325,9 +325,10 @@ export function changeGraphNameAPI(graphId, graphName) {
 
 export function getCountDataAPI(graphId) {
     let countData
-    $.ajax(`${api.KGPre}/${graphId}/getCountData`, {
+    $.ajax(`${api.KGPre}/${graphId}/getTagCountData`, {
         type: 'GET',
         dataType: 'text',
+        data:{},
         async: false,
         success: function (data) {
             countData = (JSON.parse(data)).content
