@@ -45,7 +45,7 @@ export function updateNodeAPI(node) {
         dataType: 'application/json',
         contentType: 'application/json',
         // 后端异步存储
-        async: true,
+        async: false,
         success: function (data) {
             console.log('update node success!')
         }

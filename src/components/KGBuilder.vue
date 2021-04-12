@@ -2074,7 +2074,7 @@ export default {
       this.charts.clear()
       this.charts.setOption({
         title: {
-          text: '节点统计',
+          text: '节点Tag统计',
           x: 'center',
           textStyle: {
             fontSize: 10
@@ -2088,6 +2088,12 @@ export default {
           {
             name: 'Tag对应节点数量',
             type: 'pie',
+            label: {
+              normal: {
+                position: 'inner',
+                show : false
+              }
+            },
             data: [
               {name: "libanguo", value: 5},
               {name: "lbg", value: 6}
@@ -2105,18 +2111,21 @@ export default {
     },
 
     getEchartsData() {
-      // let co = getCountDataAPI(this.graphId);
-      let co = [
-        {
-          tagName: 'lbg',
-          count: 25,
-        }
-      ]
+      let co = getCountDataAPI(this.selectedKGId);
+      if (co === undefined) {
+        co = [
+          {
+            name: 'lbg',
+            num: 25,
+          }
+        ]
+      }
       this.countData = [];
+
       for (let i = 0; i < co.length; i++) {
         let re = {};
-        re.name = co[i].tagName;
-        re.value = co[i].count;
+        re.name = co[i].name;
+        re.value = co[i].num;
         this.countData.push(re);
       }
       this.charts.setOption({
