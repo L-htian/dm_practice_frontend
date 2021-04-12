@@ -47,7 +47,7 @@
           <el-input
               v-model="EditingGraphEntry.imgsrc"
               class="withoutColor"
-              maxlength="255"
+              maxlength="1000"
               show-word-limit
           ></el-input>
         </el-form-item>
@@ -56,7 +56,7 @@
               v-model="EditingGraphEntry.description"
               type="textarea"
               class="withoutColor"
-              maxlength="255"
+              maxlength="1000"
               show-word-limit
           ></el-input>
         </el-form-item>

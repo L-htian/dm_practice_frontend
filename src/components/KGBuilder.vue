@@ -65,7 +65,7 @@
             inactive-color="#dcdfe6"
             active-value=true
             inactive-value=false
-            style="float: right;margin-right: 15px;padding-top: 3px"
+            style="float: right;margin-right: 3%;padding-top: 3px"
         >
         </el-switch>
       </div>
@@ -101,12 +101,12 @@
         </el-popover>
         <el-tooltip content="取消应用节点图元" placement="top">
           <el-button type="text" @click="cancelUsingNodePrimitive"
-                     style="font-size: 16px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
+                     style="font-size: 16px;float: right;margin-right: 3%;padding: 3px 0 0;"><i
               class="el-icon-circle-close"></i></el-button>
         </el-tooltip>
         <el-tooltip content="新建节点图元" placement="top">
           <el-button type="text" @click="showNodePrimitiveDialog"
-                     style="font-size: 16px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
+                     style="font-size: 16px;float: right;margin-right: 3%;padding: 3px 0 0;"><i
               class="el-icon-circle-plus-outline"></i></el-button>
         </el-tooltip>
       </div>
@@ -140,12 +140,12 @@
         </el-popover>
         <el-tooltip content="取消应用连接图元" placement="top">
           <el-button type="text" @click="cancelUsingLinkPrimitive"
-                     style="font-size: 16px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
+                     style="font-size: 16px;float: right;margin-right: 3%;padding: 3px 0 0;"><i
               class="el-icon-circle-close"></i></el-button>
         </el-tooltip>
         <el-tooltip content="新建连接图元" placement="top">
           <el-button type="text" @click="showLinkPrimitiveDialog"
-                     style="font-size: 16px;float: right;margin-right: 15px;padding: 3px 0 0;"><i
+                     style="font-size: 16px;float: right;margin-right: 3%;padding: 3px 0 0;"><i
               class="el-icon-circle-plus-outline"></i></el-button>
         </el-tooltip>
       </div>
@@ -432,7 +432,6 @@ import '@/static/iconfont/iconfont.css'
 import '@/static/js/saveSvgAsPng.js'
 import _ from 'underscore'
 import {mapGetters, mapMutations, mapActions} from 'vuex'
-//TODO API引用
 import {
   createLinkAPI,
   createNodeAPI,
@@ -451,7 +450,6 @@ import {
   deleteLinkPrimitiveAPI,
   createNodePrimitiveAPI,
   createLinkPrimitiveAPI,
-  getCountData,
   getCountDataAPI,
   getGraphAPI,
   getNodePrimitiveAPI, getLinkPrimitiveAPI,
@@ -612,6 +610,7 @@ export default {
       arrowMarker: {},
       // d3力导布局设置
       simulation: {},
+      isSimulationOn: false,
       // 是否全屏
       isFullscreen: false,
       // svg图形对象
@@ -659,7 +658,17 @@ export default {
   },
   beforeDestroy() {
   },
-  watch: {},
+  watch: {
+    isTypesettingModeOn: function (val) {
+      if (val) {
+
+      } else {
+        if(this.isSimulationOn){
+
+        }
+      }
+    }
+  },
   methods: {
     ...mapMutations([
       'set_selectedKGId',
@@ -842,6 +851,7 @@ export default {
       _this.simulation.force('link').links(links)
       _this.simulation.force('center', d3.forceCenter(_this.width / 2, _this.height / 2))
       _this.simulation.alpha(1).alphaTarget(0).alphaDecay(0.05).restart()
+      _this.isSimulationOn = true;
 
       // 生成连线
       function linkArc(d) {
@@ -1099,7 +1109,6 @@ export default {
       let nodeEnter = node.enter().append('circle')
       // 绑定单击事件
       nodeEnter.on('click', function (d) {
-        console.log('单击节点，id：' + d.id)
         let out_buttongroup_id = '.out_buttongroup_' + d.id
         // 单击节点，改变节点工具栏显示状态
         _this.svg.selectAll('use').classed('notshow', true)
@@ -1131,19 +1140,16 @@ export default {
         event.stopPropagation()
       })
       nodeEnter.on('dblclick', function (d) {
-        console.log('双击节点，id：' + d.id)
         event.stopPropagation()
       })
       // 绑定鼠标移入事件
       nodeEnter.on('mouseenter', function (d) {
-        console.log('鼠标移入节点，id：' + d.id)
         // 改变边缘宽度
         d3.select(this).style('stroke-width', '6')
         event.stopPropagation()
       })
       // 绑定鼠标移出事件
       nodeEnter.on('mouseleave', function (d) {
-        console.log('鼠标移出节点，id：' + d.id)
         d3.select(this).style('stroke-width', '2')
         // 其他节点显示
         d3.select('.node').style('fill-opacity', 1)
@@ -2114,10 +2120,10 @@ export default {
 .sidebar-left {
   left: 30px;
   width: 18%;
-  top: 135px;
+  top: 20%;
   position: fixed;
   border: thick double #dcdfe6;
-  height: 65%;
+  height: 70%;
 }
 
 .my-autocomplete {
@@ -2127,7 +2133,7 @@ export default {
 
 .graph_name {
   border: thick double #dcdfe6;
-  top: 78px;
+  top: 10%;
   position: fixed;
   left: 30px;
   width: 18%;
@@ -2137,27 +2143,16 @@ export default {
   height: 40px;
 }
 
-.graph_name_text {
-  padding-top: 9px;
-  padding-bottom: 5px;
-}
+/*.graph_name_text {*/
+/*  padding-top: 9px;*/
+/*  padding-bottom: 5px;*/
+/*}*/
 
-.el-input__inner {
-  text-align: center;
-}
+/*.el-input__inner {*/
+/*  text-align: center;*/
+/*}*/
 
 .showResult {
-  user-select: none;
-  background: none;
-}
-
-.sidebar-right {
-  right: 30px;
-  width: 18%;
-  top: 78px;
-  position: fixed;
-  border: thick double #dcdfe6;
-  height: 50%;
   user-select: none;
   background: none;
 }
@@ -2179,6 +2174,17 @@ export default {
 
 .searchResultItem:hover {
   background: rgba(230, 233, 239, 0.5);
+}
+
+.sidebar-right {
+  right: 30px;
+  width: 18%;
+  top: 10%;
+  position: fixed;
+  border: thick double #dcdfe6;
+  height: 50%;
+  user-select: none;
+  background: none;
 }
 
 .sidebar-item {
@@ -2223,7 +2229,7 @@ export default {
 .sidebar-right-bottom {
   right: 30px;
   width: 18%;
-  top: 455px;
+  top: 65%;
   position: fixed;
   border: thick double #dcdfe6;
   height: 25%;

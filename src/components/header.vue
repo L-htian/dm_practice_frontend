@@ -6,7 +6,6 @@
     </div>
     <el-menu
         :default-active="current"
-        :key="current"
         class="menu"
         mode="horizontal"
         text-color="#606266"
@@ -49,6 +48,11 @@ export default {
       'current'
     ])
   },
+  watch:{
+    current: function (){
+      this.$forceUpdate();
+    }
+  },
   mounted() {
     if (this.$route.name === 'index') this.set_current(1);
     else if(this.$route.name === 'KGList') this.set_current(2);
@@ -59,7 +63,8 @@ export default {
       'set_current'
     ]),
     jumpToHome() {
-      this.$router.push('/Kojima-Coin/index')
+      this.set_current(3);
+      this.$router.push('/Kojima-Coin/index');
     }
   }
 }
