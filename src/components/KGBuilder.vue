@@ -1754,7 +1754,8 @@ export default {
     // 导出为Json
     exportJson() {
       // todo 前端导出json实现
-      let content = JSON.stringify(this.graph, null, 2)
+      let jsonData = saveAsJsonAPI(this.graphId)
+      let content = JSON.stringify(jsonData, null, 2)
       let eleLink = document.createElement('a');
       eleLink.download = `Kojima_Coin_${new Date().valueOf()}.json`;
       eleLink.style.display = 'none';
@@ -1804,8 +1805,8 @@ export default {
     },
     // todo 自动填充搜索栏方法补充
     querySearch(queryString, cb) {
-      // let resultsH = getSearchHistoryAPI()
-      let resultsH = ["sadas","dasda","dasdas"]
+      let resultsH = getSearchHistoryAPI()
+      // let resultsH = ["sadas","dasda","dasdas"]
       let results = []
       for (let i of resultsH) {
         results.push({"value": i})
@@ -2060,6 +2061,7 @@ export default {
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textColor;
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textSize;
     },
+    // todo 统计饼图
     drawPieChart() {
       const echarts = require('echarts');
       this.charts = echarts.init(document.getElementById("pieCount"))
@@ -2095,6 +2097,7 @@ export default {
         ]
       })
     },
+
     getEchartsData() {
       // let co = getCountDataAPI(this.graphId);
       let co = [
