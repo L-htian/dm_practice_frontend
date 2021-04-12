@@ -1584,6 +1584,7 @@ export default {
         deleteNodeAPI(_this.SelectedNodeId)
         _this.updateGraph()
         _this.SelectedNodeId = 0
+        _this.getEchartsData()
         _this.$message({
           type: 'success',
           message: '删除节点成功！'
@@ -1899,6 +1900,7 @@ export default {
     },
     updateAllClick() {
       this.updateAll();
+      this.getEchartsData();
       this.$message({
         type: 'success',
         message: '已同步到数据库'
@@ -2109,19 +2111,17 @@ export default {
         ]
       })
     },
-
     getEchartsData() {
       let co = getCountDataAPI(this.selectedKGId);
       if (co === undefined) {
         co = [
           {
-            name: 'lbg',
-            num: 25,
+            name: '暂无数据',
+            num: 1,
           }
         ]
       }
       this.countData = [];
-
       for (let i = 0; i < co.length; i++) {
         let re = {};
         re.name = co[i].name;
