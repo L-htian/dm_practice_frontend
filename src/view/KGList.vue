@@ -47,7 +47,7 @@
           <el-input
               v-model="EditingGraphEntry.imgsrc"
               class="withoutColor"
-              maxlength="1000"
+              maxlength="275"
               show-word-limit
           ></el-input>
         </el-form-item>
@@ -92,6 +92,12 @@ export default {
       KGs: [],
       EditGraphDialogVisible: false,
     }
+  },
+  computed: {
+    ...mapGetters([
+      'selectedKGId',
+      'isGraphOpening'
+    ])
   },
   mounted() {
     this.KGs = getAllGraphAPI();
@@ -142,34 +148,41 @@ export default {
       })
     },
     deleteKG(graphId) {
-      let _this = this
-      _this.$confirm('该操作不可撤销', '将要删除该图谱，是否继续？', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        for (let i = 0; i < _this.KGs.length; i++) {
-          if (_this.KGs[i].id === graphId) {
-            _this.KGs.splice(i, 1)
-            break
+      let _this = this;
+      if (_this.isGraphOpening && _this.selectedKGId === graphId) {
+        _this.$message({
+          type: 'error',
+          message: '该图谱正在打开，请先关闭该图谱！'
+        })
+      } else {
+        _this.$confirm('该操作不可撤销', '将要删除该图谱，是否继续？', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          for (let i = 0; i < _this.KGs.length; i++) {
+            if (_this.KGs[i].id === graphId) {
+              _this.KGs.splice(i, 1);
+              break;
+            }
           }
-        }
-        deleteGraphAPI(graphId)
-        this.$message({
-          type: 'success',
-          message: '删除图谱成功'
+          deleteGraphAPI(graphId);
+          _this.$message({
+            type: 'success',
+            message: '删除图谱成功'
+          })
+        }).catch(() => {
+          _this.$message({
+            type: 'info',
+            message: '操作已取消'
+          })
         })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '操作已取消'
-        })
-      })
+      }
     },
     editKG(graphId) {
-      let _this = this
-      _this.EditingGraphId = graphId
-      _this.EditGraphDialogVisible = true
+      let _this = this;
+      _this.EditingGraphId = graphId;
+      _this.EditGraphDialogVisible = true;
       for (let i = 0; i < _this.KGs.length; i++) {
         if (_this.KGs[i].id === graphId) {
           _this.EditingGraphEntry.id = _this.KGs[i].id;
