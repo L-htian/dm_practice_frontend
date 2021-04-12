@@ -667,7 +667,7 @@ export default {
       if (val) {
 
       } else {
-        if(this.isSimulationOn){
+        if (this.isSimulationOn) {
 
         }
       }
@@ -1812,16 +1812,20 @@ export default {
     },
     // todo 自动填充搜索栏方法补充
     querySearch(queryString, cb) {
-      let resultsH = getSearchHistoryAPI()
-      // let resultsH = ["sadas","dasda","dasdas"]
-      let results = []
-      for (let i of resultsH) {
-        results.push({"value": i})
+      if (!queryString) {
+        let resultsH = getSearchHistoryAPI()
+        // let resultsH = ["sadas","dasda","dasdas"]
+        let results = []
+        for (let i of resultsH) {
+          results.push({"value": i})
+        }
+        results = queryString
+            ? results.filter(this.createFilter(queryString))
+            : results
+        cb(results)
+      } else {
+        this.handleSearch()
       }
-      results = queryString
-          ? results.filter(this.createFilter(queryString))
-          : results
-      cb(results)
     },
     createFilter(queryString) {
       return (item) => {
@@ -2093,7 +2097,7 @@ export default {
             label: {
               normal: {
                 position: 'inner',
-                show : false
+                show: false
               }
             },
             data: [
