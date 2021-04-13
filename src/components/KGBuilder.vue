@@ -546,26 +546,8 @@ export default {
         textColor: '',
         textSize: 14,
       },
-      NodePrimitives: [
-        {
-          id: 114514,
-          name: 'libanguo',
-          color: '#d97171',
-          strokeColor: '#eccc8a',
-          textColor: '#7d8046',
-          textSize: 14,
-          r: 30,
-        }
-      ],
-      LinkPrimitives: [
-        {
-          id: 114514,
-          name: 'libanguo',
-          color: '#c17373',
-          textColor: '#81dc8f',
-          textSize: 14,
-        }
-      ],
+      NodePrimitives: [],
+      LinkPrimitives: [],
       // 正在使用的图元id
       usingNodePrimitiveId: -1,
       usingLinkPrimitiveId: -1,
@@ -653,8 +635,10 @@ export default {
     this.getEchartsData();
     this.initGraphContainer();
     this.initJQueryEvents();
-    this.NodePrimitives = getNodePrimitiveAPI();
-    this.LinkPrimitives = getLinkPrimitiveAPI();
+    let np = getNodePrimitiveAPI();
+    let lp = getLinkPrimitiveAPI();
+    this.NodePrimitives = np === undefined ? [] : np;
+    this.LinkPrimitives = lp === undefined ? [] : lp;
     this.initGraph();
   },
   created() {
@@ -685,8 +669,8 @@ export default {
       if (_this.isGraphOpening) {
         _this.graph_name = _this.selectedKGName;
         let updateVO = getGraphAPI(_this.selectedKGId);
-        _this.graph.nodes = updateVO.nodes;
-        _this.graph.links = updateVO.links;
+        _this.graph.nodes = updateVO === undefined ? [] : updateVO.nodes;
+        _this.graph.links = updateVO === undefined ? [] : updateVO.links;
         _this.updateGraph();
       } else if (_this.hasUploaded && !_this.wantNew) {
         // todo 接收后端数据
@@ -717,7 +701,7 @@ export default {
       $(function () {
         $(".grid").bind("click", function (event) {
           let cursor = document.getElementById("grid").style.cursor;
-          if (cursor == 'crosshair' && _this.isAddingNode) {
+          if (cursor === 'crosshair' && _this.isAddingNode) {
             d3.select('.grid').style("cursor", "");
             _this.txx = event.offsetX;
             _this.tyy = event.offsetY;
@@ -1273,7 +1257,7 @@ export default {
       // 设置节点文字样式
       nodeText
           .attr('class', 'single-nodetext')
-          .attr('id', function (d){
+          .attr('id', function (d) {
             return 'nodetext' + d.id;
           })
           .style('fill', function (d) {
