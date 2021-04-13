@@ -746,9 +746,9 @@ export default {
       // d3力导布局模拟设置初始化
       this.simulation = d3
           .forceSimulation()
-          .force('charge', d3.forceManyBody().strength(-666)) // 节点之间的电荷力，正值为引力负值为斥力
+          .force('charge', d3.forceManyBody().strength(-500)) // 节点之间的电荷力，正值为引力负值为斥力
           .force('link', d3.forceLink().distance(function (d) {
-            return Math.random() * 100 + 150
+            return 340
           }).id(function (d) {
             return d.id
           })) // 节点之间的弹力，通过link牵引
@@ -1858,7 +1858,10 @@ export default {
       let nodeElement = d3.select('#node' + node.id);
       let X = Number(nodeElement.attr('cx'));
       let Y = Number(nodeElement.attr('cy'));
-      this.zoom.translateTo(this.svg, X, Y);
+      this.svg.transition()
+          .duration(750)
+          .call(this.zoom.translateTo, X, Y)
+      // this.zoom.translateTo(this.svg, X, Y);
     },
     // tag 相关
     showTagInput() {
@@ -1889,12 +1892,12 @@ export default {
         type: 'warning'
       }).then(() => {
         this.set_isGraphOpening(false);
-        this.set_selectedKGId(-1);
         new Promise(function (resolve, reject) {
           _this.updateAllClick();
           resolve();
         }).then(() => {
           location.reload();
+          this.set_selectedKGId(-1);
         })
       }).catch(() => {})
     },
