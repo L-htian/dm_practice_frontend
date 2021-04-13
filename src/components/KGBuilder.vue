@@ -458,6 +458,7 @@ import {
   getGraphAPI,
   getNodePrimitiveAPI, getLinkPrimitiveAPI,
 } from '../api/KG.js'
+import {getAllGraphAPI} from "../api/KGList";
 
 export default {
   name: "KGBuilder",
@@ -1761,8 +1762,7 @@ export default {
     // 导出为Json
     exportJson() {
       // todo 前端导出json实现
-      let jsonData = saveAsJsonAPI(this.graphId)
-      let content = JSON.stringify(jsonData, null, 2)
+      let content = JSON.stringify(getGraphAPI(this.selectedKGId), null, 2)
       let eleLink = document.createElement('a');
       eleLink.download = `Kojima_Coin_${new Date().valueOf()}.json`;
       eleLink.style.display = 'none';
@@ -1797,7 +1797,7 @@ export default {
       // todo 后端导出xml实现
       const xml2js = require('xml2js')
       let builder = new xml2js.Builder()
-      let dataXml = builder.buildObject(saveAsXmlAPI(this.selectedKGId))
+      let dataXml = builder.buildObject(getGraphAPI(this.selectedKGId))
       let eleLink = document.createElement('a');
       eleLink.download = `Kojima_Coin_${new Date().valueOf()}.xml`;
       eleLink.style.display = 'none';
