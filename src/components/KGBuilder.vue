@@ -1883,9 +1883,9 @@ export default {
     },
     closeGraph() {
       let _this = this;
-      this.$confirm('将要关闭图谱，是否保存到数据库？', '提示', {
+      this.$confirm('确定关闭图谱？', '图谱会保存到数据库。', {
         confirmButtonText: '保存并关闭',
-        cancelButtonText: '不保存',
+        cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         this.set_isGraphOpening(false);
@@ -1896,11 +1896,7 @@ export default {
         }).then(() => {
           location.reload();
         })
-      }).catch(() => {
-        this.set_isGraphOpening(false);
-        this.set_selectedKGId(-1);
-        location.reload();
-      })
+      }).catch(() => {})
     },
     updateAllClick() {
       this.updateAll();
