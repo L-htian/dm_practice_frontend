@@ -44,7 +44,7 @@ export function updateNodeAPI(node) {
         data: JSON.stringify(node),
         dataType: 'application/json',
         contentType: 'application/json',
-        // 后端异步存储
+        // 后端同步存储
         async: false,
         success: function (data) {
             console.log('update node success!')
@@ -300,7 +300,6 @@ export function getGraphAPI(id) {
         success: function (data) {
             console.log('getGraph Success')
             graphInfo = (JSON.parse(data)).content;
-            // return graphInfo;
         }
     })
     return graphInfo
