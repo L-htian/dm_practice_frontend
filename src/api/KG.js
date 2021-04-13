@@ -300,6 +300,7 @@ export function getGraphAPI(id) {
         success: function (data) {
             console.log('getGraph Success')
             graphInfo = (JSON.parse(data)).content;
+            console.log(graphInfo);
         }
     })
     return graphInfo
