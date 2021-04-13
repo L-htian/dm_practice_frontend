@@ -1896,7 +1896,8 @@ export default {
         }).then(() => {
           location.reload();
         })
-      }).catch(() => {})
+      }).catch(() => {
+      })
     },
     updateAllClick() {
       this.updateAll();
@@ -2069,11 +2070,35 @@ export default {
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textColor;
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textSize;
     },
+    // todo 在这里实现Node样式更改
+    // param: tagName
+    // paramType: string
+    showTagNode(tagName) {
+      let node = this.graph.nodes
+      d3.selectAll(".link").classed('notshow', true)
+      node.forEach(function (item) {
+        if (!(tagName in item.tags)) {
+          let id = item.id
+          let se = "#" + "node" + id
+          console.log(se)
+          d3.select(se).classed('notshow', true)
+        }
+      })
+      console.log(tagName)
+    },
+
     // todo 统计饼图
     drawPieChart() {
       const echarts = require('echarts');
       this.charts = echarts.init(document.getElementById("pieCount"))
-      this.charts.clear()
+      // 饼图添加点击事件
+      this.charts.on('click', (params) => {
+        this.showTagNode(params.name)
+      })
+      this.charts.on('mouseover', (params) => {
+        d3.selectAll('.node').classed('notshow', false)
+        d3.selectAll(".link").classed('notshow', false)
+      })
       this.charts.setOption({
         title: {
           text: '节点Tag统计',
@@ -2109,7 +2134,8 @@ export default {
             }
           }
         ]
-      })
+      }, true)
+
     },
     getEchartsData() {
       let co = getCountDataAPI(this.selectedKGId);
@@ -2133,6 +2159,7 @@ export default {
           data: this.countData
         }]
       })
+
     },
   }
 }
