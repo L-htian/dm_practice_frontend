@@ -11,8 +11,8 @@
             ></el-image>
           </div>
           <div class="kg-meta-content">
-            <h4 class="kg-name" v-if="!isGraphOpening && kg.id !== selectedKGId">{{ kg.name }}</h4>
-            <h4 class="kg-name" style="color: #409eff" v-else>{{ kg.name }} 打开中</h4>
+            <h4 class="kg-name" style="color: #409eff" v-if="isGraphOpening && kg.id === selectedKGId">{{ kg.name }} 打开中</h4>
+            <h4 class="kg-name" v-else>{{ kg.name }}</h4>
             <div class="kg-description">{{ kg.description }}</div>
           </div>
         </div>

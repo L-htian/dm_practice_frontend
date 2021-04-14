@@ -62,7 +62,7 @@ export function createLinkAPI(link) {
         async: false,
         success: function (data) {
             newId = (JSON.parse(data)).content.id
-            console.log('save link success!')
+            console.log('save link success!' + newId)
         }
     })
     return newId

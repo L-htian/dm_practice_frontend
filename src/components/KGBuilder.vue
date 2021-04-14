@@ -67,8 +67,6 @@
             v-model="isTypesettingModeOn"
             active-color="#a0a5af"
             inactive-color="#dcdfe6"
-            active-value=true
-            inactive-value=false
             style="float: right;margin-right: 3%;padding-top: 3px"
         >
         </el-switch>
@@ -477,7 +475,7 @@ export default {
       'isGraphOpening'
     ])
   },
-  //todo 变量
+  // todo 变量
   data() {
     return {
       // 静态量
@@ -597,7 +595,13 @@ export default {
       arrowMarker: {},
       // d3力导布局设置
       simulation: {},
-      isSimulationOn: false,
+      // 网格线
+      linearX: {},
+      linearY: {},
+      xAxis: {},
+      yAxis: {},
+      gX: {},
+      gY: {},
       // 是否全屏
       isFullscreen: false,
       // svg图形对象
@@ -631,6 +635,8 @@ export default {
   components: {},
   async mounted() {
     // todo
+    console.log(this.isTypesettingModeOn);
+    console.log(typeof this.isTypesettingModeOn);
     this.drawPieChart();
     this.getEchartsData();
     this.initGraphContainer();
@@ -649,13 +655,60 @@ export default {
   },
   watch: {
     isTypesettingModeOn: function (val) {
+      // 排版模式启动
+      let loadingInstance = Loading.service({fullscreen: true});
       if (val) {
-
-      } else {
-        if (this.isSimulationOn) {
-
+        for (let i = 0; i < this.graph.nodes.length; i++) {
+          let node = d3.select('#node' + this.graph.nodes[i].id);
+          let endX = Number(node.attr('cx'));
+          let endY = Number(node.attr('cy'));
+          this.graph.nodes[i].force_x = endX;
+          this.graph.nodes[i].force_y = endY;
+          this.graph.nodes[i].fx = this.graph.nodes[i].type_setting_x;
+          this.graph.nodes[i].fy = this.graph.nodes[i].type_setting_y;
+          this.graph.nodes[i].x = this.graph.nodes[i].type_setting_x;
+          this.graph.nodes[i].y = this.graph.nodes[i].type_setting_y;
+          node
+              .attr('cx', this.graph.nodes[i].type_setting_x)
+              .attr('cy', this.graph.nodes[i].type_setting_y);
+          d3.select('#nodetext' + this.graph.nodes[i].id)
+              .attr('x', this.graph.nodes[i].type_setting_x)
+              .attr('y', this.graph.nodes[i].type_setting_y);
+          d3.select('#nodebtg' + this.graph.nodes[i].id)
+              .attr('cx', this.graph.nodes[i].type_setting_x)
+              .attr('cy', this.graph.nodes[i].type_setting_y);
         }
+        // 固定节点
+        d3.selectAll('.axis--x').classed('notshow', false);
+        d3.selectAll('.axis--y').classed('notshow', false);
       }
+      // 排版模式关闭
+      else {
+        for (let i = 0; i < this.graph.nodes.length; i++) {
+          let node = d3.select('#node' + this.graph.nodes[i].id);
+          let endX = Number(node.attr('cx'));
+          let endY = Number(node.attr('cy'));
+          this.graph.nodes[i].fx = null;
+          this.graph.nodes[i].fy = null;
+          this.graph.nodes[i].type_setting_x = endX;
+          this.graph.nodes[i].type_setting_y = endY;
+          this.graph.nodes[i].x = this.graph.nodes[i].force_x;
+          this.graph.nodes[i].y = this.graph.nodes[i].force_y;
+          node
+              .attr('cx', this.graph.nodes[i].force_x)
+              .attr('cy', this.graph.nodes[i].force_y);
+          d3.select('#nodetext' + this.graph.nodes[i].id)
+              .attr('x', this.graph.nodes[i].force_x)
+              .attr('y', this.graph.nodes[i].force_y);
+          d3.select('#nodebtg' + this.graph.nodes[i].id)
+              .attr('cx', this.graph.nodes[i].force_x)
+              .attr('cy', this.graph.nodes[i].force_y);
+        }
+        d3.selectAll('.axis--x').classed('notshow', true);
+        d3.selectAll('.axis--y').classed('notshow', true);
+      }
+      this.simulation.restart();
+      loadingInstance.close();
     }
   },
   methods: {
@@ -718,8 +771,10 @@ export default {
         this.width = window.screen.width
         this.height = window.screen.height
       } else {
-        this.width = $('#' + this.pid).width()
-        this.height = $('#' + this.pid).height()
+        // this.width = $('#' + this.pid).width()
+        // this.height = $('#' + this.pid).height()
+        this.width = $('#grid').width();
+        this.height = $('#grid').height();
       }
       this.svg = this.graphContainer.append('svg')
       let svgWidth = this.width
@@ -731,14 +786,35 @@ export default {
       // d3力导布局模拟设置初始化
       this.simulation = d3
           .forceSimulation()
-          .force('charge', d3.forceManyBody().strength(-500)) // 节点之间的电荷力，正值为引力负值为斥力
+          .force('charge', d3.forceManyBody().strength(-100)) // 节点之间的电荷力，正值为引力负值为斥力
           .force('link', d3.forceLink().distance(function (d) {
             return 340
           }).id(function (d) {
             return d.id
           })) // 节点之间的弹力，通过link牵引
-          .force('collide', d3.forceCollide().radius(30).strength(0.8).iterations(2)) // 节点碰撞力，防止节点重叠
+          .force('collide', d3.forceCollide().radius(30).strength(1)) // 节点碰撞力，防止节点重叠
           .force('center', d3.forceCenter(this.width / 2, this.height / 2)) // 向心力，节点围绕在某一点旁
+      // 网格图初始化
+      this.linearX = d3.scaleLinear()
+          .domain([-1, this.width + 1])
+          .range([-1, this.width + 1]);
+      this.linearY = d3.scaleLinear()
+          .domain([-1, this.height + 1])
+          .range([-1, this.height + 1]);
+      this.xAxis = d3.axisBottom(this.linearX)
+          .ticks((this.width + 2) / (this.height + 2) * 10)
+          .tickSize(this.height)
+          .tickPadding(8 - this.height);
+      this.yAxis = d3.axisRight(this.linearY)
+          .ticks(10)
+          .tickSize(this.width)
+          .tickPadding(8 - this.width);
+      this.gX = this.svg.append("g")
+          .attr("class", "axis--x notshow")
+          .call(this.xAxis);
+      this.gY = this.svg.append("g")
+          .attr("class", "axis--y notshow")
+          .call(this.yAxis);
       // 元素g是用来组合对象的容器。添加到g元素上的变换会应用到其所有的子元素上。
       // 添加到g元素的属性会被其所有的子元素继承。
       // 此外，g元素也可以用来定义复杂的对象，之后可以通过<use>元素来引用它们。
@@ -750,7 +826,7 @@ export default {
       this.addArrowMaker()
       // .buttongroup
       this.svg.on('click', function () {
-        d3.selectAll('use').classed('notshow', true)
+        d3.selectAll('use').classed('notshow', true);
       }, false)
     },
     // 制作箭头
@@ -770,10 +846,10 @@ export default {
     },
     // 更新知识图谱
     updateGraph() {
-      let _this = this
-      let data = _this.formatData()
-      let nodes = data.nodes
-      let links = data.links
+      let _this = this;
+      let data = _this.formatData();
+      let nodes = data.nodes;
+      let links = data.links;
 
       // 如果节点之间有多条连接
       if (links.length > 0) {
@@ -823,24 +899,22 @@ export default {
       }
 
       // 定义按钮组引用的use元素
-      _this.drawToolButton()
+      _this.drawToolButton();
       // 更新连线
-      let graphLink = _this.drawLink(links)
+      let graphLink = _this.drawLink(links);
       // 更新连线文字
-      let graphLinkText = _this.drawLinkText(links)
+      let graphLinkText = _this.drawLinkText(links);
       // 更新节点
-      let graphNode = _this.drawNode(nodes)
+      let graphNode = _this.drawNode(nodes);
       // 更新节点文字
-      let graphNodeText = _this.drawNodeText(nodes)
+      let graphNodeText = _this.drawNodeText(nodes);
       // 更新按钮组
-      let graphNodeButtonGroup = _this.drawButtonGroup(nodes)
+      let graphNodeButtonGroup = _this.drawButtonGroup(nodes);
 
       // tick 每到一个时刻都需要调用方法来更新节点的坐标
-      _this.simulation.nodes(nodes).on('tick', ticked)
-      _this.simulation.force('link').links(links)
-      _this.simulation.force('center', d3.forceCenter(_this.width / 2, _this.height / 2))
-      _this.simulation.alpha(1).alphaTarget(0).alphaDecay(0.05).restart()
-      _this.isSimulationOn = true;
+      _this.simulation.nodes(nodes).on('tick', ticked);
+      _this.simulation.force('link').links(links);
+      _this.simulation.alpha(1).alphaTarget(0).alphaDecay(0.05).restart();
 
       // 生成连线
       function linkArc(d) {
@@ -869,33 +943,40 @@ export default {
 
       function ticked() {
         graphLink.attr('d', linkArc)
-
         // 更新节点坐标
         graphNode
             .attr('cx', function (d) {
-              return d.x
+              if (_this.isTypesettingModeOn) {
+                return d.x;
+              } else return d.x;
             })
             .attr('cy', function (d) {
-              return d.y
+              if (_this.isTypesettingModeOn) return d.y;
+              else return d.y;
             })
         // 更新节点操作按钮组坐标
         graphNodeButtonGroup
             .attr('cx', function (d) {
-              return d.x
+              if (_this.isTypesettingModeOn) return d.x;
+              else return d.x;
             })
             .attr('cy', function (d) {
-              return d.y
+              if (_this.isTypesettingModeOn) return d.y;
+              else return d.y;
             })
             .attr('transform', function (d) {
-              return 'translate(' + d.x + ',' + d.y + ') scale(1)'
+              if (_this.isTypesettingModeOn) return 'translate(' + d.x + ',' + d.y + ') scale(1)';
+              else return 'translate(' + d.x + ',' + d.y + ') scale(1)';
             })
         // 更新文字坐标
         graphNodeText
             .attr('x', function (d) {
-              return d.x
+              if (_this.isTypesettingModeOn) return d.x;
+              else return d.x;
             })
             .attr('y', function (d) {
-              return d.y
+              if (_this.isTypesettingModeOn) return d.y;
+              else return d.y;
             })
       }
 
@@ -984,17 +1065,41 @@ export default {
       let links = _this.graph.links
       let nodes = _this.graph.nodes
       nodes.forEach(function (node) {
-        if (typeof (node.id) === 'string') node.id = parseInt(node.id)
-        if (typeof (node.fx) === 'undefined' || node.fx === '') node.fx = null
-        if (typeof (node.fy) === 'undefined' || node.fy === '') node.fy = null
-        if (typeof (node.fx) === 'string') node.fx = parseFloat(node.fx)
-        if (typeof (node.fy) === 'string') node.fy = parseFloat(node.fy)
-        if (typeof (node.color) === 'undefined' || node.color === '') node.color = _this.DefaultNodeColor
-        if (typeof (node.textColor) === 'undefined' || node.textColor === '') node.textColor = _this.DefaultNodeTextColor
-        if (typeof (node.strokeColor) === 'undefined' || node.strokeColor === '') node.strokeColor = _this.DefaultNodeStrokeColor
-        if (typeof (node.textSize) === 'undefined' || node.textSize === '') node.textSize = _this.DefaultNodeTextSize
-        if (typeof (node.r) === 'undefined' || node.r === '') node.r = _this.defaultR
-        if (typeof (node.tags) === 'undefined') node.tags = []
+        if (typeof (node.id) === 'string') node.id = parseInt(node.id);
+        if (typeof (node.type_setting_x) === 'undefined' || node.type_setting_x === '') node.type_setting_x = 0;
+        if (typeof (node.type_setting_y) === 'undefined' || node.type_setting_y === '') node.type_setting_y = 0;
+        if (typeof (node.force_x) === 'undefined' || node.force_x === '') node.force_x = 0;
+        if (typeof (node.force_y) === 'undefined' || node.force_y === '') node.force_y = 0;
+        if (typeof (node.type_setting_x) === 'string') node.type_setting_x = parseFloat(node.type_setting_x);
+        if (typeof (node.type_setting_y) === 'string') node.type_setting_y = parseFloat(node.type_setting_y);
+        if (typeof (node.force_x) === 'string') node.force_x = parseFloat(node.force_x);
+        if (typeof (node.tforce_y) === 'string') node.force_y = parseFloat(node.force_y);
+        if(_this.isTypesettingModeOn){
+          if (typeof (node.x) === 'undefined' || node.x === '') node.x = node.type_setting_x;
+          if (typeof (node.y) === 'undefined' || node.y === '') node.y = node.type_setting_y;
+          if (typeof (node.x) === 'string') node.x = node.type_setting_x;
+          if (typeof (node.y) === 'string') node.y = node.type_setting_y;
+          if (typeof (node.fx) === 'undefined' || node.fx === '') node.fx = 0;
+          if (typeof (node.fy) === 'undefined' || node.fy === '') node.fy = 0;
+          if (typeof (node.fx) === 'string') node.fx = node.type_setting_x;
+          if (typeof (node.fy) === 'string') node.fy = node.type_setting_y;
+        }
+        else {
+          if (typeof (node.x) === 'undefined' || node.x === '') node.x = node.force_x;
+          if (typeof (node.y) === 'undefined' || node.y === '') node.y = node.force_y;
+          if (typeof (node.x) === 'string') node.x = node.force_x;
+          if (typeof (node.y) === 'string') node.y = node.force_y;
+          if (typeof (node.fx) === 'undefined' || node.fx === '') node.fx = null;
+          if (typeof (node.fy) === 'undefined' || node.fy === '') node.fy = null;
+          if (typeof (node.fx) === 'string') node.fx = null;
+          if (typeof (node.fy) === 'string') node.fy = null;
+        }
+        if (typeof (node.color) === 'undefined' || node.color === '') node.color = _this.DefaultNodeColor;
+        if (typeof (node.textColor) === 'undefined' || node.textColor === '') node.textColor = _this.DefaultNodeTextColor;
+        if (typeof (node.strokeColor) === 'undefined' || node.strokeColor === '') node.strokeColor = _this.DefaultNodeStrokeColor;
+        if (typeof (node.textSize) === 'undefined' || node.textSize === '') node.textSize = _this.DefaultNodeTextSize;
+        if (typeof (node.r) === 'undefined' || node.r === '') node.r = _this.defaultR;
+        if (typeof (node.tags) === 'undefined') node.tags = [];
       })
       let resLinks = []
       links.forEach(function (link) {
@@ -1315,6 +1420,9 @@ export default {
           .attr('class', function (d) {
             return 'buttongroup out_buttongroup_' + d.id
           })
+          .attr("id", function (d) {
+            return "nodebtg" + d.id
+          })
           .classed('notshow', true)
       return nodeButton
     },
@@ -1408,27 +1516,40 @@ export default {
       return linkText
     },
     dragStart(d) {
-      if (!d3.event.active) this.simulation.alphaTarget(0.8).restart()
-      d.fx = d.x
-      d.fy = d.y
+      if (!d3.event.active) this.simulation.alphaTarget(0.8).restart();
+      d.fx = d.x;
+      d.fy = d.y;
     },
     dragging(d) {
-      d.fx = d3.event.x
-      d.fy = d3.event.y
+      if (this.isTypesettingModeOn) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      } else {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
     },
     dragEnd(d) {
-      if (!d3.event.active) this.simulation.alphaTarget(0)
-      d.fx = d3.event.x
-      d.fy = d3.event.y
+      if (this.isTypesettingModeOn) {
+        if (!d3.event.active) this.simulation.alphaTarget(0);
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      } else {
+        if (!d3.event.active) this.simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
     },
     // 滚轮zoom事件
     zoomed() {
-      let transform = d3.event.transform
-      d3.selectAll('.node').attr('transform', transform)
-      d3.selectAll('.nodetext').attr('transform', transform)
-      d3.selectAll('.line').attr('transform', transform)
-      d3.selectAll('.linetext').attr('transform', transform)
-      d3.selectAll('.nodebutton').attr('transform', transform)
+      let transform = d3.event.transform;
+      d3.selectAll('.node').attr('transform', transform);
+      d3.selectAll('.nodetext').attr('transform', transform);
+      d3.selectAll('.line').attr('transform', transform);
+      d3.selectAll('.linetext').attr('transform', transform);
+      d3.selectAll('.nodebutton').attr('transform', transform);
+      this.gX.call(this.xAxis.scale(transform.rescaleX(this.linearX)));
+      this.gY.call(this.yAxis.scale(transform.rescaleY(this.linearY)));
     },
     // 点击zoom事件
     zoomClick(direction) {
@@ -1452,7 +1573,9 @@ export default {
     // 复原
     refresh() {
       // zoomIdentity是缩放中心点
-      this.svg.call(this.zoom.transform, d3.zoomIdentity)
+      this.svg.transition()
+          .duration(750)
+          .call(this.zoom.transform, d3.zoomIdentity);
     },
     // 全屏
     showFull() {
@@ -1611,27 +1734,35 @@ export default {
       if (transform) {
         let XYK = []
         XYK = transform.replace('translate', '').replaceAll('(', '').replaceAll(')', '').replace(' scale', ',').split(',')
-        newNode.x = (_this.txx - Number(XYK[0])) / Number(XYK[2])
-        newNode.y = (_this.tyy - Number(XYK[1])) / Number(XYK[2])
-        newNode.fx = (_this.txx - Number(XYK[0])) / Number(XYK[2])
-        newNode.fy = (_this.tyy - Number(XYK[1])) / Number(XYK[2])
+        let resX = (_this.txx - Number(XYK[0])) / Number(XYK[2]);
+        let resY = (_this.tyy - Number(XYK[1])) / Number(XYK[2]);
+        newNode.x = resX;
+        newNode.y = resY;
+        newNode.fx = resX;
+        newNode.fy = resY;
+        newNode.force_x = resX;
+        newNode.force_y = resY;
+        newNode.type_setting_x = resX;
+        newNode.type_setting_y = resY;
       } else {
-        newNode.x = _this.txx
-        newNode.y = _this.tyy
-        newNode.fx = _this.txx
-        newNode.fy = _this.tyy
+        newNode.x = _this.txx;
+        newNode.y = _this.tyy;
+        newNode.fx = _this.txx;
+        newNode.fy = _this.tyy;
+        newNode.force_x = _this.txx;
+        newNode.force_y = _this.tyy;
+        newNode.type_setting_x = _this.txx;
+        newNode.type_setting_y = _this.tyy;
       }
-      // todo 节点id后端生成
-      newNode.graphId = _this.selectedKGId
-      newNode.id = createNodeAPI(newNode)
-      _this.graph.nodes.push(newNode)
-      _this.updateGraph()
-      _this.isCancelOperationShow = false
-      _this.cancelOperationMessage = 0
-      _this.isAddingNode = false
-      _this.getEchartsData()
+      newNode.graphId = _this.selectedKGId;
+      newNode.id = createNodeAPI(newNode);
+      _this.graph.nodes.push(newNode);
+      _this.updateGraph();
+      _this.isCancelOperationShow = false;
+      _this.cancelOperationMessage = 0;
+      _this.isAddingNode = false;
+      _this.getEchartsData();
     },
-    // todo 删除联系
     deleteLink() {
       let _this = this
       _this.$confirm('该操作不可撤销', '将要删除该联系，是否继续？', {
@@ -1666,7 +1797,6 @@ export default {
         })
       })
     },
-    // todo 添加联系
     createLink() {
       let _this = this
       let newShip = {}
@@ -1681,7 +1811,6 @@ export default {
       _this.SelectedSourceNodeId = 0;
       _this.SelectedTargetNodeId = 0;
     },
-    // todo 更改节点信息
     updateNodeInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.nodes.length; i++) {
@@ -1701,7 +1830,6 @@ export default {
       }
       _this.updateGraph()
     },
-    // todo 更改关系信息
     updateLinkInfo() {
       let _this = this
       for (let i = 0; i < _this.graph.links.length; i++) {
@@ -1836,7 +1964,6 @@ export default {
       let dom = document.querySelectorAll(className);
       dom[0].style.display = status;
     },
-
     // todo 高亮？
     // 使节点在屏幕中央
     handleChoose(node) {
@@ -2163,6 +2290,14 @@ export default {
 </script>
 <!--todo css层-->
 <style>
+#grid {
+  position: fixed;
+  top: 10%;
+  left: 23%;
+  right: 23%;
+  bottom: 10%;
+}
+
 .sidebar-left {
   left: 30px;
   width: 18%;
