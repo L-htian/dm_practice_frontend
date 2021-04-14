@@ -2,7 +2,7 @@ import $ from 'jquery'
 import axios from "axios";
 
 const api = {
-    KGPre: 'http://localhost:8089/api/KG/'
+    KGPre: 'http://218.244.146.223:8089/api/KG/'
 }
 
 // api方法ajax版
