@@ -546,26 +546,8 @@ export default {
         textColor: '',
         textSize: 14,
       },
-      NodePrimitives: [
-        {
-          id: 114514,
-          name: 'libanguo',
-          color: '#d97171',
-          strokeColor: '#eccc8a',
-          textColor: '#7d8046',
-          textSize: 14,
-          r: 30,
-        }
-      ],
-      LinkPrimitives: [
-        {
-          id: 114514,
-          name: 'libanguo',
-          color: '#c17373',
-          textColor: '#81dc8f',
-          textSize: 14,
-        }
-      ],
+      NodePrimitives: [],
+      LinkPrimitives: [],
       // 正在使用的图元id
       usingNodePrimitiveId: -1,
       usingLinkPrimitiveId: -1,
@@ -653,9 +635,11 @@ export default {
     this.getEchartsData();
     this.initGraphContainer();
     this.initJQueryEvents();
-    this.NodePrimitives = await getNodePrimitiveAPI();
-    this.LinkPrimitives = await getLinkPrimitiveAPI();
-    await this.initGraph();
+    let np = getNodePrimitiveAPI();
+    let lp = getLinkPrimitiveAPI();
+    this.NodePrimitives = np === undefined ? [] : np;
+    this.LinkPrimitives = lp === undefined ? [] : lp;
+    this.initGraph();
   },
   created() {
   },
@@ -680,13 +664,13 @@ export default {
       'set_isGraphOpening'
     ]),
     // 初始化知识图谱
-    async initGraph() {
+    initGraph() {
       let _this = this
       if (_this.isGraphOpening) {
         _this.graph_name = _this.selectedKGName;
-        let updateVO = await getGraphAPI(_this.selectedKGId);
-        _this.graph.nodes = updateVO.nodes;
-        _this.graph.links = updateVO.links;
+        let updateVO = getGraphAPI(_this.selectedKGId);
+        _this.graph.nodes = updateVO === undefined ? [] : updateVO.nodes;
+        _this.graph.links = updateVO === undefined ? [] : updateVO.links;
         _this.updateGraph();
       } else if (_this.hasUploaded && !_this.wantNew) {
         // todo 接收后端数据
@@ -717,7 +701,7 @@ export default {
       $(function () {
         $(".grid").bind("click", function (event) {
           let cursor = document.getElementById("grid").style.cursor;
-          if (cursor == 'crosshair' && _this.isAddingNode) {
+          if (cursor === 'crosshair' && _this.isAddingNode) {
             d3.select('.grid').style("cursor", "");
             _this.txx = event.offsetX;
             _this.tyy = event.offsetY;
@@ -1237,7 +1221,7 @@ export default {
         if (d.r) return d.r
         else return _this.defaultR
       })
-          .attr('class', 'singleNode')
+          .attr('class', 'single-node')
           .attr('id', function (d) {
             return 'node' + d.id
           })
@@ -1272,6 +1256,10 @@ export default {
       })
       // 设置节点文字样式
       nodeText
+          .attr('class', 'single-nodetext')
+          .attr('id', function (d) {
+            return 'nodetext' + d.id;
+          })
           .style('fill', function (d) {
             if (d.textColor) return d.textColor
             else return _this.DefaultNodeTextColor
@@ -1394,16 +1382,14 @@ export default {
         _this.EditLinkDialogVisible = true
       })
 
-      linkText = linkTextEnter.merge(linkText).text(function (d) {
-        if (d.lk.name) return d.lk.name
-        else return '联系'
-      })
+      linkText = linkTextEnter.merge(linkText)
 
       linkText
           .style('fill', function (d) {
             if (d.lk.textColor) return d.lk.textColor
             else return _this.DefaultLinkTextColor
           })
+          .attr('class', 'linktext')
           .append('textPath')
           .attr("startOffset", "50%")
           .attr("text-anchor", "middle")
@@ -1860,8 +1846,7 @@ export default {
       let Y = Number(nodeElement.attr('cy'));
       this.svg.transition()
           .duration(750)
-          .call(this.zoom.translateTo, X, Y)
-      // this.zoom.translateTo(this.svg, X, Y);
+          .call(this.zoom.translateTo, X, Y);
     },
     // tag 相关
     showTagInput() {
@@ -1891,13 +1876,13 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.set_isGraphOpening(false);
         new Promise(function (resolve, reject) {
           _this.updateAllClick();
           resolve();
         }).then(() => {
-          location.reload();
+          this.set_isGraphOpening(false);
           this.set_selectedKGId(-1);
+          location.reload();
         })
       }).catch(() => {
       })
@@ -2077,31 +2062,40 @@ export default {
     // param: tagName
     // paramType: string
     showTagNode(tagName) {
-      let node = this.graph.nodes
-      d3.selectAll(".link").classed('notshow', true)
-      node.forEach(function (item) {
-        if (!(tagName in item.tags)) {
-          let id = item.id
-          let se = "#" + "node" + id
-          console.log(se)
-          d3.select(se).classed('notshow', true)
+      let nodes = this.graph.nodes;
+      nodes.forEach(function (node) {
+        if (node.tags.indexOf(tagName) !== -1) {
+          let id = node.id;
+          d3.select("#node" + id).classed('notshow', false);
+          d3.select("#nodetext" + id).classed('notshow', false);
         }
       })
-      console.log(tagName)
+      console.log(tagName);
     },
-
     // todo 统计饼图
     drawPieChart() {
       const echarts = require('echarts');
       this.charts = echarts.init(document.getElementById("pieCount"))
       // 饼图添加点击事件
-      this.charts.on('click', (params) => {
-        this.showTagNode(params.name)
-      })
-      this.charts.on('mouseover', (params) => {
-        d3.selectAll('.node').classed('notshow', false)
-        d3.selectAll(".link").classed('notshow', false)
-      })
+      this.charts.on('mousedown', (params) => {
+        d3.selectAll('.single-node').classed('notshow', true);
+        d3.selectAll('.single-nodetext').classed('notshow', true);
+        d3.selectAll('.link').classed('notshow', true);
+        d3.selectAll('.linktext').classed('notshow', true);
+        this.showTagNode(params.name);
+      });
+      this.charts.on('mouseup', (params) => {
+        d3.selectAll('.single-node').classed('notshow', false);
+        d3.selectAll('.single-nodetext').classed('notshow', false);
+        d3.selectAll('.link').classed('notshow', false);
+        d3.selectAll('.linktext').classed('notshow', false);
+      });
+      this.charts.on('mouseout', (params) => {
+        d3.selectAll('.single-node').classed('notshow', false);
+        d3.selectAll('.single-nodetext').classed('notshow', false);
+        d3.selectAll('.link').classed('notshow', false);
+        d3.selectAll('.linktext').classed('notshow', false);
+      });
       this.charts.setOption({
         title: {
           text: '节点Tag统计',

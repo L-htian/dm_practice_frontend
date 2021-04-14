@@ -11,7 +11,8 @@
             ></el-image>
           </div>
           <div class="kg-meta-content">
-            <h4 class="kg-name">{{ kg.name }}</h4>
+            <h4 class="kg-name" v-if="!isGraphOpening && kg.id !== selectedKGId">{{ kg.name }}</h4>
+            <h4 class="kg-name" style="color: #409eff" v-else>{{ kg.name }} 打开中</h4>
             <div class="kg-description">{{ kg.description }}</div>
           </div>
         </div>
@@ -180,25 +181,39 @@ export default {
       }
     },
     editKG(graphId) {
-      let _this = this;
-      _this.EditingGraphId = graphId;
-      _this.EditGraphDialogVisible = true;
-      for (let i = 0; i < _this.KGs.length; i++) {
-        if (_this.KGs[i].id === graphId) {
-          _this.EditingGraphEntry.id = _this.KGs[i].id;
-          _this.EditingGraphEntry.name = _this.KGs[i].name;
-          _this.EditingGraphEntry.description = _this.KGs[i].description;
-          _this.EditingGraphEntry.imgsrc = _this.KGs[i].imgsrc;
-          break;
+      if (this.isGraphOpening) {
+        this.$message({
+          type: 'error',
+          message: '有图谱已打开，请先关闭该图谱！'
+        })
+      } else {
+        let _this = this;
+        _this.EditingGraphId = graphId;
+        _this.EditGraphDialogVisible = true;
+        for (let i = 0; i < _this.KGs.length; i++) {
+          if (_this.KGs[i].id === graphId) {
+            _this.EditingGraphEntry.id = _this.KGs[i].id;
+            _this.EditingGraphEntry.name = _this.KGs[i].name;
+            _this.EditingGraphEntry.description = _this.KGs[i].description;
+            _this.EditingGraphEntry.imgsrc = _this.KGs[i].imgsrc;
+            break;
+          }
         }
       }
     },
     openKG(graphId, graphName) {
-      this.set_selectedKGId(graphId);
-      this.set_selectedKGName(graphName);
-      this.set_isGraphOpening(true);
-      this.set_current(3);
-      this.$router.push('/Kojima-Coin/KGEditor');
+      if (this.isGraphOpening) {
+        this.$message({
+          type: 'error',
+          message: '有图谱已打开，请先关闭该图谱！'
+        })
+      } else {
+        this.set_selectedKGId(graphId);
+        this.set_selectedKGName(graphName);
+        this.set_isGraphOpening(true);
+        this.set_current(3);
+        this.$router.push('/Kojima-Coin/KGEditor');
+      }
     }
   }
 }
