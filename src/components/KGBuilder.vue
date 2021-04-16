@@ -727,24 +727,24 @@ export default {
         _this.updateGraph();
       } else if (_this.hasUploaded && !_this.wantNew) {
         // todo 接收后端数据
-        // _this.graph.nodes = _this.uploadedData.nodes;
-        // _this.graph.links = _this.uploadedData.links;
+        _this.graph.nodes = _this.uploadedData.nodes;
+        _this.graph.links = _this.uploadedData.links;
 
-        // todo 前端直接读取执行
-        let file = _this.fileList[0]
-        let reader = new FileReader()
-        let document = ""
-        reader.readAsText(file.raw)
-        reader.onload = (e) => {
-          try {
-            document = JSON.parse(e.target.result)
-            _this.graph.nodes = document.nodes
-            _this.graph.links = document.links
-            _this.updateGraph()
-          } catch (err) {
-            this.$message.error('Load JSON document from file error: ' + err.message)
-          }
-        }
+        // // todo 前端直接读取执行
+        // let file = _this.fileList[0]
+        // let reader = new FileReader()
+        // let document = ""
+        // reader.readAsText(file.raw)
+        // reader.onload = (e) => {
+        //   try {
+        //     document = JSON.parse(e.target.result)
+        //     _this.graph.nodes = document.nodes
+        //     _this.graph.links = document.links
+        //     _this.updateGraph()
+        //   } catch (err) {
+        //     this.$message.error('Load JSON document from file error: ' + err.message)
+        //   }
+        // }
       } else if (_this.wantNew) {
         _this.updateGraph();
       }

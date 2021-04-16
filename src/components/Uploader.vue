@@ -3,7 +3,7 @@
     <el-upload
         class="uploadFile"
         drag
-        :action="setUrl"
+        action="#"
         :limit="1"
         :on-change="jumpToEditor"
         accept="application/json"
@@ -56,8 +56,15 @@ export default {
       if (!this.getUpload) {
         this.getUpload = !this.getUpload;
         // todo upload
-        // this.set_uploadedData(uploadAPI(fileList));
-        // this.set_selectedKGId(this.uploadedData.graphId);
+        let file = _this.fileList[0]
+        let reader = new FileReader()
+        let document = ""
+        reader.readAsText(file.raw)
+        reader.onload = (e) => {
+          document = JSON.parse(e.target.result)
+        }
+        this.set_uploadedData(uploadAPI(document));
+        this.set_selectedKGId(this.uploadedData.graphId);
       }
       window.Event.$emit('UploadFile', this.getUpload)
       window.Event.$emit('transferFileArray', this.fileList)
