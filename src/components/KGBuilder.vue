@@ -530,18 +530,18 @@ export default {
       AddLinkPrimitiveVisible: false,
       AddNodePrimitiveEntity: {
         id: 0,
-        name: '',
-        color: '',
-        strokeColor: '',
-        textColor: '',
+        name: '节点图元',
+        color: 'rgb(94,95,95)',
+        strokeColor: '#d5dede',
+        textColor: '#33434b',
         textSize: 14,
         r: 30,
       },
       AddLinkPrimitiveEntity: {
         id: 0,
-        name: '',
-        color: '',
-        textColor: '',
+        name: '连接图元',
+        color: 'rgba(132,137,132,0.45)',
+        textColor: '#33434b',
         textSize: 14,
       },
       NodePrimitives: [],
@@ -2056,10 +2056,10 @@ export default {
     emptyAddNodePrimitiveEntity() {
       this.AddNodePrimitiveEntity = {
         id: 0,
-        name: '',
-        color: '',
-        strokeColor: '',
-        textColor: '',
+        name: '节点图元',
+        color: 'rgb(94,95,95)',
+        strokeColor: '#d5dede',
+        textColor: '#33434b',
         textSize: 14,
         r: 30,
       };
@@ -2081,9 +2081,9 @@ export default {
     emptyAddLinkPrimitiveEntity() {
       this.AddLinkPrimitiveEntity = {
         id: 0,
-        name: '',
-        color: '',
-        textColor: '',
+        name: '连接图元',
+        color: 'rgba(132,137,132,0.45)',
+        textColor: '#33434b',
         textSize: 14,
       };
     },
