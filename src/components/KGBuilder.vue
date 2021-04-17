@@ -454,7 +454,7 @@ import {
   createLinkPrimitiveAPI,
   getCountDataAPI,
   getGraphAPI,
-  getNodePrimitiveAPI, getLinkPrimitiveAPI,
+  getNodePrimitiveAPI, getLinkPrimitiveAPI, uploadAPI,
 } from '../api/KG.js'
 import {getAllGraphAPI} from "../api/KGList";
 
@@ -726,11 +726,25 @@ export default {
         _this.graph.links = updateVO === undefined ? [] : updateVO.links;
         _this.updateGraph();
       } else if (_this.hasUploaded && !_this.wantNew) {
-        // todo 接收后端数据
-        _this.graph.nodes = _this.uploadedData.nodes;
-        _this.graph.links = _this.uploadedData.links;
-
         // // todo 前端直接读取执行
+        let file = _this.fileList[0]
+        let reader = new FileReader()
+        let document = ""
+        reader.readAsText(file.raw)
+        reader.onload = (e) => {
+          try {
+            document = JSON.parse(e.target.result)
+            let uploadData = uploadAPI(document)
+            console.log(uploadData)
+            _this.set_selectedKGId(_this.uploadedData.graphId);
+            _this.set_isGraphOpening(true)
+            _this.graph.nodes = uploadData.nodes
+            _this.graph.links = uploadData.links
+            _this.updateGraph()
+          } catch (err) {
+            this.$message.error('Load JSON document from file error: ' + err.message)
+          }
+        }
         // let file = _this.fileList[0]
         // let reader = new FileReader()
         // let document = ""
@@ -788,7 +802,7 @@ export default {
           .forceSimulation()
           .force('charge', d3.forceManyBody().strength(-100)) // 节点之间的电荷力，正值为引力负值为斥力
           .force('link', d3.forceLink().distance(function (d) {
-            return 340
+            return 250
           }).id(function (d) {
             return d.id
           })) // 节点之间的弹力，通过link牵引
@@ -1074,7 +1088,7 @@ export default {
         if (typeof (node.type_setting_y) === 'string') node.type_setting_y = parseFloat(node.type_setting_y);
         if (typeof (node.force_x) === 'string') node.force_x = parseFloat(node.force_x);
         if (typeof (node.tforce_y) === 'string') node.force_y = parseFloat(node.force_y);
-        if(_this.isTypesettingModeOn){
+        if (_this.isTypesettingModeOn) {
           if (typeof (node.x) === 'undefined' || node.x === '') node.x = node.type_setting_x;
           if (typeof (node.y) === 'undefined' || node.y === '') node.y = node.type_setting_y;
           if (typeof (node.x) === 'string') node.x = node.type_setting_x;
@@ -1083,8 +1097,7 @@ export default {
           if (typeof (node.fy) === 'undefined' || node.fy === '') node.fy = 0;
           if (typeof (node.fx) === 'string') node.fx = node.type_setting_x;
           if (typeof (node.fy) === 'string') node.fy = node.type_setting_y;
-        }
-        else {
+        } else {
           if (typeof (node.x) === 'undefined' || node.x === '') node.x = node.force_x;
           if (typeof (node.y) === 'undefined' || node.y === '') node.y = node.force_y;
           if (typeof (node.x) === 'string') node.x = node.force_x;
@@ -1474,31 +1487,16 @@ export default {
             return d.id
           })
       linkText.exit().remove()
-      // 设置关系文字样式
-      let linkTextEnter = linkText.enter().append('text')
 
-      linkTextEnter.on('dblclick', function (d) {
-        _this.SelectedLinkId = d.lk.id
-        _this.isEditingLink = true
-        _this.EditingLinkEntity.name = d.lk.name
-        _this.EditingLinkEntity.id = d.lk.id
-        _this.EditingLinkEntity.sourceId = d.lk.sourceId
-        _this.EditingLinkEntity.targetId = d.lk.targetId
-        _this.EditingLinkEntity.color = d.lk.color
-        _this.EditingLinkEntity.textColor = d.lk.textColor
-        _this.EditingLinkEntity.textSize = d.lk.textSize
-        _this.EditLinkDialogVisible = true
-      })
-
-      linkText = linkTextEnter.merge(linkText)
-
-      linkText
+      let linkTextEnter = linkText.enter()
+          .append('text')
+          .attr('class', 'link-text')
           .style('fill', function (d) {
             if (d.lk.textColor) return d.lk.textColor
             else return _this.DefaultLinkTextColor
           })
-          .attr('class', 'linktext')
           .append('textPath')
+          .attr('class', 'link-textPath')
           .attr("startOffset", "50%")
           .attr("text-anchor", "middle")
           .attr("xlink:href", function (d) {
@@ -1513,6 +1511,43 @@ export default {
             if (d.lk.name) return d.lk.name
             else return '联系'
           })
+
+      linkTextEnter.on('dblclick', function (d) {
+        _this.SelectedLinkId = d.lk.id
+        _this.isEditingLink = true
+        _this.EditingLinkEntity.name = d.lk.name
+        _this.EditingLinkEntity.id = d.lk.id
+        _this.EditingLinkEntity.sourceId = d.lk.sourceId
+        _this.EditingLinkEntity.targetId = d.lk.targetId
+        _this.EditingLinkEntity.color = d.lk.color
+        _this.EditingLinkEntity.textColor = d.lk.textColor
+        _this.EditingLinkEntity.textSize = d.lk.textSize
+        _this.EditLinkDialogVisible = true
+      })
+      linkText = linkTextEnter.merge(linkText)
+
+      d3.selectAll('.link-text')
+          .style('fill', function (d) {
+            if (d.lk.textColor) return d.lk.textColor
+            else return _this.DefaultLinkTextColor
+          })
+
+      d3.selectAll('.link-textPath')
+          .attr("startOffset", "50%")
+          .attr("text-anchor", "middle")
+          .attr("xlink:href", function (d) {
+            return "#invis_" + d.lk.sourceId + "-" + d.lk.id + "-" + d.lk.targetId;
+          })
+          .style('font-family', 'Microsoft YaHei')
+          .style('font-size', function (d) {
+            if (d.lk.textSize) return d.lk.textSize
+            else return _this.DefaultLinkTextSize
+          })
+          .text(function (d) {
+            if (d.lk.name) return d.lk.name
+            else return '联系'
+          })
+
       return linkText
     },
     dragStart(d) {
@@ -1738,11 +1773,10 @@ export default {
         let resY = (_this.tyy - Number(XYK[1])) / Number(XYK[2]);
         newNode.x = resX;
         newNode.y = resY;
-        if(_this.isTypesettingModeOn){
+        if (_this.isTypesettingModeOn) {
           newNode.fx = resX;
           newNode.fy = resY;
-        }
-        else {
+        } else {
           newNode.fx = null;
           newNode.fy = null;
         }
@@ -1753,11 +1787,10 @@ export default {
       } else {
         newNode.x = _this.txx;
         newNode.y = _this.tyy;
-        if(_this.isTypesettingModeOn){
+        if (_this.isTypesettingModeOn) {
           newNode.fx = _this.txx;
           newNode.fy = _this.tyy;
-        }
-        else {
+        } else {
           newNode.fx = null;
           newNode.fy = null;
         }
@@ -1766,6 +1799,8 @@ export default {
         newNode.type_setting_x = _this.txx;
         newNode.type_setting_y = _this.tyy;
       }
+      newNode.r = _this.defaultR;
+      newNode.textSize = _this.DefaultNodeTextSize;
       newNode.graphId = _this.selectedKGId;
       newNode.id = createNodeAPI(newNode);
       _this.graph.nodes.push(newNode);
@@ -1815,6 +1850,7 @@ export default {
       newShip.sourceId = _this.SelectedSourceNodeId
       newShip.targetId = _this.SelectedTargetNodeId
       newShip.name = '联系'
+      newShip.textSize = _this.DefaultLinkTextSize;
       newShip.id = createLinkAPI(newShip)
       newShip.graphId = _this.selectedKGId
       _this.graph.links.push(newShip)
