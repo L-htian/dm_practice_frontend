@@ -633,10 +633,8 @@ export default {
     }
   },
   components: {},
-  async mounted() {
+  mounted() {
     // todo
-    console.log(this.isTypesettingModeOn);
-    console.log(typeof this.isTypesettingModeOn);
     this.drawPieChart();
     this.getEchartsData();
     this.initGraphContainer();
@@ -714,6 +712,7 @@ export default {
   methods: {
     ...mapMutations([
       'set_selectedKGId',
+      'set_selectedKGName',
       'set_isGraphOpening'
     ]),
     // 初始化知识图谱
@@ -785,8 +784,6 @@ export default {
         this.width = window.screen.width
         this.height = window.screen.height
       } else {
-        // this.width = $('#' + this.pid).width()
-        // this.height = $('#' + this.pid).height()
         this.width = $('#grid').width();
         this.height = $('#grid').height();
       }
@@ -1087,25 +1084,17 @@ export default {
         if (typeof (node.type_setting_x) === 'string') node.type_setting_x = parseFloat(node.type_setting_x);
         if (typeof (node.type_setting_y) === 'string') node.type_setting_y = parseFloat(node.type_setting_y);
         if (typeof (node.force_x) === 'string') node.force_x = parseFloat(node.force_x);
-        if (typeof (node.tforce_y) === 'string') node.force_y = parseFloat(node.force_y);
+        if (typeof (node.force_y) === 'string') node.force_y = parseFloat(node.force_y);
         if (_this.isTypesettingModeOn) {
-          if (typeof (node.x) === 'undefined' || node.x === '') node.x = node.type_setting_x;
-          if (typeof (node.y) === 'undefined' || node.y === '') node.y = node.type_setting_y;
-          if (typeof (node.x) === 'string') node.x = node.type_setting_x;
-          if (typeof (node.y) === 'string') node.y = node.type_setting_y;
-          if (typeof (node.fx) === 'undefined' || node.fx === '') node.fx = 0;
-          if (typeof (node.fy) === 'undefined' || node.fy === '') node.fy = 0;
-          if (typeof (node.fx) === 'string') node.fx = node.type_setting_x;
-          if (typeof (node.fy) === 'string') node.fy = node.type_setting_y;
+          node.x = node.type_setting_x;
+          node.y = node.type_setting_y;
+          node.fx = node.type_setting_x;
+          node.fy = node.type_setting_y;
         } else {
-          if (typeof (node.x) === 'undefined' || node.x === '') node.x = node.force_x;
-          if (typeof (node.y) === 'undefined' || node.y === '') node.y = node.force_y;
-          if (typeof (node.x) === 'string') node.x = node.force_x;
-          if (typeof (node.y) === 'string') node.y = node.force_y;
-          if (typeof (node.fx) === 'undefined' || node.fx === '') node.fx = null;
-          if (typeof (node.fy) === 'undefined' || node.fy === '') node.fy = null;
-          if (typeof (node.fx) === 'string') node.fx = null;
-          if (typeof (node.fy) === 'string') node.fy = null;
+          node.x = node.force_x;
+          node.y = node.force_y;
+          node.fx = null;
+          node.fy = null;
         }
         if (typeof (node.color) === 'undefined' || node.color === '') node.color = _this.DefaultNodeColor;
         if (typeof (node.textColor) === 'undefined' || node.textColor === '') node.textColor = _this.DefaultNodeTextColor;
@@ -1709,6 +1698,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        let loadingInstance = Loading.service({fullscreen: true});
         // 移除节点旁工具栏
         _this.svg.selectAll(out_buttongroup_id).remove()
         // 移除与节点相关的关系
@@ -1730,6 +1720,7 @@ export default {
         _this.updateGraph()
         _this.SelectedNodeId = 0
         _this.getEchartsData()
+        loadingInstance.close();
         _this.$message({
           type: 'success',
           message: '删除节点成功！'
@@ -1764,6 +1755,7 @@ export default {
     createNode() {
       let _this = this
       let newNode = {}
+      let loadingInstance = Loading.service({fullscreen: true});
       newNode.name = '节点'
       let transform = d3.select('.node').attr('transform')
       if (transform) {
@@ -1809,6 +1801,7 @@ export default {
       _this.cancelOperationMessage = 0;
       _this.isAddingNode = false;
       _this.getEchartsData();
+      loadingInstance.close();
     },
     deleteLink() {
       let _this = this
@@ -1817,6 +1810,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        let loadingInstance = Loading.service({fullscreen: true});
         for (let i = 0; i < _this.graph.links.length; i++) {
           if (_this.graph.links[i].id === _this.SelectedLinkId) {
             _this.graph.links.splice(i, 1)
@@ -1829,6 +1823,7 @@ export default {
         _this.isEditingLink = false
         _this.emptyLinkEntity()
         _this.EditLinkDialogVisible = false
+        loadingInstance.close();
         _this.$message({
           type: 'success',
           message: '删除成功！'
@@ -1847,6 +1842,7 @@ export default {
     createLink() {
       let _this = this
       let newShip = {}
+      let loadingInstance = Loading.service({fullscreen: true});
       newShip.sourceId = _this.SelectedSourceNodeId
       newShip.targetId = _this.SelectedTargetNodeId
       newShip.name = '联系'
@@ -1858,9 +1854,11 @@ export default {
       _this.isAddingLink = false
       _this.SelectedSourceNodeId = 0;
       _this.SelectedTargetNodeId = 0;
+      loadingInstance.close();
     },
     updateNodeInfo() {
       let _this = this
+      let loadingInstance = Loading.service({fullscreen: true});
       for (let i = 0; i < _this.graph.nodes.length; i++) {
         if (_this.SelectedNodeId === _this.graph.nodes[i].id) {
           _this.graph.nodes[i].name = _this.EditingNodeEntity.name
@@ -1877,9 +1875,11 @@ export default {
         }
       }
       _this.updateGraph()
+      loadingInstance.close();
     },
     updateLinkInfo() {
       let _this = this
+      let loadingInstance = Loading.service({fullscreen: true});
       for (let i = 0; i < _this.graph.links.length; i++) {
         if (_this.SelectedLinkId === _this.graph.links[i].id) {
           _this.graph.links[i].name = _this.EditingLinkEntity.name
@@ -1892,6 +1892,7 @@ export default {
         }
       }
       _this.updateGraph()
+      loadingInstance.close();
     },
     // todo 保存为图片
     exportImage() {
@@ -1976,7 +1977,6 @@ export default {
     querySearch(queryString, cb) {
       if (!queryString) {
         let resultsH = getSearchHistoryAPI()
-        // let resultsH = ["sadas","dasda","dasdas"]
         let results = []
         for (let i of resultsH) {
           results.push({"value": i})
@@ -1996,15 +1996,10 @@ export default {
     },
     handleSelect(item) {
       this.searchString = item.value
-      console.log(this.searchString)
-      // this.updateAll()
       this.searchResult = searchNodeAPI(this.selectedKGId, this.searchString)
       this.changeStyle("none", ".el-autocomplete-suggestion");
     },
     handleSearch() {
-      console.log(this.searchString)
-      // todo 在search之前要update
-      // this.updateAll();
       this.searchResult = searchNodeAPI(this.selectedKGId, this.searchString)
       this.changeStyle("none", ".el-autocomplete-suggestion");
     },
@@ -2012,7 +2007,6 @@ export default {
       let dom = document.querySelectorAll(className);
       dom[0].style.display = status;
     },
-    // todo 高亮？
     // 使节点在屏幕中央
     handleChoose(node) {
       // 节点坐标
@@ -2042,7 +2036,8 @@ export default {
       this.EditingNodeEntity.tags.splice(this.EditingNodeEntity.tags.indexOf(tag), 1);
     },
     handleChange() {
-      changeGraphNameAPI(this.selectedKGId, this.graph_name)
+      changeGraphNameAPI(this.selectedKGId, this.graph_name);
+      this.set_selectedKGName(this.graph_name);
     },
     closeGraph() {
       let _this = this;
@@ -2051,15 +2046,10 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        new Promise(function (resolve, reject) {
-          _this.updateAllClick();
-          resolve();
-        }).then(() => {
-          this.set_isGraphOpening(false);
-          this.set_selectedKGId(-1);
-          location.reload();
-        })
-      }).catch(() => {
+        _this.updateAllClick();
+        this.set_isGraphOpening(false);
+        this.set_selectedKGId(-1);
+        location.reload();
       })
     },
     updateAllClick() {
@@ -2078,12 +2068,8 @@ export default {
         links: this.graph.links
       };
       let loadingInstance = Loading.service({fullscreen: true});
-      new Promise(function (resolve, reject) {
-        updateAPI(updateVO);
-        resolve()
-      }).then(() => {
-        loadingInstance.close();
-      })
+      updateAPI(updateVO);
+      loadingInstance.close();
     },
     // 图元相关
     showNodePrimitiveDialog() {
@@ -2135,6 +2121,13 @@ export default {
       this.emptyAddLinkPrimitiveEntity();
     },
     deleteNodePrimitive(id) {
+      if (this.usingNodePrimitiveId !== -1) {
+        this.$message({
+          message: '有图元正在使用中！请先取消使用',
+          type: 'error'
+        })
+        return ;
+      }
       let _this = this;
       _this.$confirm('该操作不可撤销', '将要删除节点图元，是否继续？', {
         confirmButtonText: '确定',
@@ -2161,6 +2154,13 @@ export default {
       })
     },
     deleteLinkPrimitive(id) {
+      if (this.usingLinkPrimitiveId !== -1) {
+        this.$message({
+          message: '有图元正在使用中！请先取消使用',
+          type: 'error'
+        })
+        return ;
+      }
       let _this = this;
       _this.$confirm('该操作不可撤销', '将要删除节点图元，是否继续？', {
         confirmButtonText: '确定',
@@ -2207,7 +2207,7 @@ export default {
         if (_this.LinkPrimitives[i].id === id) {
           _this.DefaultLinkColor = _this.LinkPrimitives[i].color;
           _this.DefaultLinkTextColor = _this.LinkPrimitives[i].textColor;
-          _this.DefaultLinkTextColor = _this.LinkPrimitives[i].textSize;
+          _this.DefaultLinkTextSize = _this.LinkPrimitives[i].textSize;
         }
       }
     },
@@ -2256,20 +2256,23 @@ export default {
         d3.selectAll('.single-node').classed('notshow', true);
         d3.selectAll('.single-nodetext').classed('notshow', true);
         d3.selectAll('.link').classed('notshow', true);
-        d3.selectAll('.linktext').classed('notshow', true);
+        d3.selectAll('.linetext').classed('notshow', true);
+        d3.selectAll('.nodebutton').classed('notshow', true);
         this.showTagNode(params.name);
       });
       this.charts.on('mouseup', (params) => {
         d3.selectAll('.single-node').classed('notshow', false);
         d3.selectAll('.single-nodetext').classed('notshow', false);
         d3.selectAll('.link').classed('notshow', false);
-        d3.selectAll('.linktext').classed('notshow', false);
+        d3.selectAll('.linetext').classed('notshow', false);
+        d3.selectAll('.nodebutton').classed('notshow', false);
       });
       this.charts.on('mouseout', (params) => {
         d3.selectAll('.single-node').classed('notshow', false);
         d3.selectAll('.single-nodetext').classed('notshow', false);
         d3.selectAll('.link').classed('notshow', false);
-        d3.selectAll('.linktext').classed('notshow', false);
+        d3.selectAll('.linetext').classed('notshow', false);
+        d3.selectAll('.nodebutton').classed('notshow', false);
       });
       this.charts.setOption({
         title: {
