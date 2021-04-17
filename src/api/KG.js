@@ -115,7 +115,7 @@ export function uploadAPI(data) {
         data: JSON.stringify(data),
         dataType: 'text',
         contentType: 'application/json',
-        async: true,
+        async: false,
         success: function (content) {
             console.log('upload success!')
             re = JSON.parse(content).content

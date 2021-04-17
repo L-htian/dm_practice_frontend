@@ -1867,7 +1867,7 @@ export default {
       image.onload = function () {
         context.drawImage(image, 0, 0);
         var a = document.createElement("a");
-        a.download = "Atlas.png";
+        a.download = `Kojima_Coin_${new Date().valueOf()}.png`;
         a.href = canvas.toDataURL("image/png");
         a.click();
       }
