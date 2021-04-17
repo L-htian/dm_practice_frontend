@@ -736,7 +736,7 @@ export default {
             document = JSON.parse(e.target.result)
             let uploadData = uploadAPI(document)
             console.log(uploadData)
-            _this.set_selectedKGId(_this.uploadedData.graphId);
+            _this.set_selectedKGId(uploadData.graphId);
             _this.set_isGraphOpening(true)
             _this.graph.nodes = uploadData.nodes
             _this.graph.links = uploadData.links
