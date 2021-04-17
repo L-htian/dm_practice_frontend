@@ -1738,8 +1738,14 @@ export default {
         let resY = (_this.tyy - Number(XYK[1])) / Number(XYK[2]);
         newNode.x = resX;
         newNode.y = resY;
-        newNode.fx = resX;
-        newNode.fy = resY;
+        if(_this.isTypesettingModeOn){
+          newNode.fx = resX;
+          newNode.fy = resY;
+        }
+        else {
+          newNode.fx = null;
+          newNode.fy = null;
+        }
         newNode.force_x = resX;
         newNode.force_y = resY;
         newNode.type_setting_x = resX;
@@ -1747,8 +1753,14 @@ export default {
       } else {
         newNode.x = _this.txx;
         newNode.y = _this.tyy;
-        newNode.fx = _this.txx;
-        newNode.fy = _this.tyy;
+        if(_this.isTypesettingModeOn){
+          newNode.fx = _this.txx;
+          newNode.fy = _this.tyy;
+        }
+        else {
+          newNode.fx = null;
+          newNode.fy = null;
+        }
         newNode.force_x = _this.txx;
         newNode.force_y = _this.tyy;
         newNode.type_setting_x = _this.txx;
