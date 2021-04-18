@@ -2049,12 +2049,15 @@ export default {
         _this.updateAllClick();
         this.set_isGraphOpening(false);
         this.set_selectedKGId(-1);
+        this.set_selectedKGName('');
         location.reload();
       })
     },
     updateAllClick() {
+      let loadingInstance = Loading.service({fullscreen: true});
       this.updateAll();
       this.getEchartsData();
+      loadingInstance.close();
       this.$message({
         type: 'success',
         message: '已同步到数据库'
@@ -2062,14 +2065,21 @@ export default {
     },
     // 更新整个图谱到数据库
     updateAll() {
+      for (let i = 0; i < this.graph.nodes.length; i++) {
+        if (this.isTypesettingModeOn) {
+          this.graph.nodes[i].type_setting_x = this.graph.nodes[i].fx;
+          this.graph.nodes[i].type_setting_y = this.graph.nodes[i].fy;
+        } else {
+          this.graph.nodes[i].force_x = this.graph.nodes[i].x;
+          this.graph.nodes[i].force_y = this.graph.nodes[i].y;
+        }
+      }
       let updateVO = {
         graphId: this.selectedKGId,
         nodes: this.graph.nodes,
         links: this.graph.links
       };
-      let loadingInstance = Loading.service({fullscreen: true});
       updateAPI(updateVO);
-      loadingInstance.close();
     },
     // 图元相关
     showNodePrimitiveDialog() {
@@ -2126,7 +2136,7 @@ export default {
           message: '有图元正在使用中！请先取消使用',
           type: 'error'
         })
-        return ;
+        return;
       }
       let _this = this;
       _this.$confirm('该操作不可撤销', '将要删除节点图元，是否继续？', {
@@ -2159,7 +2169,7 @@ export default {
           message: '有图元正在使用中！请先取消使用',
           type: 'error'
         })
-        return ;
+        return;
       }
       let _this = this;
       _this.$confirm('该操作不可撤销', '将要删除节点图元，是否继续？', {
@@ -2233,7 +2243,6 @@ export default {
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textColor;
       this.DefaultLinkTextColor = this.DefaultLinkPrimitive.textSize;
     },
-    // todo 在这里实现Node样式更改
     // param: tagName
     // paramType: string
     showTagNode(tagName) {
@@ -2296,10 +2305,7 @@ export default {
                 show: false
               }
             },
-            data: [
-              {name: "libanguo", value: 5},
-              {name: "lbg", value: 6}
-            ],
+            data: [],
             itemStyle: {
               emphasis: {
                 shadowBlur: 10,
@@ -2315,12 +2321,7 @@ export default {
     getEchartsData() {
       let co = getCountDataAPI(this.selectedKGId);
       if (co === undefined) {
-        co = [
-          {
-            name: '暂无数据',
-            num: 1,
-          }
-        ]
+        co = []
       }
       this.countData = [];
       for (let i = 0; i < co.length; i++) {
@@ -2334,7 +2335,6 @@ export default {
           data: this.countData
         }]
       })
-
     },
   }
 }
