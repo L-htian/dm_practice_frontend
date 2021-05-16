@@ -1,7 +1,7 @@
 import $ from 'jquery'
 
 const api = {
-    KGListPre: 'http://218.244.146.223:8089/api/KGList'
+    KGListPre: 'http://localhost:8089/api/KGList'
 }
 
 export function getAllGraphAPI() {
@@ -41,4 +41,8 @@ export function updateGraphAPI(graph) {
             console.log('update graph success!')
         }
     })
+}
+
+export function getGraphByTextAPI(textData){
+
 }

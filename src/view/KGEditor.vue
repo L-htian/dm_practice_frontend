@@ -22,8 +22,8 @@ export default {
   },
   data() {
     return {
-      showKGBuilder: false,
-      showUploader: true,
+      showKGBuilder: true,
+      showUploader: false,
       getNew: false,
       upLoaded: false,
       uploadFileList: [],

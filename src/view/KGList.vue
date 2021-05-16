@@ -1,36 +1,62 @@
 <template>
   <div class="list-container">
-    <ul class="kg-list" style="overflow:auto">
-      <li v-for="kg in KGs" class="kg-list-item">
-        <div class="kg-meta">
-          <div class="kg-meta-img">
-            <el-image class="kg-img"
-                      :src="kg.imgsrc"
-                      fit="cover"
-                      :preview-src-list="[kg.imgsrc]"
-            ></el-image>
+    <div class="button-group">
+      <el-upload
+          class="upload"
+          action="#"
+          :limit="1"
+          :on-change="jumpToEditor"
+          accept="application/json"
+          :file-list="fileList">
+        <el-button type="info">上传图谱</el-button>
+      </el-upload>
+      <el-upload
+          class="upload"
+          action="#"
+          :limit="1"
+          :on-change="getTextGraph"
+          accept=".txt"
+          :file-list="textFileList">
+        <el-button type="info" plain>文本构建</el-button>
+      </el-upload>
+      <el-button type="info" plain @click="getNewGraph">创建图谱</el-button>
+      <el-button type="info" plain>知识融合</el-button>
+    </div>
+    <div class="div-kg-list">
+      <ul class="kg-list">
+        <li v-for="kg in KGs" class="kg-list-item">
+          <div class="kg-meta">
+            <div class="kg-meta-img">
+              <el-image class="kg-img"
+                        :src="kg.imgsrc"
+                        fit="cover"
+                        :preview-src-list="[kg.imgsrc]"
+              ></el-image>
+            </div>
+            <div class="kg-meta-content">
+              <h4 class="kg-name" style="color: #409eff" v-if="isGraphOpening && kg.id === selectedKGId">{{ kg.name }}
+                打开中</h4>
+              <h4 class="kg-name" v-else>{{ kg.name }}</h4>
+              <div class="kg-description">{{ kg.description }}</div>
+            </div>
           </div>
-          <div class="kg-meta-content">
-            <h4 class="kg-name" style="color: #409eff" v-if="isGraphOpening && kg.id === selectedKGId">{{ kg.name }} 打开中</h4>
-            <h4 class="kg-name" v-else>{{ kg.name }}</h4>
-            <div class="kg-description">{{ kg.description }}</div>
+          <div class="kg-action">
+            <el-tooltip content="编辑图谱信息" placement="top-end">
+              <el-button type="text" @click="editKG(kg.id)"><i class="action-icon el-icon-edit"></i></el-button>
+            </el-tooltip>
+            <el-divider direction="vertical"></el-divider>
+            <el-tooltip content="删除图谱" placement="top">
+              <el-button type="text" @click="deleteKG(kg.id)"><i class="action-icon el-icon-delete"></i></el-button>
+            </el-tooltip>
+            <el-divider direction="vertical"></el-divider>
+            <el-tooltip content="打开图谱" placement="top-start">
+              <el-button type="text" @click="openKG(kg.id, kg.name)"><i class="action-icon el-icon-view"></i>
+              </el-button>
+            </el-tooltip>
           </div>
-        </div>
-        <div class="kg-action">
-          <el-tooltip content="编辑图谱信息" placement="top-end">
-            <el-button type="text" @click="editKG(kg.id)"><i class="action-icon el-icon-edit"></i></el-button>
-          </el-tooltip>
-          <el-divider direction="vertical"></el-divider>
-          <el-tooltip content="删除图谱" placement="top">
-            <el-button type="text" @click="deleteKG(kg.id)"><i class="action-icon el-icon-delete"></i></el-button>
-          </el-tooltip>
-          <el-divider direction="vertical"></el-divider>
-          <el-tooltip content="打开图谱" placement="top-start">
-            <el-button type="text" @click="openKG(kg.id, kg.name)"><i class="action-icon el-icon-view"></i></el-button>
-          </el-tooltip>
-        </div>
-      </li>
-    </ul>
+        </li>
+      </ul>
+    </div>
     <el-dialog title="编辑选项" :visible.sync="EditGraphDialogVisible" custom-class="customWidth">
       <el-form>
         <el-form-item label="图谱id" :label-width="formLabelWidth">
@@ -77,11 +103,15 @@ import {
   getAllGraphAPI,
   updateGraphAPI,
 } from "../api/KGList";
+import {createGraphAPI} from "../api/KG";
 
 export default {
   name: "KGList",
   data() {
     return {
+      fileList: [],
+      textFileList: [],
+      newGraph: [],
       formLabelWidth: "120px",
       EditingGraphId: 0,
       EditingGraphEntry: {
@@ -108,8 +138,31 @@ export default {
       'set_selectedKGId',
       'set_selectedKGName',
       'set_isGraphOpening',
-      'set_current'
+      'set_current',
+      'set_getUpload',
+      'set_getGraphNew',
+      'set_uploadedData',
+      'set_getTextUpload',
+      'set_uploadedTextData'
     ]),
+    jumpToEditor(file, fileList) {
+      this.fileList = fileList
+      this.set_getUpload(true)
+      this.set_uploadedData(this.fileList)
+      this.$router.push({name: 'KGEditor'})
+    },
+    getNewGraph() {
+      this.set_getGraphNew(true)
+      this.newGraph = createGraphAPI()
+      this.set_selectedKGId(this.newGraph.id)
+      this.$router.push({name: 'KGEditor'})
+    },
+    getTextGraph(file, fileList) {
+      this.textFileList = fileList
+      this.set_getTextUpload(true)
+      this.set_uploadedTextData(this.textFileList)
+      this.$router.push({name: 'KGEditor'})
+    },
     emptyEditingGraphEntry() {
       this.EditingGraphEntry =
           {
@@ -223,12 +276,14 @@ export default {
 .list-container {
   padding-top: 60px;
   margin-right: 10%;
-  margin-left: 10%;
-  width: 80%;
+  margin-left: 7%;
+  width: 85%;
+  overflow: hidden;
 }
 
 .kg-list {
-  width: 100%;
+  width: 95%;
+
 }
 
 .kg-list-item {
@@ -308,5 +363,31 @@ export default {
 .withoutColor {
   width: 97%;
   float: left;
+}
+
+.button-group {
+  position: relative;
+  margin-top: 15px;
+  float: right;
+  background-color: #ffffff;
+}
+
+.div-kg-list {
+  position: relative;
+  top: 10px;
+  overflow-x: auto;
+  overflow-y: auto;
+  height: 585px;
+  width: 100%;
+}
+
+.upload {
+  display: inline-block;
+  padding: 0 12px;
+}
+
+::-webkit-scrollbar {
+  /*隐藏滚轮*/
+  display: none;
 }
 </style>

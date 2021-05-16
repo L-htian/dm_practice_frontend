@@ -3,6 +3,11 @@ const KGList = {
         selectedKGId: -1,
         selectedKGName: '',
         isGraphOpening: false,
+        uploadedData: [],
+        uploadedTextData:[],
+        getUpload: false,
+        getGraphNew: false,
+        getTextUpload:false
     },
     mutations: {
         set_selectedKGId: function (state, data){
@@ -13,6 +18,21 @@ const KGList = {
         },
         set_isGraphOpening: function(state, data){
             state.isGraphOpening = data;
+        },
+        set_uploadedData: function (state, data) {
+            state.uploadedData = data;
+        },
+        set_getUpload: function (state, data) {
+            state.getUpload = data
+        },
+        set_getGraphNew: function (state, data) {
+            state.getGraphNew = data
+        },
+        set_getTextUpload:function (state,data){
+            state.getTextUpload = data
+        },
+        set_uploadedTextData:function (state,data){
+            state.uploadedTextData = data
         }
     },
     actions: {

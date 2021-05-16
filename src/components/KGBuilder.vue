@@ -456,7 +456,7 @@ import {
   getGraphAPI,
   getNodePrimitiveAPI, getLinkPrimitiveAPI, uploadAPI,
 } from '../api/KG.js'
-import {getAllGraphAPI} from "../api/KGList";
+import {getAllGraphAPI, getGraphByText, getGraphByTextAPI} from "../api/KGList";
 
 export default {
   name: "KGBuilder",
@@ -472,7 +472,11 @@ export default {
       'selectedKGId',
       'selectedKGName',
       'uploadedData',
-      'isGraphOpening'
+      'isGraphOpening',
+      'getGraphNew',
+      'getUpload',
+      'getTextUpload',
+      'uploadedTextData'
     ])
   },
   // todo 变量
@@ -724,9 +728,9 @@ export default {
         _this.graph.nodes = updateVO === undefined ? [] : updateVO.nodes;
         _this.graph.links = updateVO === undefined ? [] : updateVO.links;
         _this.updateGraph();
-      } else if (_this.hasUploaded && !_this.wantNew) {
+      } else if (_this.getUpload && !_this.getGraphNew && !_this.getTextUpload) {
         // // todo 前端直接读取执行
-        let file = _this.fileList[0]
+        let file = _this.uploadedData[0]
         let reader = new FileReader()
         let document = ""
         reader.readAsText(file.raw)
@@ -744,21 +748,27 @@ export default {
             this.$message.error('Load JSON document from file error: ' + err.message)
           }
         }
-        // let file = _this.fileList[0]
-        // let reader = new FileReader()
-        // let document = ""
-        // reader.readAsText(file.raw)
-        // reader.onload = (e) => {
-        //   try {
-        //     document = JSON.parse(e.target.result)
-        //     _this.graph.nodes = document.nodes
-        //     _this.graph.links = document.links
-        //     _this.updateGraph()
-        //   } catch (err) {
-        //     this.$message.error('Load JSON document from file error: ' + err.message)
-        //   }
-        // }
-      } else if (_this.wantNew) {
+      } else if (_this.getTextUpload && !_this.getGraphNew) {
+        // // todo 前端直接读取执行
+        let file = _this.uploadedTextData[0]
+        let reader = new FileReader()
+        let document = ""
+        reader.readAsText(file.raw)
+        reader.onload = (e) => {
+          try {
+            document = JSON.parse(e.target.result)
+            let uploadData = getGraphByTextAPI(document)
+            console.log(uploadData)
+            _this.set_selectedKGId(uploadData.graphId);
+            _this.set_isGraphOpening(true)
+            _this.graph.nodes = uploadData.nodes
+            _this.graph.links = uploadData.links
+            _this.updateGraph()
+          } catch (err) {
+            this.$message.error('Load JSON document from file error: ' + err.message)
+          }
+        }
+      }else if(_this.getGraphNew){
         _this.updateGraph();
       }
     },
@@ -2126,7 +2136,7 @@ export default {
           message: '有图元正在使用中！请先取消使用',
           type: 'error'
         })
-        return ;
+        return;
       }
       let _this = this;
       _this.$confirm('该操作不可撤销', '将要删除节点图元，是否继续？', {
@@ -2159,7 +2169,7 @@ export default {
           message: '有图元正在使用中！请先取消使用',
           type: 'error'
         })
-        return ;
+        return;
       }
       let _this = this;
       _this.$confirm('该操作不可撤销', '将要删除节点图元，是否继续？', {

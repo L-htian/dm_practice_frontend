@@ -2,7 +2,7 @@ import $ from 'jquery'
 import axios from "axios";
 
 const api = {
-    KGPre: 'http://218.244.146.223:8089/api/KG/'
+    KGPre: 'http://localhost:8089/api/KG/'
 }
 
 // api方法ajax版
@@ -119,6 +119,7 @@ export function uploadAPI(data) {
         success: function (content) {
             console.log('upload success!')
             re = JSON.parse(content).content
+            console.log(re)
         }
     })
     return re

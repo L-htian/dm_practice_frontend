@@ -16,6 +16,7 @@ module.exports = {
     lintOnSave: true,
     assetsDir: 'static',
     parallel: false,
+    runtimeCompiler: true, //关键点在这
     pwa: {
         iconPaths: {
             favicon32: 'favicon.ico',
@@ -26,6 +27,13 @@ module.exports = {
         }
     },
     devServer: {
-        assetsPublicPath: './',
+        open: process.platform === 'darwin',
+        host: '0.0.0.0',
+        port: 8080,
+        https: false,
+        hotOnly: false,
+        // 查阅 https://github.com/vuejs/vue-doc-zh-cn/vue-cli/cli-service.md#配置代理
+        proxy: null, // string | Object
+        before: app => {}
     },
 }
