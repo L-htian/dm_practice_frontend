@@ -54,16 +54,16 @@ export default {
     }
   },
   mounted() {
-    if (this.$route.name === 'index') this.set_current(1);
-    else if(this.$route.name === 'KGList') this.set_current(2);
-    else if (this.$route.name === 'KGEditor') this.set_current(3);
+    if (this.$route.name === 'index') this.set_current("1");
+    else if(this.$route.name === 'KGList') this.set_current("2");
+    else if (this.$route.name === 'KGEditor') this.set_current("3");
   },
   methods: {
     ...mapMutations([
       'set_current'
     ]),
     jumpToHome() {
-      this.set_current(3);
+      this.set_current("3");
       this.$router.push('/Kojima-Coin/index');
     }
   }

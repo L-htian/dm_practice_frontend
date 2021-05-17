@@ -1,6 +1,8 @@
 <template>
   <div class="list-container">
-    <div class="button-group">
+    <div class="button-group-left">
+    </div>
+    <div class="button-group-right">
       <el-upload
           class="upload"
           action="#"
@@ -10,6 +12,7 @@
           :file-list="fileList">
         <el-button type="info">上传图谱</el-button>
       </el-upload>
+      <el-button type="info" plain @click="deleteManyKGs">批量删除</el-button>
       <el-upload
           class="upload"
           action="#"
@@ -20,11 +23,17 @@
         <el-button type="info" plain>文本构建</el-button>
       </el-upload>
       <el-button type="info" plain @click="getNewGraph">创建图谱</el-button>
-      <el-button type="info" plain>知识融合</el-button>
+      <el-button type="info" plain @click="mixGraph">知识融合</el-button>
     </div>
     <div class="div-kg-list">
       <ul class="kg-list">
-        <li v-for="kg in KGs" class="kg-list-item">
+        <li v-for="(kg, index) in KGs" :bind="kg.id" class="kg-list-item">
+          <el-checkbox
+              class="kg-checkbox"
+              :checked="KGs[index].isSelected"
+              @change="handleCheckChange(index)"
+          >
+          </el-checkbox>
           <div class="kg-meta">
             <div class="kg-meta-img">
               <el-image class="kg-img"
@@ -124,6 +133,7 @@ export default {
       EditGraphDialogVisible: false,
     }
   },
+  watch: {},
   computed: {
     ...mapGetters([
       'selectedKGId',
@@ -132,6 +142,9 @@ export default {
   },
   mounted() {
     this.KGs = getAllGraphAPI();
+    for (let i = 0; i < this.KGs.length; i++) {
+      this.KGs[i].isSelected = false;
+    }
   },
   methods: {
     ...mapMutations([
@@ -163,6 +176,22 @@ export default {
       this.set_uploadedTextData(this.textFileList)
       this.$router.push({name: 'KGEditor'})
     },
+    mixGraph() {
+      let toBeMixed = [];
+      for (let i = 0; i < this.KGs.length; i++) {
+        if (this.KGs[i].isSelected) {
+          toBeMixed.push(this.KGs[i]);
+        }
+      }
+      if (toBeMixed.length > 0) {
+        // todo 图谱融合接口
+      } else {
+        this.$message({
+          type: 'info',
+          message: '无图谱被勾选'
+        })
+      }
+    },
     emptyEditingGraphEntry() {
       this.EditingGraphEntry =
           {
@@ -171,6 +200,9 @@ export default {
             imgsrc: '',
             description: '',
           }
+    },
+    handleCheckChange(index) {
+      this.KGs[index].isSelected = !this.KGs[index].isSelected;
     },
     cancelGraphEdit() {
       this.EditGraphDialogVisible = false
@@ -200,6 +232,53 @@ export default {
         type: 'success',
         message: '编辑图谱成功'
       })
+    },
+    deleteManyKGs() {
+      let _this = this;
+      let toBeDeleted = [];
+      for (let i = 0; i < this.KGs.length; i++) {
+        if (_this.KGs[i].isSelected) {
+          if (_this.isGraphOpening && _this.selectedKGId === _this.KGs[i].id) {
+            _this.$message({
+              type: 'error',
+              message: '选中的图谱中有图谱正在打开，请先关闭该图谱！'
+            })
+            return;
+          }
+          toBeDeleted.push(_this.KGs[i].id);
+        }
+      }
+      if (toBeDeleted.length === 0) {
+        this.$message({
+          type: 'info',
+          message: '无图谱被勾选'
+        })
+      } else {
+        _this.$confirm('该操作不可撤销', '将要删除选中的图谱，是否继续？', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let i = 0;
+          while (i < _this.KGs.length) {
+            if (toBeDeleted.indexOf(_this.KGs[i].id) !== -1) {
+              deleteGraphAPI(_this.KGs[i].id);
+              _this.KGs.splice(i, 1);
+            } else {
+              i++;
+            }
+          }
+          _this.$message({
+            type: 'success',
+            message: '删除图谱成功'
+          })
+        }).catch(() => {
+          _this.$message({
+            type: 'info',
+            message: '操作已取消'
+          })
+        })
+      }
     },
     deleteKG(graphId) {
       let _this = this;
@@ -264,7 +343,7 @@ export default {
         this.set_selectedKGId(graphId);
         this.set_selectedKGName(graphName);
         this.set_isGraphOpening(true);
-        this.set_current(3);
+        this.set_current("3");
         this.$router.push('/Kojima-Coin/KGEditor');
       }
     }
@@ -273,6 +352,20 @@ export default {
 </script>
 
 <style scoped>
+.button-group-left {
+  position: relative;
+  margin-top: 15px;
+  float: left;
+  background-color: #ffffff;
+}
+
+.button-group-right {
+  position: relative;
+  margin-top: 15px;
+  float: right;
+  background-color: #ffffff;
+}
+
 .list-container {
   padding-top: 60px;
   margin-right: 10%;
@@ -304,13 +397,18 @@ export default {
   background: rgba(0, 0, 0, 0.2);
 }
 
+.kg-checkbox {
+  float: left;
+  margin-left: 4%;
+}
+
 .kg-meta {
   display: flex;
   flex: 1;
   align-items: flex-start;
   float: left;
   width: 54%;
-  margin-left: 8%;
+  margin-left: 4%;
 }
 
 .kg-meta-img {
@@ -365,12 +463,6 @@ export default {
   float: left;
 }
 
-.button-group {
-  position: relative;
-  margin-top: 15px;
-  float: right;
-  background-color: #ffffff;
-}
 
 .div-kg-list {
   position: relative;

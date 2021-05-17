@@ -1,5 +1,5 @@
 <template>
-  <div id="app" v-title data-title="Kojima-Coin">
+  <div id="app" data-title="Kojima-Coin">
     <transition name="fade-transform" mode="out-in">
       <router-view/>
     </transition>

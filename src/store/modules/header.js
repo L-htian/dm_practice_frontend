@@ -1,6 +1,6 @@
 const Header = {
     state:{
-        current: 1
+        current: "1"
     },
     mutations: {
         set_current: function (state, data){
