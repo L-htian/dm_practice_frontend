@@ -183,13 +183,18 @@ export default {
           toBeMixed.push(this.KGs[i]);
         }
       }
-      if (toBeMixed.length > 0) {
-        // todo 图谱融合接口
-      } else {
+      if (toBeMixed.length === 0) {
         this.$message({
           type: 'info',
           message: '无图谱被勾选'
-        })
+        });
+      } else if(toBeMixed.length === 1){
+        this.$message({
+          type: 'info',
+          message: '只有一个图谱能叫融合吗？'
+        });
+      } else {
+        // todo 图谱融合接口
       }
     },
     emptyEditingGraphEntry() {

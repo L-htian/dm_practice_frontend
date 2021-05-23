@@ -528,6 +528,7 @@ export default {
 
       searchResult: [],
       searchString: '',
+
       graph_name: '未命名',
       // 图元
       AddNodePrimitiveVisible: false,
@@ -619,6 +620,8 @@ export default {
         nodes: [],
         links: [],
       },
+      // 所有节点的名字
+      NodeNameMap: new Map(),
       // 节点工具栏的内容
       toolbarData: [
         {name: '编辑', value: 1, code: 'edit'},
@@ -727,6 +730,9 @@ export default {
         let updateVO = getGraphAPI(_this.selectedKGId);
         _this.graph.nodes = updateVO === undefined ? [] : updateVO.nodes;
         _this.graph.links = updateVO === undefined ? [] : updateVO.links;
+        for (let i = 0; i < updateVO.nodes.length; i++) {
+          _this.NodeNameMap.set(updateVO.nodes[i].name, i);
+        }
         _this.updateGraph();
       } else if (_this.getUpload && !_this.getGraphNew && !_this.getTextUpload) {
         // // todo 前端直接读取执行
@@ -768,7 +774,7 @@ export default {
             this.$message.error('Load JSON document from file error: ' + err.message)
           }
         }
-      }else if(_this.getGraphNew){
+      } else if (_this.getGraphNew) {
         _this.updateGraph();
       }
     },
@@ -1690,19 +1696,26 @@ export default {
       })
     },
     saveNodeEdit() {
-      this.updateNodeInfo()
-      this.emptyNodeEntity()
-      this.SelectedNodeId = 0
-      this.isEditingNode = false
-      this.EditNodeDialogVisible = false
+      if (this.NodeNameMap.has(this.EditingNodeEntity.name)) {
+        this.$message({
+          type: 'warning',
+          message: '节点名和已有节点名重复！'
+        });
+        return;
+      }
+      this.updateNodeInfo();
+      this.emptyNodeEntity();
+      this.SelectedNodeId = 0;
+      this.isEditingNode = false;
+      this.EditNodeDialogVisible = false;
       this.$message({
         type: 'success',
         message: '保存更改成功！'
-      })
+      });
     },
     // todo 删除节点及相关联系
     deleteNode(out_buttongroup_id) {
-      let _this = this
+      let _this = this;
       _this.$confirm('该操作不可撤销', '将要删除节点和所有以该节点为源或目标的关系，是否继续？', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -1710,36 +1723,37 @@ export default {
       }).then(() => {
         let loadingInstance = Loading.service({fullscreen: true});
         // 移除节点旁工具栏
-        _this.svg.selectAll(out_buttongroup_id).remove()
+        _this.svg.selectAll(out_buttongroup_id).remove();
         // 移除与节点相关的关系
         for (let i = 0; i < _this.graph.links.length; i++) {
           if (_this.graph.links[i].sourceId === _this.SelectedNodeId ||
               _this.graph.links[i].targetId === _this.SelectedNodeId) {
-            _this.graph.links.splice(i, 1)
-            i = i - 1
+            _this.graph.links.splice(i, 1);
+            i = i - 1;
           }
         }
-        // 移除节点
+        // 移除节点和节点、名字映射关系
         for (let i = 0; i < _this.graph.nodes.length; i++) {
           if (_this.graph.nodes[i].id === _this.SelectedNodeId) {
-            _this.graph.nodes.splice(i, 1)
+            _this.NodeNameMap.delete(_this.graph.nodes[i].name);
+            _this.graph.nodes.splice(i, 1);
             break;
           }
         }
-        deleteNodeAPI(_this.SelectedNodeId)
-        _this.updateGraph()
-        _this.SelectedNodeId = 0
-        _this.getEchartsData()
+        deleteNodeAPI(_this.SelectedNodeId);
+        _this.updateGraph();
+        _this.SelectedNodeId = 0;
+        _this.getEchartsData();
         loadingInstance.close();
         _this.$message({
           type: 'success',
           message: '删除节点成功！'
-        })
+        });
       }).catch(() => {
         _this.$message({
           type: 'info',
           message: '操作已取消'
-        })
+        });
       })
     },
     // 取消添加节点/联系
@@ -1763,14 +1777,14 @@ export default {
     },
     // todo 添加节点方法
     createNode() {
-      let _this = this
-      let newNode = {}
+      let _this = this;
+      let newNode = {};
       let loadingInstance = Loading.service({fullscreen: true});
       newNode.name = '节点'
-      let transform = d3.select('.node').attr('transform')
+      let transform = d3.select('.node').attr('transform');
       if (transform) {
         let XYK = []
-        XYK = transform.replace('translate', '').replaceAll('(', '').replaceAll(')', '').replace(' scale', ',').split(',')
+        XYK = transform.replace('translate', '').replaceAll('(', '').replaceAll(')', '').replace(' scale', ',').split(',');
         let resX = (_this.txx - Number(XYK[0])) / Number(XYK[2]);
         let resY = (_this.tyy - Number(XYK[1])) / Number(XYK[2]);
         newNode.x = resX;
@@ -1805,6 +1819,8 @@ export default {
       newNode.textSize = _this.DefaultNodeTextSize;
       newNode.graphId = _this.selectedKGId;
       newNode.id = createNodeAPI(newNode);
+      newNode.name += newNode.id;
+      _this.NodeNameMap.set(newNode.name, _this.graph.nodes.length);
       _this.graph.nodes.push(newNode);
       _this.updateGraph();
       _this.isCancelOperationShow = false;
@@ -1904,7 +1920,7 @@ export default {
       _this.updateGraph()
       loadingInstance.close();
     },
-    // todo 保存为图片
+    // 保存为图片
     exportImage() {
       d3.selectAll('.buttongroup').remove()
       var serializer = new XMLSerializer();
@@ -1934,7 +1950,7 @@ export default {
     },
     // 导出为Json
     exportJson() {
-      // todo 前端导出json实现
+      // 前端导出json实现
       let content = JSON.stringify(getGraphAPI(this.selectedKGId), null, 2)
       let eleLink = document.createElement('a');
       eleLink.download = `Kojima_Coin_${new Date().valueOf()}.json`;
@@ -1947,12 +1963,12 @@ export default {
       eleLink.click();
       // 然后移除
       document.body.removeChild(eleLink);
-      // todo 后端导出json实现
+      // 后端导出json实现
       // saveAsJsonAPI()
     },
     // 导出为XML
     exportXML() {
-      // todo 前端导出xml实现
+      // 前端导出xml实现
       // const xml2js = require('xml2js')
       // let builder = new xml2js.Builder()
       // let dataXml = builder.buildObject(this.graph)
@@ -1967,7 +1983,7 @@ export default {
       // eleLink.click();
       // // 然后移除
       // document.body.removeChild(eleLink);
-      // todo 后端导出xml实现
+      // 后端导出xml实现
       const xml2js = require('xml2js')
       let builder = new xml2js.Builder()
       let dataXml = builder.buildObject(getGraphAPI(this.selectedKGId))
@@ -1983,7 +1999,7 @@ export default {
       // 然后移除
       document.body.removeChild(eleLink);
     },
-    // todo 自动填充搜索栏方法补充
+    // 自动填充搜索栏方法补充
     querySearch(queryString, cb) {
       if (!queryString) {
         let resultsH = getSearchHistoryAPI()
@@ -2037,6 +2053,13 @@ export default {
     handleTagInputConfirm() {
       let inputValue = this.tagInputValue;
       if (inputValue) {
+        if (this.EditingNodeEntity.tags.indexOf(inputValue) !== -1) {
+          this.$message({
+            type: 'warning',
+            message: 'tag和已有tag重复！'
+          });
+          return;
+        }
         this.EditingNodeEntity.tags.push(inputValue);
       }
       this.TagInputVisible = false;
