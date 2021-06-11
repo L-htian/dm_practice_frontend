@@ -762,7 +762,7 @@ export default {
         reader.readAsText(file.raw)
         reader.onload = (e) => {
           try {
-            document = JSON.parse(e.target.result)
+            document = e.target.result
             let uploadData = getGraphByTextAPI(document)
             console.log(uploadData)
             _this.set_selectedKGId(uploadData.graphId);
