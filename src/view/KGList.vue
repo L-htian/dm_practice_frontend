@@ -113,6 +113,7 @@ import {
   updateGraphAPI,
 } from "../api/KGList";
 import {createGraphAPI} from "../api/KG";
+import $ from 'jquery'
 
 export default {
   name: "KGList",
@@ -159,9 +160,8 @@ export default {
       'set_uploadedTextData'
     ]),
     jumpToEditor(file, fileList) {
-      this.fileList = fileList
       this.set_getUpload(true)
-      this.set_uploadedData(this.fileList)
+      this.set_uploadedData($.extend([],[file]))
       this.$router.push({name: 'KGEditor'})
     },
     getNewGraph() {
@@ -171,9 +171,8 @@ export default {
       this.$router.push({name: 'KGEditor'})
     },
     getTextGraph(file, fileList) {
-      this.textFileList = fileList
       this.set_getTextUpload(true)
-      this.set_uploadedTextData(this.textFileList)
+      this.set_uploadedTextData($.extend([],[file]))
       this.$router.push({name: 'KGEditor'})
     },
     mixGraph() {
