@@ -5,7 +5,7 @@ const KGList = {
         isGraphOpening: false,
         uploadedData: [],
         uploadedTextData:[],
-        getUpload: false,
+        getUploaded: false,
         getGraphNew: false,
         getTextUpload:false
     },
@@ -23,7 +23,7 @@ const KGList = {
             state.uploadedData = data;
         },
         set_getUpload: function (state, data) {
-            state.getUpload = data
+            state.getUploaded = data
         },
         set_getGraphNew: function (state, data) {
             state.getGraphNew = data

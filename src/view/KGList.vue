@@ -188,7 +188,7 @@ export default {
           type: 'info',
           message: '无图谱被勾选'
         });
-      } else if(toBeMixed.length === 1){
+      } else if (toBeMixed.length === 1) {
         this.$message({
           type: 'info',
           message: '只有一个图谱能叫融合吗？'

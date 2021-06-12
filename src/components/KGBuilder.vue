@@ -474,7 +474,7 @@ export default {
       'uploadedData',
       'isGraphOpening',
       'getGraphNew',
-      'getUpload',
+      'getUploaded',
       'getTextUpload',
       'uploadedTextData'
     ])
@@ -734,7 +734,7 @@ export default {
           _this.NodeNameMap.set(updateVO.nodes[i].name, i);
         }
         _this.updateGraph();
-      } else if (_this.getUpload && !_this.getGraphNew && !_this.getTextUpload) {
+      } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
         // // todo 前端直接读取执行
         let file = _this.uploadedData[0]
         let reader = new FileReader()
