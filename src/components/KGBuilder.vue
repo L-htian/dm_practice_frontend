@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!--todo 侧边栏-->
     <!--左上侧边栏 图谱名-->
     <div class="graph_name">
       <el-input class="input_graph_name"
@@ -428,12 +427,12 @@
 
 <script>
 import {Loading} from 'element-ui';
-import * as d3 from 'd3'
-import $ from 'jquery'
-import '@/static/iconfont/iconfont.css'
-import '@/static/js/saveSvgAsPng.js'
-import _ from 'underscore'
-import {mapGetters, mapMutations, mapActions} from 'vuex'
+import * as d3 from 'd3';
+import $ from 'jquery';
+import '@/static/iconfont/iconfont.css';
+import '@/static/js/saveSvgAsPng.js';
+import _ from 'underscore';
+import {mapGetters, mapMutations, mapActions} from 'vuex';
 import {
   createLinkAPI,
   createNodeAPI,
@@ -454,9 +453,12 @@ import {
   createLinkPrimitiveAPI,
   getCountDataAPI,
   getGraphAPI,
-  getNodePrimitiveAPI, getLinkPrimitiveAPI, uploadAPI,
-} from '../api/KG.js'
-import {getAllGraphAPI, getGraphByText, getGraphByTextAPI} from "../api/KGList";
+  getNodePrimitiveAPI,
+  getLinkPrimitiveAPI,
+  uploadAPI,
+  getGraphByTextAPI
+} from '../api/KG.js';
+
 
 export default {
   name: "KGBuilder",
@@ -471,12 +473,14 @@ export default {
     ...mapGetters([
       'selectedKGId',
       'selectedKGName',
-      'uploadedData',
+      'uploadedFile',
       'isGraphOpening',
       'getGraphNew',
       'getUploaded',
       'getTextUpload',
-      'uploadedTextData'
+      'uploadedTextFile',
+      'fusedGraph',
+      'getFused'
     ])
   },
   // todo 变量
@@ -641,7 +645,6 @@ export default {
   },
   components: {},
   mounted() {
-    // todo
     this.drawPieChart();
     this.getEchartsData();
     this.initGraphContainer();
@@ -734,44 +737,55 @@ export default {
           _this.NodeNameMap.set(updateVO.nodes[i].name, i);
         }
         _this.updateGraph();
+      } else if (_this.getFused) {
+        _this.graph.nodes = _this.fusedGraph === undefined ? [] : _this.fusedGraph.nodes;
+        _this.graph.links = _this.fusedGraph === undefined ? [] : _this.fusedGraph.links;
+        for (let i = 0; i < _this.graph.nodes.length; i++) {
+          _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
+        }
+        _this.updateGraph();
       } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
-        // // todo 前端直接读取执行
-        let file = _this.uploadedData[0]
-        let reader = new FileReader()
-        let document = ""
-        reader.readAsText(file.raw)
+        let file = _this.uploadedFile[0];
+        let reader = new FileReader();
+        let document = "";
+        reader.readAsText(file.raw);
         reader.onload = (e) => {
           try {
-            document = JSON.parse(e.target.result)
-            let uploadData = uploadAPI(document)
-            console.log(uploadData)
+            document = JSON.parse(e.target.result);
+            let uploadData = uploadAPI(document);
+            console.log(uploadData);
             _this.set_selectedKGId(uploadData.graphId);
-            _this.set_isGraphOpening(true)
-            _this.graph.nodes = uploadData.nodes
-            _this.graph.links = uploadData.links
-            _this.updateGraph()
+            _this.set_isGraphOpening(true);
+            _this.graph.nodes = uploadData.nodes;
+            _this.graph.links = uploadData.links;
+            for (let i = 0; i < _this.graph.nodes.length; i++) {
+              _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
+            }
+            _this.updateGraph();
           } catch (err) {
-            this.$message.error('Load JSON document from file error: ' + err.message)
+            this.$message.error('Load JSON document from file error: ' + err.message);
           }
         }
       } else if (_this.getTextUpload && !_this.getGraphNew) {
-        // // todo 前端直接读取执行
-        let file = _this.uploadedTextData[0]
-        let reader = new FileReader()
-        let document = ""
-        reader.readAsText(file.raw)
+        let file = _this.uploadedTextFile[0];
+        let reader = new FileReader();
+        let document = "";
+        reader.readAsText(file.raw);
         reader.onload = (e) => {
           try {
-            document = e.target.result
-            let uploadData = getGraphByTextAPI(document)
-            console.log(uploadData)
+            document = e.target.result;
+            let uploadData = getGraphByTextAPI(document);
+            console.log(uploadData);
             _this.set_selectedKGId(uploadData.graphId);
-            _this.set_isGraphOpening(true)
-            _this.graph.nodes = uploadData.nodes
-            _this.graph.links = uploadData.links
-            _this.updateGraph()
+            _this.set_isGraphOpening(true);
+            _this.graph.nodes = uploadData.nodes;
+            _this.graph.links = uploadData.links;
+            for (let i = 0; i < _this.graph.nodes.length; i++) {
+              _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
+            }
+            _this.updateGraph();
           } catch (err) {
-            this.$message.error('Load JSON document from file error: ' + err.message)
+            this.$message.error('Load JSON document from file error: ' + err.message);
           }
         }
       } else if (_this.getGraphNew) {
@@ -1775,12 +1789,14 @@ export default {
       this.isCancelOperationShow = true
       d3.select('.grid').style("cursor", "crosshair")
     },
-    // todo 添加节点方法
+    getRandom(num) {
+      return Math.floor(Math.random() * num * 10);
+    },
+    // 添加节点方法
     createNode() {
       let _this = this;
       let newNode = {};
       let loadingInstance = Loading.service({fullscreen: true});
-      newNode.name = '节点'
       let transform = d3.select('.node').attr('transform');
       if (transform) {
         let XYK = []
@@ -1819,7 +1835,10 @@ export default {
       newNode.textSize = _this.DefaultNodeTextSize;
       newNode.graphId = _this.selectedKGId;
       newNode.id = createNodeAPI(newNode);
-      newNode.name += newNode.id;
+      while (true) {
+        newNode.name = '节点' + _this.getRandom(newNode.id);
+        if (!_this.NodeNameMap.has(newNode.name)) break;
+      }
       _this.NodeNameMap.set(newNode.name, _this.graph.nodes.length);
       _this.graph.nodes.push(newNode);
       _this.updateGraph();

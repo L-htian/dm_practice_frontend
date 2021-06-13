@@ -125,6 +125,24 @@ export function uploadAPI(data) {
     return re
 }
 
+export function getGraphByTextAPI(textData) {
+    let re
+    $.ajax(`${api.KGListPre}/uploadDocument`, {
+        type: 'POST',
+        data: JSON.stringify({
+            "document": textData
+        }),
+        dataType: 'text',
+        contentType: 'application/json',
+        async: false,
+        success: function (data) {
+            re = (JSON.parse(data)).content
+            console.log('get text data success')
+        }
+    })
+    return re
+}
+
 export function searchNodeAPI(graphId, content) {
     let searchResult
     $.ajax(`${api.KGPre}/searchNode`, {
@@ -244,7 +262,6 @@ export function deleteLinkPrimitiveAPI(id) {
 }
 
 
-
 export function saveAsJsonAPI(id) {
     let re
     $.ajax(`${api.KGPre}/${id}/saveAsJson`, {
@@ -329,7 +346,7 @@ export function getCountDataAPI(graphId) {
     $.ajax(`${api.KGPre}/${graphId}/getTagCountData`, {
         type: 'GET',
         dataType: 'text',
-        data:{},
+        data: {},
         async: false,
         success: function (data) {
             countData = (JSON.parse(data)).content

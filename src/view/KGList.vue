@@ -7,7 +7,7 @@
           class="upload"
           action="#"
           :limit="1"
-          :on-change="jumpToEditor"
+          :on-change="getUploadGraph"
           accept="application/json"
           :file-list="fileList">
         <el-button type="info">上传图谱</el-button>
@@ -23,7 +23,7 @@
         <el-button type="info" plain>文本构建</el-button>
       </el-upload>
       <el-button type="info" plain @click="getNewGraph">创建图谱</el-button>
-      <el-button type="info" plain @click="mixGraph">知识融合</el-button>
+      <el-button type="info" plain @click="fuseGraph">知识融合</el-button>
     </div>
     <div class="div-kg-list">
       <ul class="kg-list">
@@ -111,6 +111,7 @@ import {
   deleteGraphAPI,
   getAllGraphAPI,
   updateGraphAPI,
+  fuseGraphAPI,
 } from "../api/KGList";
 import {createGraphAPI} from "../api/KG";
 import $ from 'jquery'
@@ -155,27 +156,29 @@ export default {
       'set_current',
       'set_getUpload',
       'set_getGraphNew',
-      'set_uploadedData',
+      'set_uploadedFile',
       'set_getTextUpload',
-      'set_uploadedTextData'
+      'set_uploadedTextFile',
+      'set_fusedGraph',
+      'set_getFused'
     ]),
-    jumpToEditor(file, fileList) {
-      this.set_getUpload(true)
-      this.set_uploadedData($.extend([],[file]))
-      this.$router.push({name: 'KGEditor'})
-    },
     getNewGraph() {
       this.set_getGraphNew(true)
-      this.newGraph = createGraphAPI()
-      this.set_selectedKGId(this.newGraph.id)
-      this.$router.push({name: 'KGEditor'})
+      this.newGraph = createGraphAPI();
+      this.set_selectedKGId(this.newGraph.id);
+      this.$router.push({name: 'KGEditor'});
+    },
+    getUploadGraph(file, fileList) {
+      this.set_getUpload(true);
+      this.set_uploadedFile($.extend([], [file]));
+      this.$router.push({name: 'KGEditor'});
     },
     getTextGraph(file, fileList) {
-      this.set_getTextUpload(true)
-      this.set_uploadedTextData($.extend([],[file]))
-      this.$router.push({name: 'KGEditor'})
+      this.set_getTextUpload(true);
+      this.set_uploadedTextFile($.extend([], [file]));
+      this.$router.push({name: 'KGEditor'});
     },
-    mixGraph() {
+    fuseGraph() {
       let toBeMixed = [];
       for (let i = 0; i < this.KGs.length; i++) {
         if (this.KGs[i].isSelected) {
@@ -193,7 +196,12 @@ export default {
           message: '只有一个图谱能叫融合吗？'
         });
       } else {
-        // todo 图谱融合接口
+        let re = fuseGraphAPI(toBeMixed);
+        // this.set_isGraphOpening(true);
+        // this.set_selectedKGId(re.graphId);
+        this.set_fusedGraph($.extend({}, re));
+        this.set_getFused(true);
+        this.$router.push({name: 'KGEditor'});
       }
     },
     emptyEditingGraphEntry() {

@@ -1,9 +1,8 @@
 <template>
   <div>
     <div id="kg_container">
-      <KGBuilder class="kgBuilder" pid="kg_container" v-if="showKGBuilder" :wantNew="getNew"
+      <KGBuilder class="kgBuilder" pid="kg_container" :wantNew="getNew"
                  :hasUploaded="upLoaded" :fileList="uploadFileList" :graphInfo="getGraph"></KGBuilder>
-      <Uploader class="uploader" v-show="showUploader"></Uploader>
     </div>
   </div>
 </template>
@@ -11,19 +10,14 @@
 <script>
 import {mapGetters, mapActions, mapMutations} from 'vuex'
 import KGBuilder from "@/components/KGBuilder";
-import Uploader from "@/components/Uploader";
-import {Loading} from 'element-ui';
 
 export default {
   name: "KGEditor",
   components: {
-    Uploader,
     KGBuilder
   },
   data() {
     return {
-      showKGBuilder: true,
-      showUploader: false,
       getNew: false,
       upLoaded: false,
       uploadFileList: [],
@@ -37,33 +31,21 @@ export default {
     ])
   },
   mounted() {
-    if (this.isGraphOpening) {
-      this.showUploader = false
-      this.showKGBuilder = true
-    } else {
-      let loadingInstance = Loading.service({fullscreen: true});
-      setTimeout(() => {
-        loadingInstance.close();
-        window.Event.$on('getNewGraph', val => {
-          if (val) {
-            // console.log(val)
-            this.getNew = val
-            this.showKGBuilder = true
-            this.showUploader = false
-          }
-        })
-        window.Event.$on('UploadFile', val => {
-          this.upLoaded = val
-          this.showKGBuilder = true
-          this.showUploader = false
-        })
-        window.Event.$on('transferFileArray', val => {
-          this.uploadFileList = val
-        })
-        window.Event.$on('getGraphInfo', val => {
-          this.getGraph = val
-        })
-      }, 1000)
+    if (!this.isGraphOpening) {
+      window.Event.$on('getNewGraph', val => {
+        if (val) {
+          this.getNew = val
+        }
+      })
+      window.Event.$on('UploadFile', val => {
+        this.upLoaded = val
+      })
+      window.Event.$on('transferFileArray', val => {
+        this.uploadFileList = val
+      })
+      window.Event.$on('getGraphInfo', val => {
+        this.getGraph = val
+      })
     }
   },
   methods: {

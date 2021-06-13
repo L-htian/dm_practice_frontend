@@ -43,35 +43,18 @@ export function updateGraphAPI(graph) {
     })
 }
 
-export function getGraphByTextAPI(textData){
+
+export function fuseGraphAPI(graphIdList) {
     let re
-    $.ajax(`${api.KGListPre}/uploadDocument`, {
+    $.ajax(`${api.KGListPre}/fuseGraph`, {
         type: 'POST',
         data: JSON.stringify({
-            "document":textData
+            "graphIdList": graphIdList
         }),
         dataType: 'text',
         contentType: 'application/json',
         async: false,
         success: function (data) {
-            re = (JSON.parse(data)).content
-            console.log('get text data success')
-        }
-    })
-    return re
-}
-
-export function fuseGraphAPI(graphIdList){
-    let re
-    $.ajax(`${api.KGListPre}/fuseGraph`,{
-        type:'POST',
-        data:JSON.stringify({
-            "graphIdList":graphIdList
-        }),
-        dataType:'text',
-        contentType:'application/json',
-        async:false,
-        success:function (data){
             re = (JSON.parse(data)).content
             console.log("getFuseData success")
         }

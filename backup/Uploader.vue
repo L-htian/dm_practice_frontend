@@ -19,7 +19,7 @@
 
 <script>
 import Vue from 'vue'
-import {createGraphAPI, uploadAPI} from "../api/KG";
+import {createGraphAPI, uploadAPI} from "../src/api/KG";
 import {mapGetters, mapMutations, mapActions} from 'vuex'
 
 export default {
