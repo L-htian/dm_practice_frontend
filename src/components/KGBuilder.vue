@@ -7,19 +7,19 @@
                 placeholder="请命名"
                 v-if="show_input"
                 @keyup.enter.native="handleChange"
-                style="font-size: 16px"
+                style="font-size: 16px;width:82%;float: left;border: 1px;outline: none"
                 maxlength="15"
                 show-word-limit
       >
-        <i class="el-icon-edit el-input__icon" slot="suffix">
-        </i>
       </el-input>
+      <el-button icon="el-icon-check" style="float:right;width:17%;border:0;padding-left: 14px"
+                 @click="handleChange"></el-button>
     </div>
 
     <!--左下侧边栏 搜索-->
     <div class="sidebar-left">
-      <el-autocomplete
 
+      <el-autocomplete
           class="my-autocomplete"
           v-model="searchString"
           :fetch-suggestions="querySearch"
@@ -2090,6 +2090,10 @@ export default {
     handleChange() {
       changeGraphNameAPI(this.selectedKGId, this.graph_name);
       this.set_selectedKGName(this.graph_name);
+      this.$message({
+        message: "修改图谱名称成功",
+        type: 'success'
+      })
     },
     closeGraph() {
       let _this = this;
@@ -2637,5 +2641,9 @@ input::-ms-input-placeholder {
 input::-webkit-input-placeholder {
   text-align: center;
   font-size: 16px;
+}
+
+.graph_name .el-input__inner {
+  border: 0;
 }
 </style>
