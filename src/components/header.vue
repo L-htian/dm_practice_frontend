@@ -24,10 +24,10 @@
           <span>图谱列表</span>
         </el-menu-item>
       </router-link>
-      <router-link to="/Kojima-Coin/KGEditor">
+      <router-link :class="{disabled: isDisabled}" to="/Kojima-Coin/KGEditor">
         <el-menu-item index="3">
           <i class="el-icon-paperclip"></i>
-          <span>知识图谱编辑器</span>
+          <span>{{ EditorText }}</span>
         </el-menu-item>
       </router-link>
     </el-menu>
@@ -41,21 +41,33 @@ export default {
   name: "header",
   data() {
     return {
+      EditorText: '知识图谱编辑器(不可用)',
+      isDisabled: true
     }
   },
-  computed:{
+  computed: {
     ...mapGetters([
-      'current'
+      'current',
+      'isGraphOpening'
     ])
   },
-  watch:{
-    current: function (){
+  watch: {
+    current: function () {
       this.$forceUpdate();
+    },
+    isGraphOpening: function (val) {
+      if (val) {
+        this.isDisabled = false;
+        this.EditorText = '知识图谱编辑器'
+      } else {
+        this.isDisabled = true;
+        this.EditorText = '知识图谱编辑器(不可用)';
+      }
     }
   },
   mounted() {
     if (this.$route.name === 'index') this.set_current("1");
-    else if(this.$route.name === 'KGList') this.set_current("2");
+    else if (this.$route.name === 'KGList') this.set_current("2");
     else if (this.$route.name === 'KGEditor') this.set_current("3");
   },
   methods: {
@@ -108,6 +120,7 @@ export default {
       font-weight: 600;
       position: relative;
       cursor: pointer;
+
       &:hover {
         color: #455355;
       }
@@ -127,6 +140,7 @@ export default {
       height: 60px;
       float: left;
       font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+
       &:hover {
         background: #e4e7ed;
       }
@@ -137,5 +151,9 @@ export default {
       border-bottom-color: #303133;
     }
   }
+}
+
+.disabled {
+  pointer-events: none;
 }
 </style>

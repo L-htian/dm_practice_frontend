@@ -2,7 +2,7 @@ import $ from 'jquery'
 import axios from "axios";
 
 const api = {
-    KGPre: 'http://localhost:8089/api/KG/'
+    KGPre: 'http://localhost:8089/api/KG'
 }
 
 // api方法ajax版
@@ -107,7 +107,7 @@ export function updateAPI(data) {
     })
 }
 
-// todo upload
+// upload
 export function uploadAPI(data) {
     let re
     $.ajax(`${api.KGPre}/upload`, {
@@ -127,7 +127,7 @@ export function uploadAPI(data) {
 
 export function getGraphByTextAPI(textData) {
     let re
-    $.ajax(`${api.KGListPre}/uploadDocument`, {
+    $.ajax(`${api.KGPre}/uploadDocument`, {
         type: 'POST',
         data: JSON.stringify({
             "document": textData

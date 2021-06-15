@@ -38,7 +38,7 @@
         </i>
       </el-autocomplete>
 
-      <!--todo 动态添加搜索到的结果-->
+      <!--动态添加搜索到的结果-->
       <ul class="showResult"
           style="list-style:none;margin:0;padding-left: 0;padding-top:5px;height: 89%;overflow:auto">
         <li v-for="re in searchResult" class="searchResultItem">
@@ -483,7 +483,6 @@ export default {
       'getFused'
     ])
   },
-  // todo 变量
   data() {
     return {
       // 静态量
@@ -785,7 +784,7 @@ export default {
             }
             _this.updateGraph();
           } catch (err) {
-            this.$message.error('Load JSON document from file error: ' + err.message);
+            this.$message.error('Load TXT document from file error: ' + err.message);
           }
         }
       } else if (_this.getGraphNew) {
@@ -1661,7 +1660,7 @@ export default {
         element.msRequestFullscreen()
       }
     },
-    // todo 清空记录关系
+    // 清空记录关系
     emptyLinkEntity() {
       this.EditingLinkEntity = {
         id: 0,
@@ -1711,11 +1710,14 @@ export default {
     },
     saveNodeEdit() {
       if (this.NodeNameMap.has(this.EditingNodeEntity.name)) {
-        this.$message({
-          type: 'warning',
-          message: '节点名和已有节点名重复！'
-        });
-        return;
+        let index = this.NodeNameMap.get(this.EditingNodeEntity.name);
+        if (this.graph.nodes[index].id !== this.EditingNodeEntity.id) {
+          this.$message({
+            type: 'warning',
+            message: '节点名和已有节点名重复！'
+          });
+          return;
+        }
       }
       this.updateNodeInfo();
       this.emptyNodeEntity();
@@ -1727,7 +1729,7 @@ export default {
         message: '保存更改成功！'
       });
     },
-    // todo 删除节点及相关联系
+    // 删除节点及相关联系
     deleteNode(out_buttongroup_id) {
       let _this = this;
       _this.$confirm('该操作不可撤销', '将要删除节点和所有以该节点为源或目标的关系，是否继续？', {
@@ -2308,7 +2310,7 @@ export default {
       })
       console.log(tagName);
     },
-    // todo 统计饼图
+    // 统计饼图
     drawPieChart() {
       const echarts = require('echarts');
       this.charts = echarts.init(document.getElementById("pieCount"))
@@ -2391,7 +2393,7 @@ export default {
   }
 }
 </script>
-<!--todo css层-->
+<!--css-->
 <style>
 #grid {
   position: fixed;
@@ -2505,7 +2507,7 @@ export default {
   cursor: pointer;
 }
 
-/* todo 正在应用的颜色 */
+/* 正在应用的颜色 */
 .el-table .success-row {
   background: #f0f9eb;
 }

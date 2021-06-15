@@ -182,7 +182,7 @@ export default {
       let toBeMixed = [];
       for (let i = 0; i < this.KGs.length; i++) {
         if (this.KGs[i].isSelected) {
-          toBeMixed.push(this.KGs[i]);
+          toBeMixed.push(this.KGs[i].id);
         }
       }
       if (toBeMixed.length === 0) {

@@ -141,7 +141,7 @@
 
         const req = new XMLHttpRequest();
         req.addEventListener('load', () => {
-          // TODO: it may also be worth it to wait until fonts are fully loaded before
+          // it may also be worth it to wait until fonts are fully loaded before
           // attempting to rasterize them. (e.g. use https://developer.mozilla.org/en-US/docs/Web/API/FontFaceSet)
           const fontInBase64 = arrayBufferToBase64(req.response);
           const fontUri = font.text.replace(urlRegex, `url("data:${font.format};base64,${fontInBase64}")`)+'\n';
