@@ -755,12 +755,12 @@ export default {
             let uploadData = uploadAPI(document);
             console.log(uploadData);
             _this.set_selectedKGId(uploadData.graphId);
+            this.set_isGraphOpening(true);
             _this.graph.nodes = uploadData.nodes;
             _this.graph.links = uploadData.links;
             for (let i = 0; i < _this.graph.nodes.length; i++) {
               _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
             }
-            this.set_isGraphOpening(true)
             _this.updateGraph();
           } catch (err) {
             this.$message.error('Load JSON document from file error: ' + err.message);
@@ -777,19 +777,19 @@ export default {
             let uploadData = getGraphByTextAPI(document);
             console.log(uploadData);
             _this.set_selectedKGId(uploadData.graphId);
+            this.set_isGraphOpening(true);
             _this.graph.nodes = uploadData.nodes;
             _this.graph.links = uploadData.links;
             for (let i = 0; i < _this.graph.nodes.length; i++) {
               _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
             }
-            this.set_isGraphOpening(true)
             _this.updateGraph();
           } catch (err) {
             this.$message.error('Load TXT document from file error: ' + err.message);
           }
         }
       } else if (_this.getGraphNew) {
-        this.set_isGraphOpening(true)
+        this.set_isGraphOpening(true);
         _this.updateGraph();
       }
     },

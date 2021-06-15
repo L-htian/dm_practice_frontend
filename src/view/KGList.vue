@@ -163,7 +163,7 @@ export default {
       'set_getFused'
     ]),
     getNewGraph() {
-      this.set_getGraphNew(true)
+      this.set_getGraphNew(true);
       this.newGraph = createGraphAPI();
       this.set_selectedKGId(this.newGraph.id);
       this.$router.push({name: 'KGEditor'});
