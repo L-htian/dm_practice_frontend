@@ -5,7 +5,13 @@ const api = {
     KGPre: 'http://localhost:8089/api/KG'
 }
 
-// api方法ajax版
+/**
+ * 创建节点时调用获得节点id
+ * @param node 节点信息
+ * @return 节点id
+ * @author 吴昊宇
+ * @date 2021/3/29
+ */
 export function createNodeAPI(node) {
     let newId
     $.ajax(`${api.KGPre}/createNode`, {
@@ -28,6 +34,13 @@ export function createNodeAPI(node) {
     return newId
 }
 
+/**
+ * 根据节点id删除节点
+ * @param id 节点id
+ * @return None
+ * @author 吴昊宇
+ * @date 2021/3/29
+ */
 export function deleteNodeAPI(id) {
     $.ajax(`${api.KGPre}/${id}/deleteNode`, {
         type: 'POST',
@@ -38,6 +51,13 @@ export function deleteNodeAPI(id) {
     })
 }
 
+/**
+ * 更新节点的信息
+ * @param node 节点信息
+ * @return None
+ * @author 吴昊宇
+ * @date 2021/3/29
+ */
 export function updateNodeAPI(node) {
     $.ajax(`${api.KGPre}/updateNode`, {
         type: 'POST',
@@ -52,6 +72,13 @@ export function updateNodeAPI(node) {
     })
 }
 
+/**
+ * 创建节点之间的连接
+ * @param link 连接信息
+ * @return 连接id
+ * @author 吴昊宇
+ * @date 2021/3/29
+ */
 export function createLinkAPI(link) {
     let newId
     $.ajax(`${api.KGPre}/createLink`, {
@@ -68,6 +95,13 @@ export function createLinkAPI(link) {
     return newId
 }
 
+/**
+ * 根据连接id删除连接
+ * @param id 连接id
+ * @return None
+ * @author 吴昊宇
+ * @date 2021/3/29
+ */
 export function deleteLinkAPI(id) {
     $.ajax(`${api.KGPre}/${id}/deleteLink`, {
         type: 'POST',
@@ -80,6 +114,13 @@ export function deleteLinkAPI(id) {
     })
 }
 
+/**
+ * 更新连接信息
+ * @param link 连接信息
+ * @return None
+ * @author 吴昊宇
+ * @date 2021/3/29
+ */
 export function updateLinkAPI(link) {
     $.ajax(`${api.KGPre}/updateLink`, {
         type: 'POST',
@@ -94,6 +135,13 @@ export function updateLinkAPI(link) {
     })
 }
 
+/**
+ * 更新图谱的信息
+ * @param data 图谱信息
+ * @return None
+ * @author 吴昊宇
+ * @date 2021/3/29
+ */
 export function updateAPI(data) {
     $.ajax(`${api.KGPre}/update`, {
         type: 'POST',
@@ -107,7 +155,13 @@ export function updateAPI(data) {
     })
 }
 
-// upload
+/**
+ * 上传图谱
+ * @param data 上传的json文档的数据
+ * @return 格式化之后符合图谱要求的图谱数据
+ * @author 吴昊宇
+ * @date 2021/4/11
+ */
 export function uploadAPI(data) {
     let re
     $.ajax(`${api.KGPre}/upload`, {
@@ -125,6 +179,13 @@ export function uploadAPI(data) {
     return re
 }
 
+/**
+ * 代码作用
+ * @param textData 上传的txt文档的数据
+ * @return 格式化处理之后的符合图谱要求的图谱数据
+ * @author 吴昊宇
+ * @date 2021/6/13
+ */
 export function getGraphByTextAPI(textData) {
     let re
     $.ajax(`${api.KGPre}/uploadDocument`, {
@@ -143,6 +204,14 @@ export function getGraphByTextAPI(textData) {
     return re
 }
 
+/**
+ * 根据输入内容搜索节点
+ * @param graphId 图谱id
+ * @param content 搜索内容
+ * @return 节点数据
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function searchNodeAPI(graphId, content) {
     let searchResult
     $.ajax(`${api.KGPre}/searchNode`, {
@@ -159,6 +228,12 @@ export function searchNodeAPI(graphId, content) {
     return searchResult
 }
 
+/**
+ * 获得搜索历史
+ * @return 搜索历史
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function getSearchHistoryAPI() {
     let results
     $.ajax(`${api.KGPre}/searchHistory`, {
@@ -175,6 +250,13 @@ export function getSearchHistoryAPI() {
     return results
 }
 
+/**
+ * 创建节点图元信息
+ * @param data 节点图元信息
+ * @return 节点图元id
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function createNodePrimitiveAPI(data) {
     let NodePrimitive
     $.ajax(`${api.KGPre}/createNodePrimitive`, {
@@ -191,6 +273,13 @@ export function createNodePrimitiveAPI(data) {
     return NodePrimitive
 }
 
+/**
+ * 创建连接图元
+ * @param data 连接图元信息
+ * @return 连接图元id
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function createLinkPrimitiveAPI(data) {
     let LinkPrimitive
     $.ajax(`${api.KGPre}/createLinkPrimitive`, {
@@ -207,6 +296,12 @@ export function createLinkPrimitiveAPI(data) {
     return LinkPrimitive
 }
 
+/**
+ * 获得节点图元
+ * @return 全部的节点图元信息
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function getNodePrimitiveAPI() {
     let NodePrimitive
     $.ajax(`${api.KGPre}/getNodePrimitive`, {
@@ -223,6 +318,12 @@ export function getNodePrimitiveAPI() {
     return NodePrimitive
 }
 
+/**
+ * 获得连接图元
+ * @return 全部的连接图元信息
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function getLinkPrimitiveAPI() {
     let LinkPrimitive
     $.ajax(`${api.KGPre}/getLinkPrimitive`, {
@@ -239,6 +340,13 @@ export function getLinkPrimitiveAPI() {
     return LinkPrimitive
 }
 
+/**
+ * 删除节点图元
+ * @param id 节点图元的id
+ * @return None
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function deleteNodePrimitiveAPI(id) {
     $.ajax(`${api.KGPre}/${id}/deleteNodePrimitive`, {
         type: 'POST',
@@ -250,6 +358,13 @@ export function deleteNodePrimitiveAPI(id) {
     })
 }
 
+/**
+ * 删除连接图元
+ * @param id 连接图元id
+ * @return None
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function deleteLinkPrimitiveAPI(id) {
     $.ajax(`${api.KGPre}/${id}/deleteLinkPrimitive`, {
         type: 'POST',
@@ -261,7 +376,13 @@ export function deleteLinkPrimitiveAPI(id) {
     })
 }
 
-
+/**
+ * 获得图谱信息
+ * @param id 图谱id
+ * @return 图谱信息
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function saveAsJsonAPI(id) {
     let re
     $.ajax(`${api.KGPre}/${id}/saveAsJson`, {
@@ -277,6 +398,13 @@ export function saveAsJsonAPI(id) {
     return re
 }
 
+/**
+ * 获得图谱信息
+ * @param id 图谱id
+ * @return 图谱信息
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function saveAsXmlAPI(id) {
     let re
     $.ajax(`${api.KGPre}/${id}/saveAsXml`, {
@@ -292,6 +420,12 @@ export function saveAsXmlAPI(id) {
     return re
 }
 
+/**
+ * 创建图
+ * @return 新图id
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function createGraphAPI() {
     let graph
     $.ajax(`${api.KGPre}/createGraph`, {
@@ -308,6 +442,13 @@ export function createGraphAPI() {
     return graph
 }
 
+/**
+ * 获得图信息
+ * @param id 图id
+ * @return 图的信息
+ * @author 李昊天
+ * @date 2021/4/2
+ */
 export function getGraphAPI(id) {
     let graphInfo
     $.ajax(`${api.KGPre}/${id}/getGraph`, {
@@ -324,6 +465,14 @@ export function getGraphAPI(id) {
     return graphInfo
 }
 
+/**
+ * 图谱改名
+ * @param graphId 图谱id
+ * @param graphName 需要改成的图谱的名字
+ * @return None
+ * @author 李昊天
+ * @date 2021/4/7
+ */
 export function changeGraphNameAPI(graphId, graphName) {
     $.ajax(`${api.KGPre}/changeGraphName`, {
         type: 'POST',
@@ -335,12 +484,19 @@ export function changeGraphNameAPI(graphId, graphName) {
         }),
         dataType: 'text',
         contentType: 'application/json',
-        success: function (data) {
+        success: function () {
             console.log("changeGraphName Success")
         }
     })
 }
 
+/**
+ * 获得统计数据
+ * @param graphId 图谱id
+ * @return 统计数据
+ * @author 李昊天
+ * @date 2021/4/10
+ */
 export function getCountDataAPI(graphId) {
     let countData
     $.ajax(`${api.KGPre}/${graphId}/getTagCountData`, {
