@@ -510,3 +510,23 @@ export function getCountDataAPI(graphId) {
     })
     return countData
 }
+
+/**
+ * 获得当前图的名称
+ * @param graphId 图谱id
+ * @return 列表图信息
+ * @author 李昊天
+ * @date 2021/6/17
+ */
+export function getSingleGraphInfoAPI(graphId){
+    let re
+    $.ajax(`${api.KGPre}/${graphId}/getSingleGraph`,{
+        type:'POST',
+        dataType:'text',
+        async:false,
+        success:function (data){
+            re = (JSON.parse(data)).content
+        }
+    })
+    return re
+}

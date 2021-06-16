@@ -456,7 +456,8 @@ import {
   getNodePrimitiveAPI,
   getLinkPrimitiveAPI,
   uploadAPI,
-  getGraphByTextAPI
+  getGraphByTextAPI,
+  getSingleGraphInfoAPI
 } from '../api/KG.js';
 
 
@@ -743,6 +744,7 @@ export default {
           _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
         }
         this.set_isGraphOpening(true)
+        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
         _this.updateGraph();
       } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
         let file = _this.uploadedFile[0];
@@ -761,6 +763,7 @@ export default {
             for (let i = 0; i < _this.graph.nodes.length; i++) {
               _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
             }
+            _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
             _this.updateGraph();
           } catch (err) {
             this.$message.error('Load JSON document from file error: ' + err.message);
@@ -783,6 +786,7 @@ export default {
             for (let i = 0; i < _this.graph.nodes.length; i++) {
               _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
             }
+            _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
             _this.updateGraph();
           } catch (err) {
             this.$message.error('Load TXT document from file error: ' + err.message);
@@ -790,6 +794,7 @@ export default {
         }
       } else if (_this.getGraphNew) {
         this.set_isGraphOpening(true);
+        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
         _this.updateGraph();
       }
     },
