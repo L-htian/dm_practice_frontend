@@ -522,6 +522,11 @@ export function getSingleGraphInfoAPI(graphId){
     let re
     $.ajax(`${api.KGPre}/${graphId}/getSingleGraph`,{
         type:'POST',
-        dataType:''
+        dataType:'text',
+        async:false,
+        success:function (data){
+            re = (JSON.parse(data)).content
+        }
     })
+    return re
 }
