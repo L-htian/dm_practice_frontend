@@ -518,13 +518,33 @@ export function getCountDataAPI(graphId) {
  * @author 李昊天
  * @date 2021/6/17
  */
-export function getSingleGraphInfoAPI(graphId){
+export function getSingleGraphInfoAPI(graphId) {
     let re
-    $.ajax(`${api.KGPre}/${graphId}/getSingleGraph`,{
-        type:'POST',
-        dataType:'text',
-        async:false,
-        success:function (data){
+    $.ajax(`${api.KGPre}/${graphId}/getSingleGraph`, {
+        type: 'POST',
+        dataType: 'text',
+        async: false,
+        success: function (data) {
+            re = (JSON.parse(data)).content
+        }
+    })
+    return re
+}
+
+/**
+ * 获得当前节点国有股比例、注册资本、入度、出度、风险值
+ * @param graphId 节点id
+ * @return 国有股比例、注册资本、入度、出度、风险值
+ * @author 李昊天
+ * @date 2021/6/17
+ */
+export function getSingleNodeRiskAPI(nodeId) {
+    let re
+    $.ajax(`${api.KGPre}/${nodeId}/getSingleNodeRisk`, {
+        type: 'POST',
+        dataType: 'text',
+        async: false,
+        success: function (data) {
             re = (JSON.parse(data)).content
         }
     })
