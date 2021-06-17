@@ -435,10 +435,10 @@
     </el-dialog>
     <el-dialog title="风险值展示" :visible.sync="ShowRiskVisible">
       <div class="risk-item">国有股比例： {{ RiskVO.stateOwnedRatio }}</div>
-      <div class="risk-item">入度：      {{ RiskVO.inDegree }}</div>
-      <div class="risk-item">出度：      {{ RiskVO.outDegree }}</div>
+      <div class="risk-item">入度： {{ RiskVO.inDegree }}</div>
+      <div class="risk-item">出度： {{ RiskVO.outDegree }}</div>
       <div class="risk-item">注册资本/元：{{ RiskVO.regAsset }}</div>
-      <div class="risk-item">风险值：    {{ RiskVO.risk }}</div>
+      <div class="risk-item">风险值： {{ RiskVO.risk }}</div>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="cancelShowRisk">确定</el-button>
       </div>
@@ -1857,7 +1857,7 @@ export default {
       d3.select('.grid').style("cursor", "crosshair")
     },
     getRandom(num) {
-      return Math.floor(Math.random() * num * 10);
+      return Math.floor(Math.random() * num * 20);
     },
     // 添加节点方法
     createNode() {
@@ -1901,11 +1901,13 @@ export default {
       newNode.r = _this.defaultR;
       newNode.textSize = _this.DefaultNodeTextSize;
       newNode.graphId = _this.selectedKGId;
-      newNode.id = createNodeAPI(newNode);
+      newNode.regAsset = 0;
+      newNode.stateOwned = false;
       while (true) {
-        newNode.name = '节点' + _this.getRandom(newNode.id);
+        newNode.name = '节点' + _this.getRandom(_this.graph.nodes[_this.graph.nodes.length - 1].id);
         if (!_this.NodeNameMap.has(newNode.name)) break;
       }
+      newNode.id = createNodeAPI(newNode);
       _this.NodeNameMap.set(newNode.name, _this.graph.nodes.length);
       _this.graph.nodes.push(newNode);
       _this.updateGraph();
@@ -1952,18 +1954,19 @@ export default {
       })
     },
     createLink() {
-      let _this = this
-      let newShip = {}
+      let _this = this;
+      let newShip = {};
       let loadingInstance = Loading.service({fullscreen: true});
-      newShip.sourceId = _this.SelectedSourceNodeId
-      newShip.targetId = _this.SelectedTargetNodeId
-      newShip.name = '联系'
+      newShip.sourceId = _this.SelectedSourceNodeId;
+      newShip.targetId = _this.SelectedTargetNodeId;
+      newShip.name = '持股比例 ' + 0 + '%';
       newShip.textSize = _this.DefaultLinkTextSize;
-      newShip.id = createLinkAPI(newShip)
-      newShip.graphId = _this.selectedKGId
-      _this.graph.links.push(newShip)
-      _this.updateGraph()
-      _this.isAddingLink = false
+      newShip.holdRatio = 0;
+      newShip.id = createLinkAPI(newShip);
+      newShip.graphId = _this.selectedKGId;
+      _this.graph.links.push(newShip);
+      _this.updateGraph();
+      _this.isAddingLink = false;
       _this.SelectedSourceNodeId = 0;
       _this.SelectedTargetNodeId = 0;
       loadingInstance.close();
@@ -2717,7 +2720,7 @@ li {
 }
 
 /*risk*/
-.risk-item{
+.risk-item {
   width: 75%;
   font-size: 18px;
 }
