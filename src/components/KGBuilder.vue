@@ -476,7 +476,7 @@ import {
   getNodePrimitiveAPI,
   getLinkPrimitiveAPI,
   uploadAPI,
-  getGraphByTextAPI, getSingleGraphInfoAPI
+  getGraphByTextAPI, getSingleGraphInfoAPI, getSingleNodeRiskAPI
 } from '../api/KG.js';
 
 
@@ -778,7 +778,7 @@ export default {
         }
         _this.set_isGraphOpening(true);
         _this.set_selectedKGId(_this.fusedGraph.graphId);
-        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
         _this.updateGraph();
       } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
         let file = _this.uploadedFile[0];
@@ -797,7 +797,7 @@ export default {
             for (let i = 0; i < _this.graph.nodes.length; i++) {
               _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
             }
-            _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+            _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
             _this.updateGraph();
           } catch (err) {
             this.$message.error('Load JSON document from file error: ' + err.message);
@@ -827,6 +827,7 @@ export default {
         }
       } else if (_this.getGraphNew) {
         _this.set_isGraphOpening(true);
+        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
         _this.updateGraph();
       }
     },
@@ -1106,8 +1107,7 @@ export default {
               break;
             case "RISK":
               _this.SelectedNodeId = d.id;
-              // todo api 调用
-              // _this.RiskVO = getSingleNodeRiskAPI(d.id);
+              _this.RiskVO = getSingleNodeRiskAPI(d.id);
               _this.RiskFormula = '$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$';
               _this.ShowRiskVisible = true;
               break;
@@ -1903,7 +1903,7 @@ export default {
       newNode.regAsset = 0;
       newNode.stateOwned = false;
       let ranNum = Number(_this.graph.nodes[_this.graph.nodes.length - 1].id);
-      if(ranNum === undefined || ranNum === 0){
+      if (ranNum === undefined || ranNum === 0) {
         ranNum = 10;
       }
       while (true) {

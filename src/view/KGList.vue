@@ -120,7 +120,7 @@ import {
   updateGraphAPI,
   fuseGraphAPI,
 } from "../api/KGList";
-import {createGraphAPI, getSingleGraphInfoAPI} from "../api/KG";
+import {createGraphAPI} from "../api/KG";
 import $ from 'jquery'
 
 export default {
@@ -182,8 +182,6 @@ export default {
     getNewGraph() {
       this.set_getGraphNew(true);
       this.newGraph = createGraphAPI();
-      let graphInfo = getSingleGraphInfoAPI(this.newGraph.id);
-      this.set_selectedKGName(graphInfo.name);
       this.set_selectedKGId(this.newGraph.id);
       this.$router.push({name: 'KGEditor'});
     },
