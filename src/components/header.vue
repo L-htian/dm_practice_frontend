@@ -42,7 +42,7 @@ export default {
   data() {
     return {
       EditorText: '知识图谱编辑器(不可用)',
-      isDisabled: false // todo recover
+      isDisabled: true
     }
   },
   computed: {

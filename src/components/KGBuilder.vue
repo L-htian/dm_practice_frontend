@@ -434,7 +434,11 @@
       </div>
     </el-dialog>
     <el-dialog title="风险值展示" :visible.sync="ShowRiskVisible">
-<!--      TODO RISK-->
+      <div class="risk-item">国有股比例： {{ RiskVO.stateOwnedRatio }}</div>
+      <div class="risk-item">入度：      {{ RiskVO.inDegree }}</div>
+      <div class="risk-item">出度：      {{ RiskVO.outDegree }}</div>
+      <div class="risk-item">注册资本/元：{{ RiskVO.regAsset }}</div>
+      <div class="risk-item">风险值：    {{ RiskVO.risk }}</div>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="cancelShowRisk">确定</el-button>
       </div>
@@ -678,11 +682,10 @@ export default {
     this.getEchartsData();
     this.initGraphContainer();
     this.initJQueryEvents();
-    // todo recover
-    // let np = getNodePrimitiveAPI();
-    // let lp = getLinkPrimitiveAPI();
-    // this.NodePrimitives = np === undefined ? [] : np;
-    // this.LinkPrimitives = lp === undefined ? [] : lp;
+    let np = getNodePrimitiveAPI();
+    let lp = getLinkPrimitiveAPI();
+    this.NodePrimitives = np === undefined ? [] : np;
+    this.LinkPrimitives = lp === undefined ? [] : lp;
     this.initGraph();
   },
   created() {
@@ -758,91 +761,75 @@ export default {
     // 初始化知识图谱
     initGraph() {
       let _this = this;
-      _this.graph.nodes = [
-        {
-          id: 0,
-          name: 'sdas',
-          regAsset: 0,
-          stateOwned: false,
-          tags: [],
-          r: 30,
-          color: '#123123',
-          strokeColor: '#123123',
-          textColor: '#123123',
-          textSize: 14
+      if (_this.isGraphOpening) {
+        _this.graph_name = _this.selectedKGName;
+        let updateVO = getGraphAPI(_this.selectedKGId);
+        _this.graph.nodes = updateVO === undefined ? [] : updateVO.nodes;
+        _this.graph.links = updateVO === undefined ? [] : updateVO.links;
+        for (let i = 0; i < updateVO.nodes.length; i++) {
+          _this.NodeNameMap.set(updateVO.nodes[i].name, i);
         }
-      ]
-      _this.updateGraph()
-      // todo recover
-      // if (_this.isGraphOpening) {
-      //   _this.graph_name = _this.selectedKGName;
-      //   let updateVO = getGraphAPI(_this.selectedKGId);
-      //   _this.graph.nodes = updateVO === undefined ? [] : updateVO.nodes;
-      //   _this.graph.links = updateVO === undefined ? [] : updateVO.links;
-      //   for (let i = 0; i < updateVO.nodes.length; i++) {
-      //     _this.NodeNameMap.set(updateVO.nodes[i].name, i);
-      //   }
-      //   _this.updateGraph();
-      // } else if (_this.getFused) {
-      //   _this.graph.nodes = _this.fusedGraph === undefined ? [] : _this.fusedGraph.nodes;
-      //   _this.graph.links = _this.fusedGraph === undefined ? [] : _this.fusedGraph.links;
-      //   for (let i = 0; i < _this.graph.nodes.length; i++) {
-      //     _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
-      //   }
-      //   _this.set_isGraphOpening(true);
-      //   _this.set_selectedKGId(_this.fusedGraph.graphId);
-      //   _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
-      //   _this.updateGraph();
-      // } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
-      //   let file = _this.uploadedFile[0];
-      //   let reader = new FileReader();
-      //   let document = "";
-      //   reader.readAsText(file.raw);
-      //   reader.onload = (e) => {
-      //     try {
-      //       document = JSON.parse(e.target.result);
-      //       let uploadData = uploadAPI(document);
-      //       console.log(uploadData);
-      //       _this.set_selectedKGId(uploadData.graphId);
-      //       _this.set_isGraphOpening(true);
-      //       _this.graph.nodes = uploadData.nodes;
-      //       _this.graph.links = uploadData.links;
-      //       for (let i = 0; i < _this.graph.nodes.length; i++) {
-      //         _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
-      //       }
-      //       _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
-      //       _this.updateGraph();
-      //     } catch (err) {
-      //       this.$message.error('Load JSON document from file error: ' + err.message);
-      //     }
-      //   }
-      // } else if (_this.getTextUpload && !_this.getGraphNew) {
-      //   let file = _this.uploadedTextFile[0];
-      //   let reader = new FileReader();
-      //   let document = "";
-      //   reader.readAsText(file.raw);
-      //   reader.onload = (e) => {
-      //     try {
-      //       document = e.target.result;
-      //       let uploadData = getGraphByTextAPI(document);
-      //       console.log(uploadData);
-      //       _this.set_selectedKGId(uploadData.graphId);
-      //       _this.set_isGraphOpening(true);
-      //       _this.graph.nodes = uploadData.nodes;
-      //       _this.graph.links = uploadData.links;
-      //       for (let i = 0; i < _this.graph.nodes.length; i++) {
-      //         _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
-      //       }
-      //       _this.updateGraph();
-      //     } catch (err) {
-      //       this.$message.error('Load TXT document from file error: ' + err.message);
-      //     }
-      //   }
-      // } else if (_this.getGraphNew) {
-      //   _this.set_isGraphOpening(true);
-      //   _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
-      //   _this.updateGraph();
-      // }
+        _this.updateGraph();
+      } else if (_this.getFused) {
+        _this.graph.nodes = _this.fusedGraph === undefined ? [] : _this.fusedGraph.nodes;
+        _this.graph.links = _this.fusedGraph === undefined ? [] : _this.fusedGraph.links;
+        for (let i = 0; i < _this.graph.nodes.length; i++) {
+          _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
+        }
+        _this.set_isGraphOpening(true);
+        _this.set_selectedKGId(_this.fusedGraph.graphId);
+        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+        _this.updateGraph();
+      } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
+        let file = _this.uploadedFile[0];
+        let reader = new FileReader();
+        let document = "";
+        reader.readAsText(file.raw);
+        reader.onload = (e) => {
+          try {
+            document = JSON.parse(e.target.result);
+            let uploadData = uploadAPI(document);
+            console.log(uploadData);
+            _this.set_selectedKGId(uploadData.graphId);
+            _this.set_isGraphOpening(true);
+            _this.graph.nodes = uploadData.nodes;
+            _this.graph.links = uploadData.links;
+            for (let i = 0; i < _this.graph.nodes.length; i++) {
+              _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
+            }
+            _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+            _this.updateGraph();
+          } catch (err) {
+            this.$message.error('Load JSON document from file error: ' + err.message);
+          }
+        }
+      } else if (_this.getTextUpload && !_this.getGraphNew) {
+        let file = _this.uploadedTextFile[0];
+        let reader = new FileReader();
+        let document = "";
+        reader.readAsText(file.raw);
+        reader.onload = (e) => {
+          try {
+            document = e.target.result;
+            let uploadData = getGraphByTextAPI(document);
+            console.log(uploadData);
+            _this.set_selectedKGId(uploadData.graphId);
+            _this.set_isGraphOpening(true);
+            _this.graph.nodes = uploadData.nodes;
+            _this.graph.links = uploadData.links;
+            for (let i = 0; i < _this.graph.nodes.length; i++) {
+              _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
+            }
+            _this.updateGraph();
+          } catch (err) {
+            this.$message.error('Load TXT document from file error: ' + err.message);
+          }
+        }
+      } else if (_this.getGraphNew) {
+        _this.set_isGraphOpening(true);
+        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+        _this.updateGraph();
+      }
     },
     initJQueryEvents() {
       let _this = this
@@ -2727,6 +2714,12 @@ li {
   width: 90px;
   margin-left: 10px;
   vertical-align: bottom;
+}
+
+/*risk*/
+.risk-item{
+  width: 75%;
+  font-size: 18px;
 }
 
 /*input文字居中显示*/
