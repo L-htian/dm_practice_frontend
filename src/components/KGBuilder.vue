@@ -328,10 +328,7 @@
         <el-form-item label="公司注册资本" :label-width="formLabelWidth">
           <el-input-number v-model="EditingNodeEntity.regAsset" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
-        <el-form-item label="是否国有" :label-width="formLabelWidth">
-          <el-checkbox v-model="EditingNodeEntity.stateOwned"></el-checkbox>
-        </el-form-item>
-        <el-form-item label="公司节点类型标签" :label-width="formLabelWidth">
+        <el-form-item label="公司类型标签" :label-width="formLabelWidth">
           <el-tag
               type="info"
               effect="plain"
@@ -353,6 +350,9 @@
           >
           </el-input>
           <el-button v-else class="button-new-tag" size="small" @click="showTagInput">添加Tag</el-button>
+        </el-form-item>
+        <el-form-item label="是否国有" :label-width="formLabelWidth">
+          <el-switch v-model="EditingNodeEntity.stateOwned"></el-switch>
         </el-form-item>
         <el-divider class="form-divider" content-position="left">节点样式</el-divider>
         <el-form-item label="节点填充颜色" :label-width="formLabelWidth">
@@ -740,7 +740,7 @@ export default {
     ]),
     // 初始化知识图谱
     initGraph() {
-      let _this = this
+      let _this = this;
       if (_this.isGraphOpening) {
         _this.graph_name = _this.selectedKGName;
         let updateVO = getGraphAPI(_this.selectedKGId);
@@ -2643,6 +2643,10 @@ li {
 .withoutColor {
   width: 97%;
   float: left;
+}
+
+.form-divider{
+  line-height: 24px;
 }
 
 /* tag添加器样式 */
