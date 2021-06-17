@@ -1329,6 +1329,16 @@ export default {
           //   event.stopPropagation()
           //   return
           // }
+          for (let i = 0; i < _this.graph.links.length; i++) {
+            if (_this.SelectedSourceNodeId === _this.graph.links[i].sourceId &&
+                _this.SelectedTargetNodeId === _this.graph.links[i].targetId) {
+              _this.$message({
+                type: 'error',
+                message: '连接出错：同源同目标只允许存在一条连接！'
+              })
+              return;
+            }
+          }
           d3.select('.grid').style("cursor", "");
           _this.isAddingLink = false
           _this.isCancelOperationShow = false
