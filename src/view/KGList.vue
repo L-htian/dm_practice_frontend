@@ -196,6 +196,13 @@ export default {
       this.$router.push({name: 'KGEditor'});
     },
     fuseGraph() {
+      if(this.isGraphOpening){
+        this.$message({
+          type: 'error',
+          message: '有图谱正在打开，请先关闭图谱再进行知识融合！'
+        });
+        return;
+      }
       let toBeMixed = [];
       for (let i = 0; i < this.KGs.length; i++) {
         if (this.KGs[i].isSelected) {
@@ -264,16 +271,16 @@ export default {
     },
     deleteManyKGs() {
       let _this = this;
+      if (_this.isGraphOpening) {
+        _this.$message({
+          type: 'error',
+          message: '有图谱正在打开，请先关闭图谱再进行删除操作！'
+        })
+        return;
+      }
       let toBeDeleted = [];
       for (let i = 0; i < this.KGs.length; i++) {
         if (_this.KGs[i].isSelected) {
-          if (_this.isGraphOpening && _this.selectedKGId === _this.KGs[i].id) {
-            _this.$message({
-              type: 'error',
-              message: '选中的图谱中有图谱正在打开，请先关闭该图谱！'
-            })
-            return;
-          }
           toBeDeleted.push(_this.KGs[i].id);
         }
       }
@@ -301,6 +308,7 @@ export default {
             type: 'success',
             message: '删除图谱成功'
           })
+          location.reload();
         }).catch(() => {
           _this.$message({
             type: 'info',
@@ -311,10 +319,10 @@ export default {
     },
     deleteKG(graphId) {
       let _this = this;
-      if (_this.isGraphOpening && _this.selectedKGId === graphId) {
+      if (_this.isGraphOpening) {
         _this.$message({
           type: 'error',
-          message: '该图谱正在打开，请先关闭该图谱！'
+          message: '有图谱正在打开，请先关闭图谱再进行删除操作！'
         })
       } else {
         _this.$confirm('该操作不可撤销', '将要删除该图谱，是否继续？', {
@@ -333,6 +341,7 @@ export default {
             type: 'success',
             message: '删除图谱成功'
           })
+          location.reload();
         }).catch(() => {
           _this.$message({
             type: 'info',

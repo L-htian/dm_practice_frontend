@@ -1110,6 +1110,7 @@ export default {
               break;
             case "RISK":
               let RiskData = getSingleNodeRiskAPI(d.id);
+              console.log(RiskData);
               if (RiskData.success) {
                 _this.SelectedNodeId = d.id;
                 _this.RiskVO = $.extend({}, RiskData.content);
