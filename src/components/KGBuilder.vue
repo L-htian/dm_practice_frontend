@@ -1869,8 +1869,8 @@ export default {
       this.isCancelOperationShow = true
       d3.select('.grid').style("cursor", "crosshair")
     },
-    getRandom(num) {
-      return Math.floor(Math.random() * num * 20);
+    getRandom() {
+      return Math.floor(Math.random() * (this.graph.nodes.length + 1) * 50);
     },
     // 添加节点方法
     createNode() {
@@ -1916,9 +1916,8 @@ export default {
       newNode.graphId = _this.selectedKGId;
       newNode.regAsset = 0;
       newNode.stateOwned = false;
-      let ranNum = 200;
       while (true) {
-        newNode.name = '节点' + _this.getRandom(ranNum);
+        newNode.name = '节点' + _this.getRandom();
         if (!_this.NodeNameMap.has(newNode.name)) break;
       }
       newNode.id = createNodeAPI(newNode);
