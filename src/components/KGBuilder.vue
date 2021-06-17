@@ -349,7 +349,7 @@
               @blur="handleTagInputConfirm"
           >
           </el-input>
-          <el-button v-else class="button-new-tag" size="small" @click="showTagInput">添加Tag</el-button>
+          <el-button v-else class="button-new-tag" size="small" @click="showTagInput">添加持股董高监</el-button>
         </el-form-item>
         <el-form-item label="是否国有" :label-width="formLabelWidth">
           <el-switch v-model="EditingNodeEntity.stateOwned"></el-switch>
@@ -2161,7 +2161,7 @@ export default {
         if (this.EditingNodeEntity.tags.indexOf(inputValue) !== -1) {
           this.$message({
             type: 'warning',
-            message: 'tag和已有tag重复！'
+            message: '持股董高监和已有持股董高监重复！'
           });
           return;
         }
@@ -2428,7 +2428,7 @@ export default {
       });
       this.charts.setOption({
         title: {
-          text: '节点Tag统计',
+          text: '持股人统计',
           x: 'center',
           textStyle: {
             fontSize: 10
@@ -2440,7 +2440,7 @@ export default {
         },
         series: [
           {
-            name: 'Tag对应节点数量',
+            name: '持股人统计',
             type: 'pie',
             label: {
               normal: {
