@@ -521,7 +521,7 @@ export function getCountDataAPI(graphId) {
 export function getSingleGraphInfoAPI(graphId) {
     let re
     $.ajax(`${api.KGPre}/${graphId}/getSingleGraph`, {
-        type: 'POST',
+        type: 'GET',
         dataType: 'text',
         async: false,
         success: function (data) {
