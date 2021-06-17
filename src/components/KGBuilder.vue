@@ -328,7 +328,7 @@
         <el-form-item label="公司注册资本" :label-width="formLabelWidth">
           <el-input-number v-model="EditingNodeEntity.regAsset" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
-        <el-form-item label="公司类型标签" :label-width="formLabelWidth">
+        <el-form-item label="董高监" :label-width="formLabelWidth">
           <el-tag
               type="info"
               effect="plain"
@@ -2028,6 +2028,7 @@ export default {
     // 保存为图片
     exportImage() {
       d3.selectAll('.buttongroup').remove()
+
       var serializer = new XMLSerializer();
       var svg1 = document.getElementById('svg_index');
       var toExport = svg1.cloneNode(true);
