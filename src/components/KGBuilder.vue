@@ -825,6 +825,7 @@ export default {
             for (let i = 0; i < _this.graph.nodes.length; i++) {
               _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
             }
+            _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
             _this.updateGraph();
           } catch (err) {
             this.$message.error('Load TXT document from file error: ' + err.message);
