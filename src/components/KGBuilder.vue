@@ -1332,10 +1332,15 @@ export default {
           for (let i = 0; i < _this.graph.links.length; i++) {
             if (_this.SelectedSourceNodeId === _this.graph.links[i].sourceId &&
                 _this.SelectedTargetNodeId === _this.graph.links[i].targetId) {
+              d3.select('.grid').style("cursor", "");
+              _this.isAddingLink = false;
+              _this.isCancelOperationShow = false;
+              _this.cancelOperationMessage = '';
               _this.$message({
                 type: 'error',
                 message: '连接出错：同源同目标只允许存在一条连接！'
-              })
+              });
+              event.stopPropagation();
               return;
             }
           }
