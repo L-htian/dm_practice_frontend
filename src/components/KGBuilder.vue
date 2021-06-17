@@ -1973,8 +1973,8 @@ export default {
       newShip.name = '持股比例 ' + 0 + '%';
       newShip.textSize = _this.DefaultLinkTextSize;
       newShip.holdRatio = 0;
-      newShip.id = createLinkAPI(newShip);
       newShip.graphId = _this.selectedKGId;
+      newShip.id = createLinkAPI(newShip);
       _this.graph.links.push(newShip);
       _this.updateGraph();
       _this.isAddingLink = false;
