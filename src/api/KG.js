@@ -546,16 +546,10 @@ export function getSingleNodeRiskAPI(nodeId) {
         async: false,
         success: function (data) {
             re = {
-                "success": true,
-                "content": (JSON.parse(data)).content
+                "success": data.success,
+                "content": data.success === true ? (JSON.parse(data)).content : data.message
             }
         },
-        error: function (data) {
-            re = {
-                "success": false,
-                "content": data
-            }
-        }
     })
     return re
 }
