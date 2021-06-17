@@ -779,6 +779,7 @@ export default {
         _this.set_isGraphOpening(true);
         _this.set_selectedKGId(_this.fusedGraph.graphId);
         _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
+        _this.set_selectedKGName(_this.graph_name);
         _this.updateGraph();
       } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
         let file = _this.uploadedFile[0];
@@ -798,6 +799,7 @@ export default {
               _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
             }
             _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
+            _this.set_selectedKGName(_this.graph_name);
             _this.updateGraph();
           } catch (err) {
             this.$message.error('Load JSON document from file error: ' + err.message);
@@ -828,6 +830,7 @@ export default {
       } else if (_this.getGraphNew) {
         _this.set_isGraphOpening(true);
         _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
+        _this.set_selectedKGName(_this.graph_name);
         _this.updateGraph();
       }
     },
@@ -1106,10 +1109,17 @@ export default {
               _this.deleteNode(out_buttongroup_id);
               break;
             case "RISK":
-              _this.SelectedNodeId = d.id;
-              _this.RiskVO = getSingleNodeRiskAPI(d.id);
-              _this.RiskFormula = '$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$';
-              _this.ShowRiskVisible = true;
+              let RiskData = getSingleNodeRiskAPI(d.id);
+              if (RiskData.success) {
+                _this.SelectedNodeId = d.id;
+                _this.RiskVO = $.extend({}, RiskData.content);
+                _this.ShowRiskVisible = true;
+              } else {
+                _this.$message({
+                  type: 'error',
+                  message: RiskData.content
+                })
+              }
               break;
           }
         }
@@ -2179,7 +2189,8 @@ export default {
         this.set_isGraphOpening(false);
         this.set_selectedKGId(-1);
         this.set_selectedKGName('');
-        location.reload();
+        this.$router.push({name: 'KGList'});
+        // location.reload();
       })
     },
     updateAllClick() {
