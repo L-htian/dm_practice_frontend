@@ -433,9 +433,14 @@
         <el-button type="primary" @click="createLinkPrimitive">添加</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="风险值展示" :visible.sync="ShowRiskVisible">
+<!--      TODO RISK-->
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="cancelShowRisk">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
-
 <script>
 import {Loading} from 'element-ui';
 import * as d3 from 'd3';
@@ -607,6 +612,16 @@ export default {
       txx: 0,
       tyy: 0,
 
+      ShowRiskVisible: false,
+      RiskVO: {
+        stateOwnedRatio: 0,
+        regAsset: 0,
+        inDegree: 0,
+        outDegree: 0,
+        risk: 0
+      },
+      RiskFormula: '',
+
       // 图容器
       graphContainer: {},
       // 矢量图
@@ -644,6 +659,7 @@ export default {
         {name: '编辑', value: 1, code: 'edit'},
         {name: '连线', value: 1, code: 'link'},
         {name: '删除', value: 1, code: 'delete'},
+        {name: '风险', value: 1, code: 'risk'},
       ],
       NodeButtonAction: '',
       // 正在选择的节点id
@@ -662,10 +678,11 @@ export default {
     this.getEchartsData();
     this.initGraphContainer();
     this.initJQueryEvents();
-    let np = getNodePrimitiveAPI();
-    let lp = getLinkPrimitiveAPI();
-    this.NodePrimitives = np === undefined ? [] : np;
-    this.LinkPrimitives = lp === undefined ? [] : lp;
+    // todo recover
+    // let np = getNodePrimitiveAPI();
+    // let lp = getLinkPrimitiveAPI();
+    // this.NodePrimitives = np === undefined ? [] : np;
+    // this.LinkPrimitives = lp === undefined ? [] : lp;
     this.initGraph();
   },
   created() {
@@ -741,75 +758,91 @@ export default {
     // 初始化知识图谱
     initGraph() {
       let _this = this;
-      if (_this.isGraphOpening) {
-        _this.graph_name = _this.selectedKGName;
-        let updateVO = getGraphAPI(_this.selectedKGId);
-        _this.graph.nodes = updateVO === undefined ? [] : updateVO.nodes;
-        _this.graph.links = updateVO === undefined ? [] : updateVO.links;
-        for (let i = 0; i < updateVO.nodes.length; i++) {
-          _this.NodeNameMap.set(updateVO.nodes[i].name, i);
+      _this.graph.nodes = [
+        {
+          id: 0,
+          name: 'sdas',
+          regAsset: 0,
+          stateOwned: false,
+          tags: [],
+          r: 30,
+          color: '#123123',
+          strokeColor: '#123123',
+          textColor: '#123123',
+          textSize: 14
         }
-        _this.updateGraph();
-      } else if (_this.getFused) {
-        _this.graph.nodes = _this.fusedGraph === undefined ? [] : _this.fusedGraph.nodes;
-        _this.graph.links = _this.fusedGraph === undefined ? [] : _this.fusedGraph.links;
-        for (let i = 0; i < _this.graph.nodes.length; i++) {
-          _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
-        }
-        _this.set_isGraphOpening(true);
-        _this.set_selectedKGId(_this.fusedGraph.graphId);
-        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
-        _this.updateGraph();
-      } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
-        let file = _this.uploadedFile[0];
-        let reader = new FileReader();
-        let document = "";
-        reader.readAsText(file.raw);
-        reader.onload = (e) => {
-          try {
-            document = JSON.parse(e.target.result);
-            let uploadData = uploadAPI(document);
-            console.log(uploadData);
-            _this.set_selectedKGId(uploadData.graphId);
-            _this.set_isGraphOpening(true);
-            _this.graph.nodes = uploadData.nodes;
-            _this.graph.links = uploadData.links;
-            for (let i = 0; i < _this.graph.nodes.length; i++) {
-              _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
-            }
-            _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
-            _this.updateGraph();
-          } catch (err) {
-            this.$message.error('Load JSON document from file error: ' + err.message);
-          }
-        }
-      } else if (_this.getTextUpload && !_this.getGraphNew) {
-        let file = _this.uploadedTextFile[0];
-        let reader = new FileReader();
-        let document = "";
-        reader.readAsText(file.raw);
-        reader.onload = (e) => {
-          try {
-            document = e.target.result;
-            let uploadData = getGraphByTextAPI(document);
-            console.log(uploadData);
-            _this.set_selectedKGId(uploadData.graphId);
-            _this.set_isGraphOpening(true);
-            _this.graph.nodes = uploadData.nodes;
-            _this.graph.links = uploadData.links;
-            for (let i = 0; i < _this.graph.nodes.length; i++) {
-              _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
-            }
-            _this.updateGraph();
-          } catch (err) {
-            this.$message.error('Load TXT document from file error: ' + err.message);
-          }
-        }
-      } else if (_this.getGraphNew) {
-        _this.set_isGraphOpening(true);
-        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
-        _this.updateGraph();
-      }
+      ]
+      _this.updateGraph()
+      // todo recover
+      // if (_this.isGraphOpening) {
+      //   _this.graph_name = _this.selectedKGName;
+      //   let updateVO = getGraphAPI(_this.selectedKGId);
+      //   _this.graph.nodes = updateVO === undefined ? [] : updateVO.nodes;
+      //   _this.graph.links = updateVO === undefined ? [] : updateVO.links;
+      //   for (let i = 0; i < updateVO.nodes.length; i++) {
+      //     _this.NodeNameMap.set(updateVO.nodes[i].name, i);
+      //   }
+      //   _this.updateGraph();
+      // } else if (_this.getFused) {
+      //   _this.graph.nodes = _this.fusedGraph === undefined ? [] : _this.fusedGraph.nodes;
+      //   _this.graph.links = _this.fusedGraph === undefined ? [] : _this.fusedGraph.links;
+      //   for (let i = 0; i < _this.graph.nodes.length; i++) {
+      //     _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
+      //   }
+      //   _this.set_isGraphOpening(true);
+      //   _this.set_selectedKGId(_this.fusedGraph.graphId);
+      //   _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+      //   _this.updateGraph();
+      // } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
+      //   let file = _this.uploadedFile[0];
+      //   let reader = new FileReader();
+      //   let document = "";
+      //   reader.readAsText(file.raw);
+      //   reader.onload = (e) => {
+      //     try {
+      //       document = JSON.parse(e.target.result);
+      //       let uploadData = uploadAPI(document);
+      //       console.log(uploadData);
+      //       _this.set_selectedKGId(uploadData.graphId);
+      //       _this.set_isGraphOpening(true);
+      //       _this.graph.nodes = uploadData.nodes;
+      //       _this.graph.links = uploadData.links;
+      //       for (let i = 0; i < _this.graph.nodes.length; i++) {
+      //         _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
+      //       }
+      //       _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+      //       _this.updateGraph();
+      //     } catch (err) {
+      //       this.$message.error('Load JSON document from file error: ' + err.message);
+      //     }
+      //   }
+      // } else if (_this.getTextUpload && !_this.getGraphNew) {
+      //   let file = _this.uploadedTextFile[0];
+      //   let reader = new FileReader();
+      //   let document = "";
+      //   reader.readAsText(file.raw);
+      //   reader.onload = (e) => {
+      //     try {
+      //       document = e.target.result;
+      //       let uploadData = getGraphByTextAPI(document);
+      //       console.log(uploadData);
+      //       _this.set_selectedKGId(uploadData.graphId);
+      //       _this.set_isGraphOpening(true);
+      //       _this.graph.nodes = uploadData.nodes;
+      //       _this.graph.links = uploadData.links;
+      //       for (let i = 0; i < _this.graph.nodes.length; i++) {
+      //         _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
+      //       }
+      //       _this.updateGraph();
+      //     } catch (err) {
+      //       this.$message.error('Load TXT document from file error: ' + err.message);
+      //     }
+      //   }
+      // } else if (_this.getGraphNew) {
+      //   _this.set_isGraphOpening(true);
+      //   _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+      //   _this.updateGraph();
+      // }
     },
     initJQueryEvents() {
       let _this = this
@@ -1085,6 +1118,13 @@ export default {
               let out_buttongroup_id = '.out_buttongroup_' + i;
               _this.deleteNode(out_buttongroup_id);
               break;
+            case "RISK":
+              _this.SelectedNodeId = d.id;
+              // todo api 调用
+              // _this.RiskVO = getSingleNodeRiskAPI(d.id);
+              _this.RiskFormula = '$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$';
+              _this.ShowRiskVisible = true;
+              break;
           }
         }
       })
@@ -1099,6 +1139,9 @@ export default {
       _this.svg.selectAll(".action_delete").on("click", function (d) {
         _this.NodeButtonAction = 'DELETE';
       });
+      _this.svg.selectAll(".action_risk").on("click", function (d) {
+        _this.NodeButtonAction = 'RISK';
+      });
 
       _this.svg.selectAll(".action_edit").on("mouseenter", function (d) {
         _this.svg.selectAll(".action_edit_path").style('fill', _this.DefaultButtonGroupActiveColor)
@@ -1109,6 +1152,9 @@ export default {
       _this.svg.selectAll(".action_delete").on("mouseenter", function (d) {
         _this.svg.selectAll(".action_delete_path").style('fill', _this.DefaultButtonGroupActiveColor)
       });
+      _this.svg.selectAll(".action_risk").on("mouseenter", function (d) {
+        _this.svg.selectAll(".action_risk_path").style('fill', _this.DefaultButtonGroupActiveColor)
+      });
 
       _this.svg.selectAll(".action_edit").on("mouseleave", function (d) {
         _this.svg.selectAll(".action_edit_path").style('fill', _this.DefaultButtonGroupColor)
@@ -1118,6 +1164,9 @@ export default {
       });
       _this.svg.selectAll(".action_delete").on("mouseleave", function (d) {
         _this.svg.selectAll(".action_delete_path").style('fill', _this.DefaultButtonGroupColor)
+      });
+      _this.svg.selectAll(".action_risk").on("mouseleave", function (d) {
+        _this.svg.selectAll(".action_risk_path").style('fill', _this.DefaultButtonGroupColor)
       });
     },
     // 建立实体，实体，关系三元组
@@ -1153,22 +1202,25 @@ export default {
         if (typeof (node.textSize) === 'undefined' || node.textSize === '') node.textSize = _this.DefaultNodeTextSize;
         if (typeof (node.r) === 'undefined' || node.r === '') node.r = _this.defaultR;
         if (typeof (node.tags) === 'undefined') node.tags = [];
+        if (typeof (node.regAsset) === 'undefined') node.regAsset = 0;
+        if (typeof (node.stateOwned) === 'undefined') node.stateOwned = false;
       })
-      let resLinks = []
+      let resLinks = [];
       links.forEach(function (link) {
-        if (typeof (link.id) === 'string') node.id = parseInt(link.id)
+        if (typeof (link.id) === 'string') node.id = parseInt(link.id);
         let sourceNode = nodes.filter(function (node) {
-          return node.id === link.sourceId
-        })[0]
-        if (!sourceNode) return
+          return node.id === link.sourceId;
+        })[0];
+        if (!sourceNode) return;
         let targetNode = nodes.filter(function (node) {
-          return node.id === link.targetId
-        })[0]
-        if (!targetNode) return
-        if (typeof (link.color) === 'undefined' || link.color === '') link.color = _this.DefaultLinkColor
-        if (typeof (link.textColor) === 'undefined' || link.textColor === '') link.textColor = _this.DefaultLinkTextColor
-        if (typeof (link.textSize) === 'undefined' || link.textSize === '') link.textSize = _this.DefaultLinkTextSize
-        resLinks.push({source: sourceNode.id, target: targetNode.id, lk: link})
+          return node.id === link.targetId;
+        })[0];
+        if (!targetNode) return;
+        if (typeof (link.color) === 'undefined' || link.color === '') link.color = _this.DefaultLinkColor;
+        if (typeof (link.textColor) === 'undefined' || link.textColor === '') link.textColor = _this.DefaultLinkTextColor;
+        if (typeof (link.textSize) === 'undefined' || link.textSize === '') link.textSize = _this.DefaultLinkTextSize;
+        if (typeof (link.holdRatio) === 'undefined') link.holdRatio = 0;
+        resLinks.push({source: sourceNode.id, target: targetNode.id, lk: link});
       })
       let data = {}
       data.nodes = nodes
@@ -2423,6 +2475,15 @@ export default {
         }]
       })
     },
+    cancelShowRisk() {
+      this.ShowRiskVisible = false;
+      this.SelectedNodeId = -1;
+      this.RiskVO.risk = 0;
+      this.RiskVO.inDegree = 0;
+      this.RiskVO.outDegree = 0;
+      this.RiskVO.regAsset = 0;
+      this.RiskVO.stateOwnedRatio = 0;
+    }
   }
 }
 </script>
@@ -2645,7 +2706,7 @@ li {
   float: left;
 }
 
-.form-divider{
+.form-divider {
   line-height: 24px;
 }
 
