@@ -282,6 +282,7 @@
     <!--link编辑-->
     <el-dialog title="联系选项" :visible.sync="EditLinkDialogVisible" custom-class="customWidth">
       <el-form>
+        <el-divider class="form-divider" content-position="left">持股联系信息</el-divider>
         <el-form-item label="id" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingLinkEntity.id" class="withoutColor"></el-input>
         </el-form-item>
@@ -291,9 +292,11 @@
         <el-form-item label="目标节点id" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingLinkEntity.targetId" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="联系名" :label-width="formLabelWidth">
-          <el-input v-model="EditingLinkEntity.name" class="withoutColor"></el-input>
+        <el-form-item label="持股比例" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingLinkEntity.holdRatio" :precision="2" :min="0" :max="100"
+                           class="withoutColor"></el-input-number>
         </el-form-item>
+        <el-divider class="form-divider" content-position="left">持股联系样式</el-divider>
         <el-form-item label="联系线条颜色" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingLinkEntity.color" class="lineColor"></el-input>
           <el-color-picker v-model="EditingLinkEntity.color" class="colorPiker"></el-color-picker>
@@ -303,7 +306,7 @@
           <el-color-picker v-model="EditingLinkEntity.textColor" class="colorPiker"></el-color-picker>
         </el-form-item>
         <el-form-item label="联系名大小" :label-width="formLabelWidth">
-          <el-input-number v-model="EditingLinkEntity.textSize" class="withoutColor"></el-input-number>
+          <el-input-number v-model="EditingLinkEntity.textSize" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -315,31 +318,20 @@
     <!--node编辑-->
     <el-dialog title="节点选项" :visible.sync="EditNodeDialogVisible" custom-class="customWidth">
       <el-form>
+        <el-divider class="form-divider" content-position="left">公司节点样式</el-divider>
         <el-form-item label="id" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingNodeEntity.id" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="节点名" :label-width="formLabelWidth">
+        <el-form-item label="公司节点名" :label-width="formLabelWidth">
           <el-input v-model="EditingNodeEntity.name" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="节点填充颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.color" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingNodeEntity.color" class="colorPiker"></el-color-picker>
+        <el-form-item label="公司注册资本" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingNodeEntity.regAsset" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
-        <el-form-item label="节点边框颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.strokeColor" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingNodeEntity.strokeColor" class="colorPiker"></el-color-picker>
+        <el-form-item label="是否国有" :label-width="formLabelWidth">
+          <el-checkbox v-model="EditingNodeEntity.stateOwned"></el-checkbox>
         </el-form-item>
-        <el-form-item label="节点名颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.textColor" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingNodeEntity.textColor" class="colorPiker"></el-color-picker>
-        </el-form-item>
-        <el-form-item label="节点名大小" :label-width="formLabelWidth">
-          <el-input-number v-model="EditingNodeEntity.textSize" class="withoutColor"></el-input-number>
-        </el-form-item>
-        <el-form-item label="节点半径" :label-width="formLabelWidth">
-          <el-input-number v-model="EditingNodeEntity.r" class="withoutColor"></el-input-number>
-        </el-form-item>
-        <el-form-item label="节点类型标签" :label-width="formLabelWidth">
+        <el-form-item label="公司节点类型标签" :label-width="formLabelWidth">
           <el-tag
               type="info"
               effect="plain"
@@ -361,6 +353,25 @@
           >
           </el-input>
           <el-button v-else class="button-new-tag" size="small" @click="showTagInput">添加Tag</el-button>
+        </el-form-item>
+        <el-divider class="form-divider" content-position="left">节点样式</el-divider>
+        <el-form-item label="节点填充颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingNodeEntity.color" class="lineColor"></el-input>
+          <el-color-picker v-model="EditingNodeEntity.color" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点边框颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingNodeEntity.strokeColor" class="lineColor"></el-input>
+          <el-color-picker v-model="EditingNodeEntity.strokeColor" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点名颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingNodeEntity.textColor" class="lineColor"></el-input>
+          <el-color-picker v-model="EditingNodeEntity.textColor" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点名大小" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingNodeEntity.textSize" :min="0" class="withoutColor"></el-input-number>
+        </el-form-item>
+        <el-form-item label="节点半径" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingNodeEntity.r" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -388,10 +399,10 @@
           <el-color-picker v-model="AddNodePrimitiveEntity.textColor" class="colorPiker"></el-color-picker>
         </el-form-item>
         <el-form-item label="节点名大小" :label-width="formLabelWidth">
-          <el-input-number v-model="AddNodePrimitiveEntity.textSize" class="withoutColor"></el-input-number>
+          <el-input-number v-model="AddNodePrimitiveEntity.textSize" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
         <el-form-item label="节点半径" :label-width="formLabelWidth">
-          <el-input-number v-model="AddNodePrimitiveEntity.r" class="withoutColor"></el-input-number>
+          <el-input-number v-model="AddNodePrimitiveEntity.r" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -414,7 +425,7 @@
           <el-color-picker v-model="AddLinkPrimitiveEntity.textColor" class="colorPiker"></el-color-picker>
         </el-form-item>
         <el-form-item label="联系名大小" :label-width="formLabelWidth">
-          <el-input-number v-model="AddLinkPrimitiveEntity.textSize" class="withoutColor"></el-input-number>
+          <el-input-number v-model="AddLinkPrimitiveEntity.textSize" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -568,6 +579,7 @@ export default {
         sourceId: '',
         targetId: '',
         name: '',
+        holdRatio: 0,
         color: '',
         textColor: '',
         textSize: 0,
@@ -575,12 +587,14 @@ export default {
       EditingNodeEntity: {
         id: 0,
         name: '',
+        regAsset: 0,
+        stateOwned: false,
+        tags: [],
         r: 0,
         color: '',
         strokeColor: '',
         textColor: '',
-        textSize: 0,
-        tags: []
+        textSize: 0
       },
       EditLinkDialogVisible: false,
       EditNodeDialogVisible: false,
@@ -742,7 +756,8 @@ export default {
         for (let i = 0; i < _this.graph.nodes.length; i++) {
           _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
         }
-        this.set_isGraphOpening(true)
+        _this.set_isGraphOpening(true);
+        _this.set_selectedKGId(_this.fusedGraph.graphId);
         _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
         _this.updateGraph();
       } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
@@ -756,7 +771,7 @@ export default {
             let uploadData = uploadAPI(document);
             console.log(uploadData);
             _this.set_selectedKGId(uploadData.graphId);
-            this.set_isGraphOpening(true);
+            _this.set_isGraphOpening(true);
             _this.graph.nodes = uploadData.nodes;
             _this.graph.links = uploadData.links;
             for (let i = 0; i < _this.graph.nodes.length; i++) {
@@ -779,7 +794,7 @@ export default {
             let uploadData = getGraphByTextAPI(document);
             console.log(uploadData);
             _this.set_selectedKGId(uploadData.graphId);
-            this.set_isGraphOpening(true);
+            _this.set_isGraphOpening(true);
             _this.graph.nodes = uploadData.nodes;
             _this.graph.links = uploadData.links;
             for (let i = 0; i < _this.graph.nodes.length; i++) {
@@ -1044,6 +1059,8 @@ export default {
                 if (_this.graph.nodes[j].id === _this.SelectedNodeId) {
                   _this.EditingNodeEntity.id = _this.SelectedNodeId;
                   _this.EditingNodeEntity.name = _this.graph.nodes[j].name;
+                  _this.EditingNodeEntity.regAsset = _this.graph.nodes[j].regAsset;
+                  _this.EditingNodeEntity.stateOwned = _this.graph.nodes[j].stateOwned;
                   _this.EditingNodeEntity.color = _this.graph.nodes[j].color;
                   _this.EditingNodeEntity.textColor = _this.graph.nodes[j].textColor;
                   _this.EditingNodeEntity.strokeColor = _this.graph.nodes[j].strokeColor;
@@ -1536,18 +1553,19 @@ export default {
           })
 
       linkTextEnter.on('dblclick', function (d) {
-        _this.SelectedLinkId = d.lk.id
-        _this.isEditingLink = true
-        _this.EditingLinkEntity.name = d.lk.name
-        _this.EditingLinkEntity.id = d.lk.id
-        _this.EditingLinkEntity.sourceId = d.lk.sourceId
-        _this.EditingLinkEntity.targetId = d.lk.targetId
-        _this.EditingLinkEntity.color = d.lk.color
-        _this.EditingLinkEntity.textColor = d.lk.textColor
-        _this.EditingLinkEntity.textSize = d.lk.textSize
-        _this.EditLinkDialogVisible = true
+        _this.SelectedLinkId = d.lk.id;
+        _this.isEditingLink = true;
+        _this.EditingLinkEntity.name = d.lk.name;
+        _this.EditingLinkEntity.holdRatio = d.lk.holdRatio;
+        _this.EditingLinkEntity.id = d.lk.id;
+        _this.EditingLinkEntity.sourceId = d.lk.sourceId;
+        _this.EditingLinkEntity.targetId = d.lk.targetId;
+        _this.EditingLinkEntity.color = d.lk.color;
+        _this.EditingLinkEntity.textColor = d.lk.textColor;
+        _this.EditingLinkEntity.textSize = d.lk.textSize;
+        _this.EditLinkDialogVisible = true;
       })
-      linkText = linkTextEnter.merge(linkText)
+      linkText = linkTextEnter.merge(linkText);
 
       d3.selectAll('.link-text')
           .style('fill', function (d) {
@@ -1672,6 +1690,7 @@ export default {
         sourceId: '',
         targetId: '',
         name: '',
+        holdRatio: 0,
         r: 0,
         color: '',
         textColor: '',
@@ -1683,6 +1702,8 @@ export default {
       this.EditingNodeEntity = {
         id: 0,
         name: '',
+        regAsset: 0,
+        stateOwned: false,
         color: '',
         strokeColor: '',
         textColor: '',
@@ -1909,41 +1930,44 @@ export default {
       loadingInstance.close();
     },
     updateNodeInfo() {
-      let _this = this
+      let _this = this;
       let loadingInstance = Loading.service({fullscreen: true});
       for (let i = 0; i < _this.graph.nodes.length; i++) {
         if (_this.SelectedNodeId === _this.graph.nodes[i].id) {
-          _this.graph.nodes[i].name = _this.EditingNodeEntity.name
-          _this.graph.nodes[i].color = _this.EditingNodeEntity.color
-          _this.graph.nodes[i].textColor = _this.EditingNodeEntity.textColor
-          _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor
-          _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize
-          _this.graph.nodes[i].r = _this.EditingNodeEntity.r
-          _this.graph.nodes[i].tags = _this.EditingNodeEntity.tags
-          let nodeToUpdate = _this.graph.nodes[i]
-          updateNodeAPI(nodeToUpdate)
-          this.getEchartsData()
-          break
+          _this.graph.nodes[i].name = _this.EditingNodeEntity.name;
+          _this.graph.nodes[i].regAsset = _this.EditingNodeEntity.regAsset;
+          _this.graph.nodes[i].stateOwned = _this.EditingNodeEntity.stateOwned;
+          _this.graph.nodes[i].color = _this.EditingNodeEntity.color;
+          _this.graph.nodes[i].textColor = _this.EditingNodeEntity.textColor;
+          _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor;
+          _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize;
+          _this.graph.nodes[i].r = _this.EditingNodeEntity.r;
+          _this.graph.nodes[i].tags = _this.EditingNodeEntity.tags;
+          let nodeToUpdate = _this.graph.nodes[i];
+          updateNodeAPI(nodeToUpdate);
+          this.getEchartsData();
+          break;
         }
       }
-      _this.updateGraph()
+      _this.updateGraph();
       loadingInstance.close();
     },
     updateLinkInfo() {
-      let _this = this
+      let _this = this;
       let loadingInstance = Loading.service({fullscreen: true});
       for (let i = 0; i < _this.graph.links.length; i++) {
         if (_this.SelectedLinkId === _this.graph.links[i].id) {
-          _this.graph.links[i].name = _this.EditingLinkEntity.name
-          _this.graph.links[i].color = _this.EditingLinkEntity.color
-          _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor
-          _this.graph.links[i].textSize = _this.EditingLinkEntity.textSize
-          let linkToUpdate = _this.graph.links[i]
-          updateLinkAPI(linkToUpdate)
-          break
+          _this.graph.links[i].name = '持股比例 ' + _this.EditingLinkEntity.holdRatio + '%';
+          _this.graph.links[i].holdRatio = _this.EditingLinkEntity.holdRatio;
+          _this.graph.links[i].color = _this.EditingLinkEntity.color;
+          _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor;
+          _this.graph.links[i].textSize = _this.EditingLinkEntity.textSize;
+          let linkToUpdate = _this.graph.links[i];
+          updateLinkAPI(linkToUpdate);
+          break;
         }
       }
-      _this.updateGraph()
+      _this.updateGraph();
       loadingInstance.close();
     },
     // 保存为图片
