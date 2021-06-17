@@ -769,6 +769,7 @@ export default {
         for (let i = 0; i < updateVO.nodes.length; i++) {
           _this.NodeNameMap.set(updateVO.nodes[i].name, i);
         }
+        _this.getEchartsData()
         _this.updateGraph();
       } else if (_this.getFused) {
         _this.graph.nodes = _this.fusedGraph === undefined ? [] : _this.fusedGraph.nodes;
@@ -779,6 +780,7 @@ export default {
         _this.set_isGraphOpening(true);
         _this.set_selectedKGId(_this.fusedGraph.graphId);
         _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
+        _this.getEchartsData()
         _this.set_selectedKGName(_this.graph_name);
         _this.updateGraph();
       } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
@@ -800,6 +802,7 @@ export default {
             }
             _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
             _this.set_selectedKGName(_this.graph_name);
+            _this.getEchartsData()
             _this.updateGraph();
           } catch (err) {
             this.$message.error('Load JSON document from file error: ' + err.message);
