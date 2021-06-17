@@ -827,7 +827,6 @@ export default {
         }
       } else if (_this.getGraphNew) {
         _this.set_isGraphOpening(true);
-        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
         _this.updateGraph();
       }
     },
@@ -1903,8 +1902,12 @@ export default {
       newNode.graphId = _this.selectedKGId;
       newNode.regAsset = 0;
       newNode.stateOwned = false;
+      let ranNum = Number(_this.graph.nodes[_this.graph.nodes.length - 1].id);
+      if(ranNum === undefined || ranNum === 0){
+        ranNum = 10;
+      }
       while (true) {
-        newNode.name = '节点' + _this.getRandom(_this.graph.nodes[_this.graph.nodes.length - 1].id);
+        newNode.name = '节点' + _this.getRandom(ranNum);
         if (!_this.NodeNameMap.has(newNode.name)) break;
       }
       newNode.id = createNodeAPI(newNode);
