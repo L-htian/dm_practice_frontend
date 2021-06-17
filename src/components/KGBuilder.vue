@@ -1902,10 +1902,7 @@ export default {
       newNode.graphId = _this.selectedKGId;
       newNode.regAsset = 0;
       newNode.stateOwned = false;
-      let ranNum = Number(_this.graph.nodes[_this.graph.nodes.length - 1].id);
-      if (ranNum === undefined || ranNum === 0) {
-        ranNum = 10;
-      }
+      let ranNum = 200;
       while (true) {
         newNode.name = '节点' + _this.getRandom(ranNum);
         if (!_this.NodeNameMap.has(newNode.name)) break;

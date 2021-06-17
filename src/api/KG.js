@@ -541,7 +541,7 @@ export function getSingleGraphInfoAPI(graphId) {
 export function getSingleNodeRiskAPI(nodeId) {
     let re
     $.ajax(`${api.KGPre}/${nodeId}/getSingleNodeRisk`, {
-        type: 'POST',
+        type: 'GET',
         dataType: 'text',
         async: false,
         success: function (data) {
