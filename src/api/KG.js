@@ -533,7 +533,7 @@ export function getSingleGraphInfoAPI(graphId) {
 
 /**
  * 获得当前节点国有股比例、注册资本、入度、出度、风险值
- * @param graphId 节点id
+ * @param nodeId 节点id
  * @return 国有股比例、注册资本、入度、出度、风险值
  * @author 李昊天
  * @date 2021/6/17
@@ -545,7 +545,16 @@ export function getSingleNodeRiskAPI(nodeId) {
         dataType: 'text',
         async: false,
         success: function (data) {
-            re = (JSON.parse(data)).content
+            re = {
+                "success": true,
+                "content": (JSON.parse(data)).content
+            }
+        },
+        error: function (data) {
+            re = {
+                "success": false,
+                "content": data
+            }
         }
     })
     return re
