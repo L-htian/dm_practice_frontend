@@ -282,6 +282,7 @@
     <!--link编辑-->
     <el-dialog title="联系选项" :visible.sync="EditLinkDialogVisible" custom-class="customWidth">
       <el-form>
+        <el-divider class="form-divider" content-position="left">持股联系信息</el-divider>
         <el-form-item label="id" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingLinkEntity.id" class="withoutColor"></el-input>
         </el-form-item>
@@ -291,9 +292,11 @@
         <el-form-item label="目标节点id" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingLinkEntity.targetId" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="联系名" :label-width="formLabelWidth">
-          <el-input v-model="EditingLinkEntity.name" class="withoutColor"></el-input>
+        <el-form-item label="持股比例" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingLinkEntity.holdRatio" :precision="2" :min="0" :max="100"
+                           class="withoutColor"></el-input-number>
         </el-form-item>
+        <el-divider class="form-divider" content-position="left">持股联系样式</el-divider>
         <el-form-item label="联系线条颜色" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingLinkEntity.color" class="lineColor"></el-input>
           <el-color-picker v-model="EditingLinkEntity.color" class="colorPiker"></el-color-picker>
@@ -303,7 +306,7 @@
           <el-color-picker v-model="EditingLinkEntity.textColor" class="colorPiker"></el-color-picker>
         </el-form-item>
         <el-form-item label="联系名大小" :label-width="formLabelWidth">
-          <el-input-number v-model="EditingLinkEntity.textSize" class="withoutColor"></el-input-number>
+          <el-input-number v-model="EditingLinkEntity.textSize" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -315,31 +318,17 @@
     <!--node编辑-->
     <el-dialog title="节点选项" :visible.sync="EditNodeDialogVisible" custom-class="customWidth">
       <el-form>
+        <el-divider class="form-divider" content-position="left">公司节点样式</el-divider>
         <el-form-item label="id" :label-width="formLabelWidth">
           <el-input :disabled="true" v-model="EditingNodeEntity.id" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="节点名" :label-width="formLabelWidth">
+        <el-form-item label="公司节点名" :label-width="formLabelWidth">
           <el-input v-model="EditingNodeEntity.name" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="节点填充颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.color" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingNodeEntity.color" class="colorPiker"></el-color-picker>
+        <el-form-item label="公司注册资本" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingNodeEntity.regAsset" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
-        <el-form-item label="节点边框颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.strokeColor" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingNodeEntity.strokeColor" class="colorPiker"></el-color-picker>
-        </el-form-item>
-        <el-form-item label="节点名颜色" :label-width="formLabelWidth">
-          <el-input :disabled="true" v-model="EditingNodeEntity.textColor" class="lineColor"></el-input>
-          <el-color-picker v-model="EditingNodeEntity.textColor" class="colorPiker"></el-color-picker>
-        </el-form-item>
-        <el-form-item label="节点名大小" :label-width="formLabelWidth">
-          <el-input-number v-model="EditingNodeEntity.textSize" class="withoutColor"></el-input-number>
-        </el-form-item>
-        <el-form-item label="节点半径" :label-width="formLabelWidth">
-          <el-input-number v-model="EditingNodeEntity.r" class="withoutColor"></el-input-number>
-        </el-form-item>
-        <el-form-item label="节点类型标签" :label-width="formLabelWidth">
+        <el-form-item label="董高监" :label-width="formLabelWidth">
           <el-tag
               type="info"
               effect="plain"
@@ -360,7 +349,29 @@
               @blur="handleTagInputConfirm"
           >
           </el-input>
-          <el-button v-else class="button-new-tag" size="small" @click="showTagInput">添加Tag</el-button>
+          <el-button v-else class="button-new-tag" size="small" @click="showTagInput">添加持股董高监</el-button>
+        </el-form-item>
+        <el-form-item label="是否国有" :label-width="formLabelWidth">
+          <el-switch v-model="EditingNodeEntity.stateOwned"></el-switch>
+        </el-form-item>
+        <el-divider class="form-divider" content-position="left">节点样式</el-divider>
+        <el-form-item label="节点填充颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingNodeEntity.color" class="lineColor"></el-input>
+          <el-color-picker v-model="EditingNodeEntity.color" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点边框颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingNodeEntity.strokeColor" class="lineColor"></el-input>
+          <el-color-picker v-model="EditingNodeEntity.strokeColor" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点名颜色" :label-width="formLabelWidth">
+          <el-input :disabled="true" v-model="EditingNodeEntity.textColor" class="lineColor"></el-input>
+          <el-color-picker v-model="EditingNodeEntity.textColor" class="colorPiker"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="节点名大小" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingNodeEntity.textSize" :min="0" class="withoutColor"></el-input-number>
+        </el-form-item>
+        <el-form-item label="节点半径" :label-width="formLabelWidth">
+          <el-input-number v-model="EditingNodeEntity.r" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -388,10 +399,10 @@
           <el-color-picker v-model="AddNodePrimitiveEntity.textColor" class="colorPiker"></el-color-picker>
         </el-form-item>
         <el-form-item label="节点名大小" :label-width="formLabelWidth">
-          <el-input-number v-model="AddNodePrimitiveEntity.textSize" class="withoutColor"></el-input-number>
+          <el-input-number v-model="AddNodePrimitiveEntity.textSize" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
         <el-form-item label="节点半径" :label-width="formLabelWidth">
-          <el-input-number v-model="AddNodePrimitiveEntity.r" class="withoutColor"></el-input-number>
+          <el-input-number v-model="AddNodePrimitiveEntity.r" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -414,7 +425,7 @@
           <el-color-picker v-model="AddLinkPrimitiveEntity.textColor" class="colorPiker"></el-color-picker>
         </el-form-item>
         <el-form-item label="联系名大小" :label-width="formLabelWidth">
-          <el-input-number v-model="AddLinkPrimitiveEntity.textSize" class="withoutColor"></el-input-number>
+          <el-input-number v-model="AddLinkPrimitiveEntity.textSize" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -422,9 +433,18 @@
         <el-button type="primary" @click="createLinkPrimitive">添加</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="风险值展示" :visible.sync="ShowRiskVisible">
+      <div class="risk-item">国有股比例： {{ RiskVO.stateOwnedRatio }}</div>
+      <div class="risk-item">入度： {{ RiskVO.inDegree }}</div>
+      <div class="risk-item">出度： {{ RiskVO.outDegree }}</div>
+      <div class="risk-item">注册资本/元：{{ RiskVO.regAsset }}</div>
+      <div class="risk-item">风险值： {{ RiskVO.risk }}</div>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="cancelShowRisk">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
-
 <script>
 import {Loading} from 'element-ui';
 import * as d3 from 'd3';
@@ -456,8 +476,7 @@ import {
   getNodePrimitiveAPI,
   getLinkPrimitiveAPI,
   uploadAPI,
-  getGraphByTextAPI,
-  getSingleGraphInfoAPI
+  getGraphByTextAPI, getSingleGraphInfoAPI, getSingleNodeRiskAPI
 } from '../api/KG.js';
 
 
@@ -569,6 +588,7 @@ export default {
         sourceId: '',
         targetId: '',
         name: '',
+        holdRatio: 0,
         color: '',
         textColor: '',
         textSize: 0,
@@ -576,12 +596,14 @@ export default {
       EditingNodeEntity: {
         id: 0,
         name: '',
+        regAsset: 0,
+        stateOwned: false,
+        tags: [],
         r: 0,
         color: '',
         strokeColor: '',
         textColor: '',
-        textSize: 0,
-        tags: []
+        textSize: 0
       },
       EditLinkDialogVisible: false,
       EditNodeDialogVisible: false,
@@ -593,6 +615,16 @@ export default {
       isEditingLink: false,
       txx: 0,
       tyy: 0,
+
+      ShowRiskVisible: false,
+      RiskVO: {
+        stateOwnedRatio: 0,
+        regAsset: 0,
+        inDegree: 0,
+        outDegree: 0,
+        risk: 0
+      },
+      RiskFormula: '',
 
       // 图容器
       graphContainer: {},
@@ -631,6 +663,7 @@ export default {
         {name: '编辑', value: 1, code: 'edit'},
         {name: '连线', value: 1, code: 'link'},
         {name: '删除', value: 1, code: 'delete'},
+        {name: '风险', value: 1, code: 'risk'},
       ],
       NodeButtonAction: '',
       // 正在选择的节点id
@@ -727,7 +760,7 @@ export default {
     ]),
     // 初始化知识图谱
     initGraph() {
-      let _this = this
+      let _this = this;
       if (_this.isGraphOpening) {
         _this.graph_name = _this.selectedKGName;
         let updateVO = getGraphAPI(_this.selectedKGId);
@@ -736,6 +769,7 @@ export default {
         for (let i = 0; i < updateVO.nodes.length; i++) {
           _this.NodeNameMap.set(updateVO.nodes[i].name, i);
         }
+        _this.getEchartsData()
         _this.updateGraph();
       } else if (_this.getFused) {
         _this.graph.nodes = _this.fusedGraph === undefined ? [] : _this.fusedGraph.nodes;
@@ -743,8 +777,11 @@ export default {
         for (let i = 0; i < _this.graph.nodes.length; i++) {
           _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
         }
-        this.set_isGraphOpening(true)
-        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+        _this.set_isGraphOpening(true);
+        _this.set_selectedKGId(_this.fusedGraph.graphId);
+        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
+        _this.getEchartsData()
+        _this.set_selectedKGName(_this.graph_name);
         _this.updateGraph();
       } else if (_this.getUploaded && !_this.getGraphNew && !_this.getTextUpload) {
         let file = _this.uploadedFile[0];
@@ -757,13 +794,15 @@ export default {
             let uploadData = uploadAPI(document);
             console.log(uploadData);
             _this.set_selectedKGId(uploadData.graphId);
-            this.set_isGraphOpening(true);
+            _this.set_isGraphOpening(true);
             _this.graph.nodes = uploadData.nodes;
             _this.graph.links = uploadData.links;
             for (let i = 0; i < _this.graph.nodes.length; i++) {
               _this.NodeNameMap.set(_this.graph.nodes[i].name, i);
             }
-            _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+            _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
+            _this.set_selectedKGName(_this.graph_name);
+            _this.getEchartsData()
             _this.updateGraph();
           } catch (err) {
             this.$message.error('Load JSON document from file error: ' + err.message);
@@ -780,7 +819,7 @@ export default {
             let uploadData = getGraphByTextAPI(document);
             console.log(uploadData);
             _this.set_selectedKGId(uploadData.graphId);
-            this.set_isGraphOpening(true);
+            _this.set_isGraphOpening(true);
             _this.graph.nodes = uploadData.nodes;
             _this.graph.links = uploadData.links;
             for (let i = 0; i < _this.graph.nodes.length; i++) {
@@ -793,8 +832,9 @@ export default {
           }
         }
       } else if (_this.getGraphNew) {
-        this.set_isGraphOpening(true);
-        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId)
+        _this.set_isGraphOpening(true);
+        _this.graph_name = getSingleGraphInfoAPI(_this.selectedKGId).name;
+        _this.set_selectedKGName(_this.graph_name);
         _this.updateGraph();
       }
     },
@@ -1046,6 +1086,8 @@ export default {
                 if (_this.graph.nodes[j].id === _this.SelectedNodeId) {
                   _this.EditingNodeEntity.id = _this.SelectedNodeId;
                   _this.EditingNodeEntity.name = _this.graph.nodes[j].name;
+                  _this.EditingNodeEntity.regAsset = _this.graph.nodes[j].regAsset;
+                  _this.EditingNodeEntity.stateOwned = _this.graph.nodes[j].stateOwned;
                   _this.EditingNodeEntity.color = _this.graph.nodes[j].color;
                   _this.EditingNodeEntity.textColor = _this.graph.nodes[j].textColor;
                   _this.EditingNodeEntity.strokeColor = _this.graph.nodes[j].strokeColor;
@@ -1070,6 +1112,20 @@ export default {
               let out_buttongroup_id = '.out_buttongroup_' + i;
               _this.deleteNode(out_buttongroup_id);
               break;
+            case "RISK":
+              let RiskData = getSingleNodeRiskAPI(d.id);
+              console.log(RiskData);
+              if (RiskData.success) {
+                _this.SelectedNodeId = d.id;
+                _this.RiskVO = $.extend({}, RiskData.content);
+                _this.ShowRiskVisible = true;
+              } else {
+                _this.$message({
+                  type: 'error',
+                  message: RiskData.content
+                })
+              }
+              break;
           }
         }
       })
@@ -1084,6 +1140,9 @@ export default {
       _this.svg.selectAll(".action_delete").on("click", function (d) {
         _this.NodeButtonAction = 'DELETE';
       });
+      _this.svg.selectAll(".action_risk").on("click", function (d) {
+        _this.NodeButtonAction = 'RISK';
+      });
 
       _this.svg.selectAll(".action_edit").on("mouseenter", function (d) {
         _this.svg.selectAll(".action_edit_path").style('fill', _this.DefaultButtonGroupActiveColor)
@@ -1094,6 +1153,9 @@ export default {
       _this.svg.selectAll(".action_delete").on("mouseenter", function (d) {
         _this.svg.selectAll(".action_delete_path").style('fill', _this.DefaultButtonGroupActiveColor)
       });
+      _this.svg.selectAll(".action_risk").on("mouseenter", function (d) {
+        _this.svg.selectAll(".action_risk_path").style('fill', _this.DefaultButtonGroupActiveColor)
+      });
 
       _this.svg.selectAll(".action_edit").on("mouseleave", function (d) {
         _this.svg.selectAll(".action_edit_path").style('fill', _this.DefaultButtonGroupColor)
@@ -1103,6 +1165,9 @@ export default {
       });
       _this.svg.selectAll(".action_delete").on("mouseleave", function (d) {
         _this.svg.selectAll(".action_delete_path").style('fill', _this.DefaultButtonGroupColor)
+      });
+      _this.svg.selectAll(".action_risk").on("mouseleave", function (d) {
+        _this.svg.selectAll(".action_risk_path").style('fill', _this.DefaultButtonGroupColor)
       });
     },
     // 建立实体，实体，关系三元组
@@ -1138,22 +1203,25 @@ export default {
         if (typeof (node.textSize) === 'undefined' || node.textSize === '') node.textSize = _this.DefaultNodeTextSize;
         if (typeof (node.r) === 'undefined' || node.r === '') node.r = _this.defaultR;
         if (typeof (node.tags) === 'undefined') node.tags = [];
+        if (typeof (node.regAsset) === 'undefined') node.regAsset = 0;
+        if (typeof (node.stateOwned) === 'undefined') node.stateOwned = false;
       })
-      let resLinks = []
+      let resLinks = [];
       links.forEach(function (link) {
-        if (typeof (link.id) === 'string') node.id = parseInt(link.id)
+        if (typeof (link.id) === 'string') node.id = parseInt(link.id);
         let sourceNode = nodes.filter(function (node) {
-          return node.id === link.sourceId
-        })[0]
-        if (!sourceNode) return
+          return node.id === link.sourceId;
+        })[0];
+        if (!sourceNode) return;
         let targetNode = nodes.filter(function (node) {
-          return node.id === link.targetId
-        })[0]
-        if (!targetNode) return
-        if (typeof (link.color) === 'undefined' || link.color === '') link.color = _this.DefaultLinkColor
-        if (typeof (link.textColor) === 'undefined' || link.textColor === '') link.textColor = _this.DefaultLinkTextColor
-        if (typeof (link.textSize) === 'undefined' || link.textSize === '') link.textSize = _this.DefaultLinkTextSize
-        resLinks.push({source: sourceNode.id, target: targetNode.id, lk: link})
+          return node.id === link.targetId;
+        })[0];
+        if (!targetNode) return;
+        if (typeof (link.color) === 'undefined' || link.color === '') link.color = _this.DefaultLinkColor;
+        if (typeof (link.textColor) === 'undefined' || link.textColor === '') link.textColor = _this.DefaultLinkTextColor;
+        if (typeof (link.textSize) === 'undefined' || link.textSize === '') link.textSize = _this.DefaultLinkTextSize;
+        if (typeof (link.holdRatio) === 'undefined') link.holdRatio = 0;
+        resLinks.push({source: sourceNode.id, target: targetNode.id, lk: link});
       })
       let data = {}
       data.nodes = nodes
@@ -1262,6 +1330,21 @@ export default {
           //   event.stopPropagation()
           //   return
           // }
+          for (let i = 0; i < _this.graph.links.length; i++) {
+            if (_this.SelectedSourceNodeId === _this.graph.links[i].sourceId &&
+                _this.SelectedTargetNodeId === _this.graph.links[i].targetId) {
+              d3.select('.grid').style("cursor", "");
+              _this.isAddingLink = false;
+              _this.isCancelOperationShow = false;
+              _this.cancelOperationMessage = '';
+              _this.$message({
+                type: 'error',
+                message: '连接出错：同源同目标只允许存在一条连接！'
+              });
+              event.stopPropagation();
+              return;
+            }
+          }
           d3.select('.grid').style("cursor", "");
           _this.isAddingLink = false
           _this.isCancelOperationShow = false
@@ -1538,18 +1621,19 @@ export default {
           })
 
       linkTextEnter.on('dblclick', function (d) {
-        _this.SelectedLinkId = d.lk.id
-        _this.isEditingLink = true
-        _this.EditingLinkEntity.name = d.lk.name
-        _this.EditingLinkEntity.id = d.lk.id
-        _this.EditingLinkEntity.sourceId = d.lk.sourceId
-        _this.EditingLinkEntity.targetId = d.lk.targetId
-        _this.EditingLinkEntity.color = d.lk.color
-        _this.EditingLinkEntity.textColor = d.lk.textColor
-        _this.EditingLinkEntity.textSize = d.lk.textSize
-        _this.EditLinkDialogVisible = true
+        _this.SelectedLinkId = d.lk.id;
+        _this.isEditingLink = true;
+        _this.EditingLinkEntity.name = d.lk.name;
+        _this.EditingLinkEntity.holdRatio = d.lk.holdRatio;
+        _this.EditingLinkEntity.id = d.lk.id;
+        _this.EditingLinkEntity.sourceId = d.lk.sourceId;
+        _this.EditingLinkEntity.targetId = d.lk.targetId;
+        _this.EditingLinkEntity.color = d.lk.color;
+        _this.EditingLinkEntity.textColor = d.lk.textColor;
+        _this.EditingLinkEntity.textSize = d.lk.textSize;
+        _this.EditLinkDialogVisible = true;
       })
-      linkText = linkTextEnter.merge(linkText)
+      linkText = linkTextEnter.merge(linkText);
 
       d3.selectAll('.link-text')
           .style('fill', function (d) {
@@ -1674,6 +1758,7 @@ export default {
         sourceId: '',
         targetId: '',
         name: '',
+        holdRatio: 0,
         r: 0,
         color: '',
         textColor: '',
@@ -1685,6 +1770,8 @@ export default {
       this.EditingNodeEntity = {
         id: 0,
         name: '',
+        regAsset: 0,
+        stateOwned: false,
         color: '',
         strokeColor: '',
         textColor: '',
@@ -1798,8 +1885,8 @@ export default {
       this.isCancelOperationShow = true
       d3.select('.grid').style("cursor", "crosshair")
     },
-    getRandom(num) {
-      return Math.floor(Math.random() * num * 10);
+    getRandom() {
+      return Math.floor(Math.random() * (this.graph.nodes.length + 1) * 50);
     },
     // 添加节点方法
     createNode() {
@@ -1843,11 +1930,13 @@ export default {
       newNode.r = _this.defaultR;
       newNode.textSize = _this.DefaultNodeTextSize;
       newNode.graphId = _this.selectedKGId;
-      newNode.id = createNodeAPI(newNode);
+      newNode.regAsset = 0;
+      newNode.stateOwned = false;
       while (true) {
-        newNode.name = '节点' + _this.getRandom(newNode.id);
+        newNode.name = '节点' + _this.getRandom();
         if (!_this.NodeNameMap.has(newNode.name)) break;
       }
+      newNode.id = createNodeAPI(newNode);
       _this.NodeNameMap.set(newNode.name, _this.graph.nodes.length);
       _this.graph.nodes.push(newNode);
       _this.updateGraph();
@@ -1894,63 +1983,68 @@ export default {
       })
     },
     createLink() {
-      let _this = this
-      let newShip = {}
+      let _this = this;
+      let newShip = {};
       let loadingInstance = Loading.service({fullscreen: true});
-      newShip.sourceId = _this.SelectedSourceNodeId
-      newShip.targetId = _this.SelectedTargetNodeId
-      newShip.name = '联系'
+      newShip.sourceId = _this.SelectedSourceNodeId;
+      newShip.targetId = _this.SelectedTargetNodeId;
+      newShip.name = '持股比例 ' + 0 + '%';
       newShip.textSize = _this.DefaultLinkTextSize;
-      newShip.id = createLinkAPI(newShip)
-      newShip.graphId = _this.selectedKGId
-      _this.graph.links.push(newShip)
-      _this.updateGraph()
-      _this.isAddingLink = false
+      newShip.holdRatio = 0;
+      newShip.graphId = _this.selectedKGId;
+      newShip.id = createLinkAPI(newShip);
+      _this.graph.links.push(newShip);
+      _this.updateGraph();
+      _this.isAddingLink = false;
       _this.SelectedSourceNodeId = 0;
       _this.SelectedTargetNodeId = 0;
       loadingInstance.close();
     },
     updateNodeInfo() {
-      let _this = this
+      let _this = this;
       let loadingInstance = Loading.service({fullscreen: true});
       for (let i = 0; i < _this.graph.nodes.length; i++) {
         if (_this.SelectedNodeId === _this.graph.nodes[i].id) {
-          _this.graph.nodes[i].name = _this.EditingNodeEntity.name
-          _this.graph.nodes[i].color = _this.EditingNodeEntity.color
-          _this.graph.nodes[i].textColor = _this.EditingNodeEntity.textColor
-          _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor
-          _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize
-          _this.graph.nodes[i].r = _this.EditingNodeEntity.r
-          _this.graph.nodes[i].tags = _this.EditingNodeEntity.tags
-          let nodeToUpdate = _this.graph.nodes[i]
-          updateNodeAPI(nodeToUpdate)
-          this.getEchartsData()
-          break
+          _this.graph.nodes[i].name = _this.EditingNodeEntity.name;
+          _this.graph.nodes[i].regAsset = _this.EditingNodeEntity.regAsset;
+          _this.graph.nodes[i].stateOwned = _this.EditingNodeEntity.stateOwned;
+          _this.graph.nodes[i].color = _this.EditingNodeEntity.color;
+          _this.graph.nodes[i].textColor = _this.EditingNodeEntity.textColor;
+          _this.graph.nodes[i].strokeColor = _this.EditingNodeEntity.strokeColor;
+          _this.graph.nodes[i].textSize = _this.EditingNodeEntity.textSize;
+          _this.graph.nodes[i].r = _this.EditingNodeEntity.r;
+          _this.graph.nodes[i].tags = _this.EditingNodeEntity.tags;
+          let nodeToUpdate = _this.graph.nodes[i];
+          updateNodeAPI(nodeToUpdate);
+          this.getEchartsData();
+          break;
         }
       }
-      _this.updateGraph()
+      _this.updateGraph();
       loadingInstance.close();
     },
     updateLinkInfo() {
-      let _this = this
+      let _this = this;
       let loadingInstance = Loading.service({fullscreen: true});
       for (let i = 0; i < _this.graph.links.length; i++) {
         if (_this.SelectedLinkId === _this.graph.links[i].id) {
-          _this.graph.links[i].name = _this.EditingLinkEntity.name
-          _this.graph.links[i].color = _this.EditingLinkEntity.color
-          _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor
-          _this.graph.links[i].textSize = _this.EditingLinkEntity.textSize
-          let linkToUpdate = _this.graph.links[i]
-          updateLinkAPI(linkToUpdate)
-          break
+          _this.graph.links[i].name = '持股比例 ' + _this.EditingLinkEntity.holdRatio + '%';
+          _this.graph.links[i].holdRatio = _this.EditingLinkEntity.holdRatio;
+          _this.graph.links[i].color = _this.EditingLinkEntity.color;
+          _this.graph.links[i].textColor = _this.EditingLinkEntity.textColor;
+          _this.graph.links[i].textSize = _this.EditingLinkEntity.textSize;
+          let linkToUpdate = _this.graph.links[i];
+          updateLinkAPI(linkToUpdate);
+          break;
         }
       }
-      _this.updateGraph()
+      _this.updateGraph();
       loadingInstance.close();
     },
     // 保存为图片
     exportImage() {
       d3.selectAll('.buttongroup').remove()
+
       var serializer = new XMLSerializer();
       var svg1 = document.getElementById('svg_index');
       var toExport = svg1.cloneNode(true);
@@ -2084,7 +2178,7 @@ export default {
         if (this.EditingNodeEntity.tags.indexOf(inputValue) !== -1) {
           this.$message({
             type: 'warning',
-            message: 'tag和已有tag重复！'
+            message: '持股董高监和已有持股董高监重复！'
           });
           return;
         }
@@ -2115,7 +2209,8 @@ export default {
         this.set_isGraphOpening(false);
         this.set_selectedKGId(-1);
         this.set_selectedKGName('');
-        location.reload();
+        this.$router.push({name: 'KGList'});
+        // location.reload();
       })
     },
     updateAllClick() {
@@ -2350,7 +2445,7 @@ export default {
       });
       this.charts.setOption({
         title: {
-          text: '节点Tag统计',
+          text: '持股人统计',
           x: 'center',
           textStyle: {
             fontSize: 10
@@ -2362,7 +2457,7 @@ export default {
         },
         series: [
           {
-            name: 'Tag对应节点数量',
+            name: '持股人统计',
             type: 'pie',
             label: {
               normal: {
@@ -2401,6 +2496,15 @@ export default {
         }]
       })
     },
+    cancelShowRisk() {
+      this.ShowRiskVisible = false;
+      this.SelectedNodeId = -1;
+      this.RiskVO.risk = 0;
+      this.RiskVO.inDegree = 0;
+      this.RiskVO.outDegree = 0;
+      this.RiskVO.regAsset = 0;
+      this.RiskVO.stateOwnedRatio = 0;
+    }
   }
 }
 </script>
@@ -2623,6 +2727,10 @@ li {
   float: left;
 }
 
+.form-divider {
+  line-height: 24px;
+}
+
 /* tag添加器样式 */
 .el-tag + .el-tag {
   margin-left: 10px;
@@ -2640,6 +2748,12 @@ li {
   width: 90px;
   margin-left: 10px;
   vertical-align: bottom;
+}
+
+/*risk*/
+.risk-item {
+  width: 75%;
+  font-size: 18px;
 }
 
 /*input文字居中显示*/

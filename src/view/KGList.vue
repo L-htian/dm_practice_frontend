@@ -13,15 +13,15 @@
         <el-button type="info">上传图谱</el-button>
       </el-upload>
       <el-button type="info" plain @click="deleteManyKGs">批量删除</el-button>
-      <el-upload
-          class="upload"
-          action="#"
-          :limit="1"
-          :on-change="getTextGraph"
-          accept=".txt"
-          :file-list="textFileList">
-        <el-button type="info" plain>文本构建</el-button>
-      </el-upload>
+<!--      <el-upload-->
+<!--          class="upload"-->
+<!--          action="#"-->
+<!--          :limit="1"-->
+<!--          :on-change="getTextGraph"-->
+<!--          accept=".txt"-->
+<!--          :file-list="textFileList">-->
+<!--        <el-button type="info" plain>文本构建</el-button>-->
+<!--      </el-upload>-->
       <el-button type="info" plain @click="getNewGraph">创建图谱</el-button>
       <el-button type="info" plain @click="fuseGraph">知识融合</el-button>
     </div>
@@ -46,7 +46,14 @@
               <h4 class="kg-name" style="color: #409eff" v-if="isGraphOpening && kg.id === selectedKGId">{{ kg.name }}
                 打开中</h4>
               <h4 class="kg-name" v-else>{{ kg.name }}</h4>
-              <div class="kg-description">{{ kg.description }}</div>
+              <div class="kg-description">{{ kg.description }}<br/>
+                <div style="color: rgba(0, 0, 0, .45);
+                            font-size: 12px;
+                            line-height: 24px;
+                            font-style: italic">
+                  最后编辑时间: {{ formatDate(kg.lastChange) }}
+                </div>
+              </div>
             </div>
           </div>
           <div class="kg-action">
@@ -162,6 +169,16 @@ export default {
       'set_fusedGraph',
       'set_getFused'
     ]),
+    formatDate(timestamp) {
+      let date = new Date(timestamp);
+      let YY = date.getFullYear() + '-';
+      let MM = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+      let DD = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate());
+      let hh = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+      let mm = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+      let ss = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+      return YY + MM + DD + " " + hh + mm + ss;
+    },
     getNewGraph() {
       this.set_getGraphNew(true);
       this.newGraph = createGraphAPI();
@@ -179,6 +196,13 @@ export default {
       this.$router.push({name: 'KGEditor'});
     },
     fuseGraph() {
+      if(this.isGraphOpening){
+        this.$message({
+          type: 'error',
+          message: '有图谱正在打开，请先关闭图谱再进行知识融合！'
+        });
+        return;
+      }
       let toBeMixed = [];
       for (let i = 0; i < this.KGs.length; i++) {
         if (this.KGs[i].isSelected) {
@@ -247,16 +271,16 @@ export default {
     },
     deleteManyKGs() {
       let _this = this;
+      if (_this.isGraphOpening) {
+        _this.$message({
+          type: 'error',
+          message: '有图谱正在打开，请先关闭图谱再进行删除操作！'
+        })
+        return;
+      }
       let toBeDeleted = [];
       for (let i = 0; i < this.KGs.length; i++) {
         if (_this.KGs[i].isSelected) {
-          if (_this.isGraphOpening && _this.selectedKGId === _this.KGs[i].id) {
-            _this.$message({
-              type: 'error',
-              message: '选中的图谱中有图谱正在打开，请先关闭该图谱！'
-            })
-            return;
-          }
           toBeDeleted.push(_this.KGs[i].id);
         }
       }
@@ -284,6 +308,7 @@ export default {
             type: 'success',
             message: '删除图谱成功'
           })
+          location.reload();
         }).catch(() => {
           _this.$message({
             type: 'info',
@@ -294,10 +319,10 @@ export default {
     },
     deleteKG(graphId) {
       let _this = this;
-      if (_this.isGraphOpening && _this.selectedKGId === graphId) {
+      if (_this.isGraphOpening) {
         _this.$message({
           type: 'error',
-          message: '该图谱正在打开，请先关闭该图谱！'
+          message: '有图谱正在打开，请先关闭图谱再进行删除操作！'
         })
       } else {
         _this.$confirm('该操作不可撤销', '将要删除该图谱，是否继续？', {
@@ -316,6 +341,7 @@ export default {
             type: 'success',
             message: '删除图谱成功'
           })
+          location.reload();
         }).catch(() => {
           _this.$message({
             type: 'info',
