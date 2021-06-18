@@ -325,7 +325,7 @@
         <el-form-item label="公司节点名" :label-width="formLabelWidth">
           <el-input v-model="EditingNodeEntity.name" class="withoutColor"></el-input>
         </el-form-item>
-        <el-form-item label="公司注册资本" :label-width="formLabelWidth">
+        <el-form-item label="公司资产" :label-width="formLabelWidth">
           <el-input-number v-model="EditingNodeEntity.regAsset" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
         <el-form-item label="董高监" :label-width="formLabelWidth">
@@ -435,10 +435,11 @@
     </el-dialog>
     <el-dialog title="风险值展示" :visible.sync="ShowRiskVisible">
       <div class="risk-item">国有股比例： {{ RiskVO.stateOwnedRatio }}</div>
+      <div class="risk-item">资产/元：{{ RiskVO.regAsset }}</div>
+      <div class="risk-item">中介中心性： {{ RiskVO.betweenness }}</div>
+      <div class="risk-item">紧密中心性： {{ RiskVO.closeness }}</div>
       <div class="risk-item">入度： {{ RiskVO.inDegree }}</div>
       <div class="risk-item">出度： {{ RiskVO.outDegree }}</div>
-      <div class="risk-item">注册资本/元：{{ RiskVO.regAsset }}</div>
-      <div class="risk-item">风险值： {{ RiskVO.risk }}</div>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="cancelShowRisk">确定</el-button>
       </div>
@@ -622,7 +623,8 @@ export default {
         regAsset: 0,
         inDegree: 0,
         outDegree: 0,
-        risk: 0
+        closeness: 0,
+        betweenness: 0
       },
       RiskFormula: '',
 
