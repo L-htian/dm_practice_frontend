@@ -328,7 +328,7 @@
         <el-form-item label="公司资产" :label-width="formLabelWidth">
           <el-input-number v-model="EditingNodeEntity.regAsset" :min="0" class="withoutColor"></el-input-number>
         </el-form-item>
-        <el-form-item label="董高监" :label-width="formLabelWidth">
+        <el-form-item label="行业" :label-width="formLabelWidth">
           <el-tag
               type="info"
               effect="plain"
@@ -349,7 +349,7 @@
               @blur="handleTagInputConfirm"
           >
           </el-input>
-          <el-button v-else class="button-new-tag" size="small" @click="showTagInput">添加持股董高监</el-button>
+          <el-button v-else class="button-new-tag" size="small" @click="showTagInput">添加行业</el-button>
         </el-form-item>
         <el-form-item label="是否国有" :label-width="formLabelWidth">
           <el-switch v-model="EditingNodeEntity.stateOwned"></el-switch>
@@ -2447,7 +2447,7 @@ export default {
       });
       this.charts.setOption({
         title: {
-          text: '持股人统计',
+          text: '行业统计',
           x: 'center',
           textStyle: {
             fontSize: 10
@@ -2459,7 +2459,7 @@ export default {
         },
         series: [
           {
-            name: '持股人统计',
+            name: '行业统计',
             type: 'pie',
             label: {
               normal: {
